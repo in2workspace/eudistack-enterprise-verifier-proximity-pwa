@@ -1,0 +1,7 @@
+{
+  "name": "KPMG Validator",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

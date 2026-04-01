@@ -1,0 +1,30 @@
+{
+  "branding": {
+    "name": "KPMG",
+    "primaryColor": "#00338D",
+    "primaryContrastColor": "#ffffff",
+    "secondaryColor": "#0091DA",
+    "secondaryContrastColor": "#ffffff",
+    "logoUrl": "assets/logos/kpmg-logo.svg",
+    "logoDarkUrl": "assets/logos/kpmg-logo-dark.svg",
+    "faviconUrl": "assets/icons/kpmg-favicon.png",
+    "pwaIconUrl": "assets/icons/pwa-kpmg-512.png"
+  },
+  "content": {
+    "links": [
+      {
+        "title": "Privacy Policy",
+        "url": "https://kpmg.com/privacy"
+      },
+      {
+        "title": "Terms of Service",
+        "url": "https://kpmg.com/terms"
+      }
+    ],
+    "footer": "© 2026 KPMG. All rights reserved."
+  },
+  "i18n": {
+    "defaultLang": "en",
+    "available": ["en", "es", "ca"]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-03-31T00:00:00Z",
+  "trustedIssuers": [
+    {
+      "issuer_id": "did:key:z6MkhaXgBZDvotDvLHKmsZL6L2Y4QQxX3Aw3nMkbQZDU8WKz",
+      "name": "EUDI Demo Issuer",
+      "jwks_uri": "https://issuer.eudistack.com/.well-known/jwks.json",
+      "logo_url": "https://issuer.eudistack.com/logo.png",
+      "is_eidas": false,
+      "scope": ["LEARCredentialEmployee", "DIDCredential"],
+      "active": true,
+      "since": "2026-01-01T00:00:00Z"
+    },
+    {
+      "issuer_id": "did:web:issuer.eudistack.com",
+      "name": "EUDIStack Production Issuer",
+      "jwks_uri": "https://issuer.eudistack.com/.well-known/jwks.json",
+      "logo_url": "https://issuer.eudistack.com/logo.png",
+      "is_eidas": false,
+      "scope": ["LEARCredentialEmployee", "DIDCredential"],
+      "active": true,
+      "since": "2026-01-01T00:00:00Z"
+    }
+  ]
+}
