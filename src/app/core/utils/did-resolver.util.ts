@@ -211,14 +211,18 @@ export class DidResolver {
       // For did:key, we need to decode the multibase key to JWK
       // This is a simplified implementation - in production use a proper multibase/multicodec library
       const publicKeyJwk = await this.decodeDidKeyToJwk();
-      const publicKey = await importJWK(publicKeyJwk, 'ES256');
+      const importedKey = await importJWK(publicKeyJwk, 'ES256');
+      
+      if (!(importedKey instanceof CryptoKey)) {
+        throw new DidResolutionError('Failed to import public key as CryptoKey');
+      }
 
       return {
         did,
         didDocument,
         verificationMethod,
         publicKeyJwk,
-        publicKey,
+        publicKey: importedKey,
         resolvedAt: new Date().toISOString()
       };
     } catch (error) {
@@ -282,14 +286,18 @@ export class DidResolver {
       // Extract first verification method
       const verificationMethod = this.extractVerificationMethod(didDocument);
       const publicKeyJwk = this.extractPublicKeyJwk(verificationMethod);
-      const publicKey = await importJWK(publicKeyJwk);
+      const importedKey = await importJWK(publicKeyJwk);
+      
+      if (!(importedKey instanceof CryptoKey)) {
+        throw new DidResolutionError('Failed to import public key as CryptoKey');
+      }
 
       return {
         did,
         didDocument,
         verificationMethod,
         publicKeyJwk,
-        publicKey,
+        publicKey: importedKey,
         resolvedAt: new Date().toISOString()
       };
     } catch (error) {
@@ -347,14 +355,18 @@ export class DidResolver {
       // Extract verification method and public key
       const verificationMethod = this.extractVerificationMethod(didDocument);
       const publicKeyJwk = this.extractPublicKeyJwk(verificationMethod);
-      const publicKey = await importJWK(publicKeyJwk);
+      const importedKey = await importJWK(publicKeyJwk);
+      
+      if (!(importedKey instanceof CryptoKey)) {
+        throw new DidResolutionError('Failed to import public key as CryptoKey');
+      }
 
       return {
         did,
         didDocument,
         verificationMethod,
         publicKeyJwk,
-        publicKey,
+        publicKey: importedKey,
         resolvedAt: new Date().toISOString()
       };
     } catch (error) {

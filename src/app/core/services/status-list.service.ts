@@ -262,9 +262,8 @@ export class StatusListService {
     credentialIndex: number
   ): Promise<StatusListEntry | null> {
     try {
-      const key = `${statusListUrl}:${credentialIndex}`;
       const entry = await firstValueFrom(
-        this.storage.getStatusListEntry(key)
+        this.storage.getStatusListEntry(statusListUrl, credentialIndex)
       );
       return entry;
     } catch (error) {

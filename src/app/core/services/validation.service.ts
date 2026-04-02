@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, from, of, firstValueFrom } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { decodeJwt, jwtVerify, JWTPayload } from 'jose';
 import { CryptoService } from './crypto.service';
 import { TrustFrameworkService } from './trust-framework.service';
@@ -44,31 +44,26 @@ export class ValidationService {
    * 
    * Complete validation pipeline for VP and contained VC.
    * 
+   * @param sessionId - Session ID
    * @param vpToken - VP JWT token
    * @param expectedNonce - Expected nonce from authorization request
    * @param verifierPublicKey - Verifier's public key (CryptoKey)
    * @returns Observable<ValidatedPresentation>
    */
   public validatePresentation(
+    sessionId: string,
     vpToken: string,
     expectedNonce: string,
     verifierPublicKey: CryptoKey
   ): Observable<ValidatedPresentation> {
-    const startTime = Date.now();
-
-    return from(this.validatePresentationAsync(vpToken, expectedNonce, verifierPublicKey)).pipe(
-      map(result => ({
-        ...result,
-        validatedAt: new Date().toISOString(),
-        validationDurationMs: Date.now() - startTime
-      })),
+    return from(this.validatePresentationAsync(sessionId, vpToken, expectedNonce, verifierPublicKey)).pipe(
       catchError(error => {
         console.error('[Validation] Presentation validation failed:', error);
         
-        return of({
+        return of(this.buildValidationResult(
+          sessionId,
           vpToken,
-          validationResult: {
-            isValid: false,
+          {
             vpSignatureValid: false,
             vcSignatureValid: false,
             trustValid: false,
@@ -76,12 +71,12 @@ export class ValidationService {
             errors: [{
               code: ValidationErrorCode.UNKNOWN_ERROR,
               message: `Validation error: ${error.message}`,
-              details: error
-            }]
-          },
-          validatedAt: new Date().toISOString(),
-          validationDurationMs: Date.now() - startTime
-        });
+              details: { error: error.toString() }
+            }],
+            vpPayload: undefined,
+            vcPayload: null
+          }
+        ));
       })
     );
   }
@@ -89,12 +84,14 @@ export class ValidationService {
   /**
    * Validate presentation (async implementation)
    * 
+   * @param sessionId - Session ID
    * @param vpToken - VP JWT token
    * @param expectedNonce - Expected nonce
    * @param verifierPublicKey - Verifier public key
    * @returns Promise<ValidatedPresentation>
    */
   private async validatePresentationAsync(
+    sessionId: string,
     vpToken: string,
     expectedNonce: string,
     verifierPublicKey: CryptoKey
@@ -114,15 +111,17 @@ export class ValidationService {
       errors.push({
         code: ValidationErrorCode.INVALID_JWT_FORMAT,
         message: 'Failed to decode VP JWT',
-        details: error
+        details: { error: String(error) }
       });
 
-      return this.buildValidationResult(vpToken, {
+      return this.buildValidationResult(sessionId, vpToken, {
         vpSignatureValid: false,
         vcSignatureValid: false,
         trustValid: false,
         statusValid: false,
-        errors
+        errors,
+        vpPayload: undefined,
+        vcPayload: null
       });
     }
 
@@ -136,7 +135,7 @@ export class ValidationService {
       errors.push({
         code: ValidationErrorCode.INVALID_VP_SIGNATURE,
         message: 'VP signature verification failed',
-        details: error
+        details: { error: String(error) }
       });
     }
 
@@ -155,10 +154,10 @@ export class ValidationService {
       errors.push({
         code: ValidationErrorCode.INVALID_VC_STRUCTURE,
         message: 'Failed to extract VC from VP',
-        details: error
+        details: { error: String(error) }
       });
 
-      return this.buildValidationResult(vpToken, {
+      return this.buildValidationResult(sessionId, vpToken, {
         vpSignatureValid,
         vcSignatureValid: false,
         trustValid: false,
@@ -191,13 +190,13 @@ export class ValidationService {
         errors.push({
           code: ValidationErrorCode.DID_RESOLUTION_FAILED,
           message: 'Failed to resolve issuer DID',
-          details: error
+          details: { error: error.message, cause: String(error.cause) }
         });
       } else {
         errors.push({
           code: ValidationErrorCode.INVALID_VC_SIGNATURE,
           message: 'VC signature verification failed',
-          details: error
+          details: { error: String(error) }
         });
       }
     }
@@ -209,24 +208,32 @@ export class ValidationService {
     // Step 7: Check issuer trust
     try {
       const issuerDid = vcPayload.iss;
-      const isTrusted = await firstValueFrom(
-        this.trustFramework.isTrustedIssuer(issuerDid)
-      );
-
-      if (isTrusted) {
-        trustValid = true;
-      } else {
+      if (!issuerDid) {
         errors.push({
-          code: ValidationErrorCode.UNTRUSTED_ISSUER,
-          message: `Issuer ${issuerDid} is not in the trust framework`,
-          details: { issuerDid }
+          code: ValidationErrorCode.INVALID_VC_STRUCTURE,
+          message: 'Missing issuer DID in VC',
+          details: {}
         });
+      } else {
+        const isTrusted = await firstValueFrom(
+          this.trustFramework.isTrustedIssuer(issuerDid)
+        );
+
+        if (isTrusted) {
+          trustValid = true;
+        } else {
+          errors.push({
+            code: ValidationErrorCode.UNTRUSTED_ISSUER,
+            message: `Issuer ${issuerDid} is not in the trust framework`,
+            details: { issuerDid }
+          });
+        }
       }
     } catch (error) {
       errors.push({
         code: ValidationErrorCode.TRUST_CHECK_FAILED,
         message: 'Failed to check issuer trust',
-        details: error
+        details: { error: String(error) }
       });
     }
 
@@ -240,7 +247,11 @@ export class ValidationService {
         errors.push({
           code: ValidationErrorCode.CREDENTIAL_REVOKED,
           message: 'Credential has been revoked',
-          details: statusResult
+          details: {
+            statusListUrl: statusResult.statusListUrl || '',
+            credentialIndex: statusResult.credentialIndex !== null ? statusResult.credentialIndex : -1,
+            message: statusResult.message
+          }
         });
         statusValid = false;
       } else if (statusResult.checked) {
@@ -255,7 +266,7 @@ export class ValidationService {
       statusValid = true; // Graceful handling
     }
 
-    return this.buildValidationResult(vpToken, {
+    return this.buildValidationResult(sessionId, vpToken, {
       vpSignatureValid,
       vcSignatureValid,
       trustValid,
@@ -398,11 +409,13 @@ export class ValidationService {
   /**
    * Build validation result
    * 
+   * @param sessionId - Session ID
    * @param vpToken - VP token
    * @param validationData - Validation data
    * @returns ValidatedPresentation
    */
   private buildValidationResult(
+    sessionId: string,
     vpToken: string,
     validationData: {
       vpSignatureValid: boolean;
@@ -414,7 +427,7 @@ export class ValidationService {
       vcPayload?: VcPayload | null;
     }
   ): ValidatedPresentation {
-    const { vpSignatureValid, vcSignatureValid, trustValid, statusValid, errors, vpPayload, vcPayload } = validationData;
+    const { vpSignatureValid, vcSignatureValid, trustValid, statusValid, errors, vpPayload } = validationData;
 
     const isValid = 
       vpSignatureValid &&
@@ -423,19 +436,92 @@ export class ValidationService {
       statusValid &&
       errors.length === 0;
 
+    // Extract VCs from VP
+    const vcs: string[] = vpPayload?.vp?.verifiableCredential || [];
+
     return {
+      sessionId,
       vpToken,
-      vpPayload,
-      vcPayload: vcPayload ?? undefined,
+      vp: {
+        iss: vpPayload?.iss || '',
+        aud: typeof vpPayload?.aud === 'string' ? vpPayload.aud : (Array.isArray(vpPayload?.aud) ? vpPayload.aud[0] : ''),
+        iat: vpPayload?.iat || Math.floor(Date.now() / 1000),
+        exp: vpPayload?.exp,
+        nbf: vpPayload?.nbf,
+        jti: vpPayload?.jti,
+        nonce: vpPayload?.nonce || '',
+        vp: {
+          '@context': Array.isArray(vpPayload?.vp?.['@context']) 
+            ? vpPayload.vp['@context'] 
+            : vpPayload?.vp?.['@context'] ? [vpPayload.vp['@context'] as string] : [],
+          type: Array.isArray(vpPayload?.vp?.type) 
+            ? vpPayload.vp.type 
+            : vpPayload?.vp?.type ? [vpPayload.vp.type as string] : [],
+          verifiableCredential: vpPayload?.vp?.verifiableCredential || []
+        }
+      },
+      verifiableCredentials: vcs.map(vcToken => {
+        try {
+          const decoded = decodeJwt(vcToken) as VcPayload;
+          const credSubject = decoded.vc?.credentialSubject || {};
+          const credStatus = decoded.vc?.credentialStatus;
+          return {
+            iss: decoded.iss || '',
+            sub: decoded.sub || '',
+            iat: decoded.iat || Math.floor(Date.now() / 1000),
+            exp: decoded.exp,
+            nbf: decoded.nbf,
+            jti: decoded.jti,
+            vc: {
+              '@context': Array.isArray(decoded.vc?.['@context']) 
+                ? decoded.vc['@context'] 
+                : decoded.vc?.['@context'] ? [decoded.vc['@context'] as string] : [],
+              type: Array.isArray(decoded.vc?.type) 
+                ? decoded.vc.type 
+                : decoded.vc?.type ? [decoded.vc.type as string] : [],
+              credentialSubject: {
+                id: (credSubject as Record<string, unknown>)['id'] as string || decoded.sub || '',
+                ...credSubject
+              },
+              credentialStatus: credStatus ? {
+                id: decoded.jti || '',
+                type: credStatus.type,
+                statusPurpose: 'revocation',
+                statusListIndex: credStatus.statusListIndex,
+                statusListCredential: credStatus.statusListCredential
+              } : undefined
+            }
+          };
+        } catch {
+          // Return minimal structure if decode fails
+          return {
+            iss: '',
+            sub: '',
+            iat: Math.floor(Date.now() / 1000),
+            vc: {
+              '@context': [],
+              type: [],
+              credentialSubject: {
+                id: ''
+              }
+            }
+          };
+        }
+      }),
       validationResult: {
         isValid,
-        vpSignatureValid,
+        vpValid: vpSignatureValid,
         vcSignatureValid,
         trustValid,
         statusValid,
-        errors
+        nonceValid: true, // TODO: track separately
+        timestampValid: true, // TODO: track separately
+        identityMatchValid: true, // TODO: track separately
+        errors,
+        validatedAt: new Date().toISOString(),
+        processingTimeMs: 0 // Will be calculated by caller
       },
-      validatedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString()
     };
   }
 }
@@ -487,5 +573,5 @@ class ValidationError extends Error {
 interface ValidationErrorInfo {
   code: ValidationErrorCode;
   message: string;
-  details?: unknown;
+  details?: Record<string, unknown>;
 }
