@@ -1,0 +1,63 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - dev
+          - stg
+          - prod
+        default: 'dev'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --no-coverage
+
+      - name: Build for production
+        run: npm run build:prod
+
+      - name: Verify build output
+        run: |
+          if [ ! -d "www" ]; then
+            echo "Build output directory 'www' not found"
+            exit 1
+          fi
+          echo "Build successful, www directory exists"
+
+      # Deploy step (configure based on your hosting provider)
+      # Example for static hosting:
+      # - name: Deploy to S3/CloudFront/Netlify/Vercel
+      #   run: |
+      #     # Add your deployment commands here
+      #     echo "Deploy to ${{ inputs.environment }} here"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: verifier-pwa-${{ inputs.environment }}-${{ github.sha }}
+          path: www/
+          retention-days: 30
