@@ -49,12 +49,28 @@ describe('StorageService', () => {
       lastUpdated: new Date().toISOString()
     };
 
-    it('should save trusted issuer', (done) => {
+    it('should save new trusted issuer', (done) => {
+      mockDbService.getByKey.mockResolvedValue(undefined); // Issuer doesn't exist
       mockDbService.add.mockResolvedValue(1);
 
       service.saveTrustedIssuer(mockIssuer).subscribe(issuer => {
         expect(issuer).toEqual(mockIssuer);
+        expect(mockDbService.getByKey).toHaveBeenCalled();
         expect(mockDbService.add).toHaveBeenCalled();
+        expect(mockDbService.update).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('should update existing trusted issuer (upsert)', (done) => {
+      mockDbService.getByKey.mockResolvedValue(mockIssuer); // Issuer exists
+      mockDbService.update.mockResolvedValue([mockIssuer]);
+
+      service.saveTrustedIssuer(mockIssuer).subscribe(issuer => {
+        expect(issuer).toEqual(mockIssuer);
+        expect(mockDbService.getByKey).toHaveBeenCalled();
+        expect(mockDbService.update).toHaveBeenCalled();
+        expect(mockDbService.add).not.toHaveBeenCalled();
         done();
       });
     });
@@ -92,6 +108,43 @@ describe('StorageService', () => {
 
       service.clearTrustFramework().subscribe(result => {
         expect(result).toBe(true);
+        done();
+      });
+    });
+  });
+
+  describe('Status List Cache Operations', () => {
+    const mockStatusEntry = {
+      statusListUrl: 'https://issuer.example.com/status/1',
+      credentialIndex: 42,
+      isRevoked: false,
+      lastCheckedAt: new Date().toISOString(),
+      cacheTtlSeconds: 300
+    };
+
+    it('should save new status list entry', (done) => {
+      mockDbService.getByKey.mockResolvedValue(undefined); // Entry doesn't exist
+      mockDbService.add.mockResolvedValue(1);
+
+      service.saveStatusListEntry(mockStatusEntry).subscribe(entry => {
+        expect(entry).toEqual(mockStatusEntry);
+        expect(mockDbService.getByKey).toHaveBeenCalled();
+        expect(mockDbService.add).toHaveBeenCalled();
+        expect(mockDbService.update).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('should update existing status list entry (upsert)', (done) => {
+      const existingEntry = { ...mockStatusEntry, id: 'test-id' };
+      mockDbService.getByKey.mockResolvedValue(existingEntry); // Entry exists
+      mockDbService.update.mockResolvedValue([existingEntry]);
+
+      service.saveStatusListEntry(mockStatusEntry).subscribe(entry => {
+        expect(entry).toEqual(mockStatusEntry);
+        expect(mockDbService.getByKey).toHaveBeenCalled();
+        expect(mockDbService.update).toHaveBeenCalled();
+        expect(mockDbService.add).not.toHaveBeenCalled();
         done();
       });
     });

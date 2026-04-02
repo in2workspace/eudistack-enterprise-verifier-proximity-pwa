@@ -5,7 +5,7 @@ import * as jose from 'jose';
  * Crypto Service
  * 
  * Wrapper for Web Crypto API providing cryptographic operations.
- * Supports ES256, EdDSA, and ECDSA algorithms.
+ * Supports ES256 and EdDSA algorithms.
  * 
  * Key operations:
  * - Generate ephemeral keypairs
@@ -20,8 +20,8 @@ import * as jose from 'jose';
   providedIn: 'root'
 })
 export class CryptoService {
-  // Supported algorithms
-  private readonly SUPPORTED_ALGORITHMS = ['ES256', 'EdDSA', 'ES384', 'ES512'] as const;
+  // Supported algorithms (ES256 and EdDSA only)
+  private readonly SUPPORTED_ALGORITHMS = ['ES256', 'EdDSA'] as const;
   
   // Default algorithm
   private readonly DEFAULT_ALGORITHM = 'ES256';

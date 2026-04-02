@@ -123,8 +123,13 @@ describe('CryptoService', () => {
 
   describe('Algorithm Support', () => {
     it('should check if algorithm is supported', () => {
+      // Supported algorithms
       expect(service.isAlgorithmSupported('ES256')).toBe(true);
       expect(service.isAlgorithmSupported('EdDSA')).toBe(true);
+      
+      // Unsupported algorithms
+      expect(service.isAlgorithmSupported('ES384')).toBe(false);
+      expect(service.isAlgorithmSupported('ES512')).toBe(false);
       expect(service.isAlgorithmSupported('RS256')).toBe(false);
       expect(service.isAlgorithmSupported('HS256')).toBe(false);
     });
@@ -134,7 +139,7 @@ describe('CryptoService', () => {
       
       expect(algorithms).toContain('ES256');
       expect(algorithms).toContain('EdDSA');
-      expect(algorithms.length).toBeGreaterThan(0);
+      expect(algorithms.length).toBe(2);
     });
   });
 });

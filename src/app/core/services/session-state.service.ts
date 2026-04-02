@@ -69,10 +69,13 @@ export class SessionStateService implements OnDestroy {
       // Generate random nonce
       const nonce = this.cryptoService.generateNonce();
 
+      // Get timeout duration
+      const timeoutSeconds = options.timeoutSeconds ?? this.SESSION_TIMEOUT_SECONDS;
+
       // Create timestamps
       const createdAt = new Date().toISOString();
       const expiresAt = new Date(
-        Date.now() + this.SESSION_TIMEOUT_SECONDS * 1000
+        Date.now() + timeoutSeconds * 1000
       ).toISOString();
 
       // Build authorization request payload
@@ -90,7 +93,7 @@ export class SessionStateService implements OnDestroy {
         nonce: nonce,
         state: this.cryptoService.generateState(),
         iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + this.SESSION_TIMEOUT_SECONDS
+        exp: Math.floor(Date.now() / 1000) + timeoutSeconds
       };
 
       // Sign authorization request (JAR)
@@ -115,7 +118,7 @@ export class SessionStateService implements OnDestroy {
       this.sessionSubject$.next(session);
 
       // Start timeout timer
-      this.startSessionTimer(sessionId);
+      this.startSessionTimer(sessionId, timeoutSeconds);
 
       return session;
     } catch (error) {
@@ -264,9 +267,10 @@ export class SessionStateService implements OnDestroy {
    * Start session timeout timer
    * 
    * @param sessionId Session ID to monitor
+   * @param timeoutSeconds Timeout duration in seconds
    */
-  private startSessionTimer(sessionId: string): void {
-    const timeoutMs = this.SESSION_TIMEOUT_SECONDS * 1000;
+  private startSessionTimer(sessionId: string, timeoutSeconds: number): void {
+    const timeoutMs = timeoutSeconds * 1000;
 
     timer(timeoutMs)
       .pipe(takeUntil(this.cancelTimer$))
@@ -283,7 +287,7 @@ export class SessionStateService implements OnDestroy {
           // Emit expiration event
           this.sessionExpiredSubject$.next(sessionId);
 
-          console.log(`Session ${sessionId} expired after ${this.SESSION_TIMEOUT_SECONDS}s`);
+          console.log(`Session ${sessionId} expired after ${timeoutSeconds}s`);
         }
       });
   }

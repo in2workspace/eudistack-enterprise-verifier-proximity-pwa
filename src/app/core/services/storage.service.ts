@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NgxIndexedDBService, ObjectStoreMeta } from 'ngx-indexed-db';
 import { Observable, from, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { TrustedIssuer } from '../models/trusted-issuer.model';
 import { ValidatedPresentation } from '../models/validated-presentation.model';
 import { StatusListEntry } from '../models/status-list-entry.model';
@@ -42,8 +42,15 @@ export class StorageService {
    */
   public saveTrustedIssuer(issuer: TrustedIssuer): Observable<TrustedIssuer> {
     return from(
-      this.dbService.add(this.TRUST_FRAMEWORK_STORE, issuer)
+      this.dbService.getByKey<TrustedIssuer>(this.TRUST_FRAMEWORK_STORE, issuer.issuerId)
     ).pipe(
+      switchMap(existingIssuer => {
+        if (existingIssuer) {
+          return from(this.dbService.update(this.TRUST_FRAMEWORK_STORE, issuer));
+        } else {
+          return from(this.dbService.add(this.TRUST_FRAMEWORK_STORE, issuer));
+        }
+      }),
       map(() => issuer),
       catchError(error => {
         console.error('Error saving trusted issuer:', error);
@@ -209,15 +216,31 @@ export class StorageService {
   // ============================================================
 
   /**
-   * Save status list entry to cache
+   * Save or update status list entry to cache (upsert)
+   * 
+   * Uses update if entry exists, add if new.
+   * This allows cache refreshes without errors.
    */
   public saveStatusListEntry(entry: StatusListEntry): Observable<StatusListEntry> {
     const key = `${entry.statusListUrl}:${entry.credentialIndex}`;
     const entryWithKey = { ...entry, id: key };
     
     return from(
-      this.dbService.add(this.STATUS_LIST_CACHE_STORE, entryWithKey)
+      this.dbService.getByKey<StatusListEntry>(this.STATUS_LIST_CACHE_STORE, key)
     ).pipe(
+      switchMap(existingEntry => {
+        if (existingEntry) {
+          // Entry exists, update it
+          return from(
+            this.dbService.update(this.STATUS_LIST_CACHE_STORE, entryWithKey)
+          );
+        } else {
+          // Entry doesn't exist, add it
+          return from(
+            this.dbService.add(this.STATUS_LIST_CACHE_STORE, entryWithKey)
+          );
+        }
+      }),
       map(() => entry),
       catchError(error => {
         console.error('Error saving status list entry:', error);
@@ -285,7 +308,7 @@ export class StorageService {
    * Check if IndexedDB is available
    */
   public isAvailable(): boolean {
-    return 'indexedDB' in window;
+    return typeof window !== 'undefined' && 'indexedDB' in window;
   }
 
   /**
