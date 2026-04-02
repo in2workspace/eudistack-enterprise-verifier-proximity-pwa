@@ -1,4 +1,4 @@
-import { importProvidersFrom, isDevMode } from '@angular/core';
+import { importProvidersFrom, isDevMode, APP_INITIALIZER } from '@angular/core';
 import { provideServiceWorker } from '@angular/service-worker';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { RouteReuseStrategy, provideRouter } from '@angular/router';
@@ -9,6 +9,7 @@ import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 import { IonicStorageModule } from '@ionic/storage-angular';
 import { DB_CONFIG } from './app/core/services/storage.service';
+import { TrustFrameworkService } from './app/core/services/trust-framework.service';
 
 // IndexedDB configuration
 const dbConfig: DBConfig = {
@@ -16,6 +17,19 @@ const dbConfig: DBConfig = {
   version: 1,
   objectStoresMeta: DB_CONFIG
 };
+
+/**
+ * Initialize Trust Framework on app startup
+ * 
+ * Loads trusted issuers from JSON and syncs to IndexedDB
+ */
+function initializeTrustFramework(trustFramework: TrustFrameworkService): () => Promise<void> {
+  return () => trustFramework.loadTrustFramework().catch(error => {
+    console.error('Failed to initialize trust framework:', error);
+    // Don't block app startup on trust framework failure
+    return Promise.resolve();
+  });
+}
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -27,6 +41,12 @@ bootstrapApplication(AppComponent, {
     importProvidersFrom(IonicStorageModule.forRoot()),
     importProvidersFrom(NgxIndexedDBModule.forRoot(dbConfig)),
     provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeTrustFramework,
+      deps: [TrustFrameworkService],
+      multi: true
+    },
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
