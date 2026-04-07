@@ -23,6 +23,11 @@ export interface TrustedIssuer {
   name: string;
 
   /**
+   * Issuer description
+   */
+  description?: string;
+
+  /**
    * Issuer's JWKS URI for public key retrieval
    * Optional if using DID-based resolution
    */
@@ -50,10 +55,21 @@ export interface TrustedIssuer {
   credentialTypes: string[];
 
   /**
-   * Trust level (1-3)
-   * 1 = Low (testing), 2 = Medium (pilot), 3 = High (production)
+   * Whether this is an eIDAS-compliant issuer
    */
-  trustLevel: 1 | 2 | 3;
+  isEidas: boolean;
+
+  /**
+   * Supported cryptographic algorithms
+   */
+  supportedAlgorithms?: string[];
+
+  /**
+   * Trust level (1-5)
+   * 1 = Low (testing), 2 = Medium (pilot), 3 = High (production qualified),
+   * 4 = Very High (government), 5 = Maximum (eIDAS)
+   */
+  trustLevel: 1 | 2 | 3 | 4 | 5;
 
   /**
    * Issuer status

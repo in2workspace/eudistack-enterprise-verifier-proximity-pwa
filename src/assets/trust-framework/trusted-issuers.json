@@ -1,26 +1,99 @@
 {
-  "version": "1.0",
-  "lastUpdated": "2026-03-31T00:00:00Z",
+  "version": "1.0.0",
+  "lastUpdated": "2026-04-07T00:00:00Z",
+  "description": "Trust Framework for KPMG Verifier - List of trusted credential issuers",
+  "_comment": "NOTE: Issuers with did:key are currently NOT SUPPORTED (multibase/multicodec not yet implemented). Use did:web or did:elsi issuers for production validation.",
   "trustedIssuers": [
     {
-      "issuer_id": "did:key:z6MkhaXgBZDvotDvLHKmsZL6L2Y4QQxX3Aw3nMkbQZDU8WKz",
+      "issuerId": "did:key:z6MkhaXgBZDvotDvLHKmsZL6L2Y4QQxX3Aw3nMkbQZDU8WKz",
       "name": "EUDI Demo Issuer",
-      "jwks_uri": "https://issuer.eudistack.com/.well-known/jwks.json",
-      "logo_url": "https://issuer.eudistack.com/logo.png",
-      "is_eidas": false,
-      "scope": ["LEARCredentialEmployee", "DIDCredential"],
-      "active": true,
-      "since": "2026-01-01T00:00:00Z"
+      "description": "Official EUDI Stack demo credential issuer",
+      "_status_comment": "TEMPORARILY UNSUPPORTED - did:key resolution not implemented yet",
+      "credentialTypes": ["LEARCredentialEmployee", "VerifiableId", "VerifiableAttestation"],
+      "trustLevel": 3,
+      "status": "suspended",
+      "jwksUri": "https://issuer.eudistack.com/.well-known/jwks.json",
+      "logoUrl": "https://issuer.eudistack.com/assets/logo.png",
+      "isEidas": false,
+      "supportedAlgorithms": ["ES256", "EdDSA"],
+      "lastUpdated": "2026-04-02T00:00:00Z"
     },
     {
-      "issuer_id": "did:web:issuer.eudistack.com",
-      "name": "EUDIStack Production Issuer",
-      "jwks_uri": "https://issuer.eudistack.com/.well-known/jwks.json",
-      "logo_url": "https://issuer.eudistack.com/logo.png",
-      "is_eidas": false,
-      "scope": ["LEARCredentialEmployee", "DIDCredential"],
-      "active": true,
-      "since": "2026-01-01T00:00:00Z"
+      "issuerId": "did:web:issuer.eudistack.com",
+      "name": "EUDI Stack Production Issuer",
+      "description": "Production credential issuer for EUDI Stack",
+      "credentialTypes": ["LEARCredentialEmployee", "LEARCredentialAdmin", "OrganizationCredential"],
+      "trustLevel": 5,
+      "status": "active",
+      "jwksUri": "https://issuer.eudistack.com/.well-known/jwks.json",
+      "logoUrl": "https://issuer.eudistack.com/assets/logo.png",
+      "isEidas": true,
+      "supportedAlgorithms": ["ES256", "ES384"],
+      "lastUpdated": "2026-04-02T00:00:00Z"
+    },
+    {
+      "issuerId": "did:elsi:VATES-A12345678",
+      "name": "Spanish Government eIDAS Node",
+      "description": "Official Spanish eIDAS credential issuer",
+      "credentialTypes": ["VerifiableId", "NationalIdCard", "ResidencePermit"],
+      "trustLevel": 5,
+      "status": "active",
+      "jwksUri": "https://eidas.redsara.es/.well-known/jwks.json",
+      "logoUrl": "https://eidas.redsara.es/assets/spain-logo.png",
+      "isEidas": true,
+      "supportedAlgorithms": ["ES256", "RS256"],
+      "lastUpdated": "2026-04-02T00:00:00Z"
+    },
+    {
+      "issuerId": "did:key:z6MkrfRbLvNZn5tgopZKjPMqT5XqYMnTHqvHKJD8wWoFqGkZ",
+      "name": "KPMG Test Issuer",
+      "description": "KPMG internal test issuer for POC demonstrations",
+      "_status_comment": "TEMPORARILY UNSUPPORTED - did:key resolution not implemented yet",
+      "credentialTypes": ["EmployeeCredential", "ContractorCredential"],
+      "trustLevel": 2,
+      "status": "suspended",
+      "jwksUri": "https://kpmg-issuer-test.example.com/.well-known/jwks.json",
+      "logoUrl": "https://kpmg-issuer-test.example.com/assets/kpmg-logo.png",
+      "isEidas": false,
+      "supportedAlgorithms": ["ES256", "EdDSA"],
+      "lastUpdated": "2026-04-02T00:00:00Z"
+    },
+    {
+      "issuerId": "did:web:university.example.edu",
+      "name": "Example University",
+      "description": "Educational credential issuer for academic qualifications",
+      "credentialTypes": ["UniversityDegreeCredential", "DiplomaCredential", "TranscriptCredential"],
+      "trustLevel": 4,
+      "status": "active",
+      "jwksUri": "https://university.example.edu/.well-known/jwks.json",
+      "logoUrl": "https://university.example.edu/assets/logo.png",
+      "isEidas": false,
+      "supportedAlgorithms": ["ES256", "EdDSA"],
+      "lastUpdated": "2026-04-02T00:00:00Z"
+    },
+    {
+      "issuerId": "did:key:z6MkpTHR8VNsB2RMqJHzLNTRExAmphkQdXhzJzVPLWqZbqkK",
+      "name": "Revoked Issuer (Test)",
+      "description": "Issuer marked as revoked for testing purposes",
+      "_status_comment": "REVOKED + did:key not supported",
+      "credentialTypes": ["TestCredential"],
+      "trustLevel": 1,
+      "status": "revoked",
+      "jwksUri": "https://revoked-issuer.example.com/.well-known/jwks.json",
+      "logoUrl": "https://revoked-issuer.example.com/assets/logo.png",
+      "isEidas": false,
+      "supportedAlgorithms": ["ES256"],
+      "lastUpdated": "2026-03-15T00:00:00Z"
     }
-  ]
+  ],
+  "metadata": {
+    "totalIssuers": 6,
+    "activeIssuers": 3,
+    "suspendedIssuers": 2,
+    "revokedIssuers": 1,
+    "eidasIssuers": 2,
+    "supportedMethods": ["did:web", "did:elsi"],
+    "unsupportedMethods": ["did:key"],
+    "_note": "did:key support pending multibase/multicodec implementation"
+  }
 }

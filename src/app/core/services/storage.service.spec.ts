@@ -46,6 +46,7 @@ describe('StorageService', () => {
       credentialTypes: ['EmployeeCredential'],
       trustLevel: 3,
       status: IssuerStatus.ACTIVE,
+      isEidas: false,
       lastUpdated: new Date().toISOString()
     };
 

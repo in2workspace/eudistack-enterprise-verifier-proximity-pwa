@@ -96,14 +96,20 @@ export enum ValidationErrorCode {
   // VP errors
   INVALID_VP_SIGNATURE = 'invalid_vp_signature',
   INVALID_VP_FORMAT = 'invalid_vp_format',
+  INVALID_VP_STRUCTURE = 'invalid_vp_structure',
+  INVALID_JWT_FORMAT = 'invalid_jwt_format',
 
   // VC errors
   INVALID_VC_SIGNATURE = 'invalid_vc_signature',
   INVALID_VC_FORMAT = 'invalid_vc_format',
+  INVALID_VC_STRUCTURE = 'invalid_vc_structure',
 
   // Trust framework errors
   ISSUER_NOT_TRUSTED = 'issuer_not_trusted',
   ISSUER_NOT_RESOLVED = 'issuer_not_resolved',
+  UNTRUSTED_ISSUER = 'untrusted_issuer',
+  TRUST_CHECK_FAILED = 'trust_check_failed',
+  DID_RESOLUTION_FAILED = 'did_resolution_failed',
 
   // Status errors
   CREDENTIAL_REVOKED = 'credential_revoked',
@@ -116,6 +122,7 @@ export enum ValidationErrorCode {
   // Timestamp errors
   TOKEN_EXPIRED = 'token_expired',
   TOKEN_NOT_YET_VALID = 'token_not_yet_valid',
+  INVALID_TIMESTAMP = 'invalid_timestamp',
 
   // Identity errors
   IDENTITY_MISMATCH = 'identity_mismatch',

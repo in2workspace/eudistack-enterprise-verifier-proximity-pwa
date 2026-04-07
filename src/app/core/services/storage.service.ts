@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { NgxIndexedDBService, ObjectStoreMeta } from 'ngx-indexed-db';
 import { Observable, from, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
@@ -26,12 +26,13 @@ export class StorageService {
   private readonly DB_NAME = 'verifier_db';
   private readonly DB_VERSION = 1;
 
+  // Dependencies
+  private readonly dbService = inject(NgxIndexedDBService);
+  
   // Object store names
   private readonly TRUST_FRAMEWORK_STORE = 'trust_framework';
   private readonly VALIDATION_LOGS_STORE = 'validation_logs';
   private readonly STATUS_LIST_CACHE_STORE = 'status_list_cache';
-
-  public constructor(private dbService: NgxIndexedDBService) {}
 
   // ============================================================
   // Trust Framework Operations
