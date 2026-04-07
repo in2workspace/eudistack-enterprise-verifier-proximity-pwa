@@ -9,6 +9,20 @@
       "scanInstruction": "Escaneja aquest codi QR amb la teva Wallet EUDI",
       "expired": "Codi QR caducat",
       "regenerate": "Generar nou codi"
+    },
+    "validation": {
+      "title": "Validant Credencial",
+      "validating": "Validant...",
+      "checks": {
+        "vpSignature": "Signatura VP vàlida",
+        "vcSignature": "Signatura VC LEARCredentialEmployee vàlida",
+        "trustedIssuer": "Emissor de confiança",
+        "notRevoked": "No revocada"
+      },
+      "buttons": {
+        "ok": "Acceptar",
+        "retry": "Reintentar"
+      }
     }
   }
 }

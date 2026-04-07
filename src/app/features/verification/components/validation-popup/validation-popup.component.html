@@ -1,0 +1,56 @@
+<ion-modal [isOpen]="isOpen()" [backdropDismiss]="false" class="validation-popup-modal">
+  <ng-template>
+    <div class="validation-popup">
+      <!-- Header -->
+      <div class="validation-popup__header">
+        <h2>{{ 'verification.validation.title' | translate }}</h2>
+      </div>
+
+      <!-- Validation Checks -->
+      <div class="validation-popup__checks">
+        @for (check of checks(); track check.key) {
+          <div 
+            class="validation-check"
+            [class.validation-check--pending]="check.status === 'pending'"
+            [class.validation-check--validating]="check.status === 'validating'"
+            [class.validation-check--success]="check.status === 'success'"
+            [class.validation-check--error]="check.status === 'error'"
+          >
+            <ion-icon 
+              [name]="getIconName(check.status)" 
+              [color]="getIconColor(check.status)"
+              [class.spinning]="check.status === 'validating'"
+            ></ion-icon>
+            <span class="validation-check__label">
+              {{ check.label | translate }}
+            </span>
+          </div>
+        }
+      </div>
+
+      <!-- Validating Message -->
+      @if (isValidating()) {
+        <div class="validation-popup__status validation-popup__status--validating">
+          <ion-spinner name="crescent"></ion-spinner>
+          <p>{{ 'verification.validation.validating' | translate }}</p>
+        </div>
+      }
+
+      <!-- Action Buttons -->
+      @if (!isValidating()) {
+        <div class="validation-popup__actions">
+          @if (allSuccess()) {
+            <ion-button expand="block" color="success" (click)="onOkClick()">
+              {{ 'verification.validation.buttons.ok' | translate }}
+            </ion-button>
+          }
+          @if (hasError()) {
+            <ion-button expand="block" color="danger" (click)="onRetryClick()">
+              {{ 'verification.validation.buttons.retry' | translate }}
+            </ion-button>
+          }
+        </div>
+      }
+    </div>
+  </ng-template>
+</ion-modal>

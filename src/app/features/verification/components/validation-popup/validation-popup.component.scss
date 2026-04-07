@@ -1,0 +1,245 @@
+.validation-popup-modal {
+  --width: 90%;
+  --max-width: 500px;
+  --height: auto;
+  --border-radius: 16px;
+
+  ion-modal {
+    --backdrop-opacity: 0.6;
+  }
+}
+
+.validation-popup {
+  padding: 24px;
+  background: var(--ion-background-color, #fff);
+
+  &__header {
+    text-align: center;
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--ion-text-color);
+    }
+  }
+
+  &__checks {
+    margin-bottom: 24px;
+  }
+
+  &__status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+
+    ion-spinner {
+      --color: var(--ion-color-primary);
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: var(--ion-color-medium);
+    }
+
+    &--validating {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.validation-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ion-color-light);
+  transition: all 0.3s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  ion-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+  }
+
+  &__label {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--ion-text-color);
+    transition: color 0.3s ease;
+  }
+
+  // ── Status-specific styles ──
+
+  &--pending {
+    opacity: 0.5;
+
+    ion-icon {
+      opacity: 0.4;
+    }
+  }
+
+  &--validating {
+    opacity: 1;
+    background: rgba(var(--ion-color-primary-rgb), 0.05);
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 8px;
+    animation: highlight 1s ease;
+
+    .validation-check__label {
+      font-weight: 500;
+    }
+  }
+
+  &--success {
+    opacity: 1;
+    animation: checkSuccess 0.5s ease;
+
+    ion-icon {
+      animation: bounceIn 0.5s ease;
+    }
+  }
+
+  &--error {
+    opacity: 1;
+    animation: checkError 0.5s ease;
+
+    ion-icon {
+      animation: shakeX 0.5s ease;
+    }
+
+    .validation-check__label {
+      color: var(--ion-color-danger);
+      font-weight: 500;
+    }
+  }
+}
+
+// ── Animations ──
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes highlight {
+  0% {
+    background: rgba(var(--ion-color-primary-rgb), 0);
+  }
+  50% {
+    background: rgba(var(--ion-color-primary-rgb), 0.1);
+  }
+  100% {
+    background: rgba(var(--ion-color-primary-rgb), 0.05);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes checkSuccess {
+  0% {
+    background: rgba(var(--ion-color-success-rgb), 0);
+  }
+  50% {
+    background: rgba(var(--ion-color-success-rgb), 0.1);
+  }
+  100% {
+    background: rgba(var(--ion-color-success-rgb), 0);
+  }
+}
+
+@keyframes shakeX {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes checkError {
+  0% {
+    background: rgba(var(--ion-color-danger-rgb), 0);
+  }
+  50% {
+    background: rgba(var(--ion-color-danger-rgb), 0.1);
+  }
+  100% {
+    background: rgba(var(--ion-color-danger-rgb), 0.05);
+  }
+}
+
+// ── Responsive ──
+
+@media (max-width: 576px) {
+  .validation-popup-modal {
+    --width: 95%;
+  }
+
+  .validation-popup {
+    padding: 16px;
+
+    &__header h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .validation-check {
+    padding: 10px 0;
+
+    ion-icon {
+      font-size: 20px;
+    }
+
+    &__label {
+      font-size: 0.8125rem;
+    }
+  }
+}

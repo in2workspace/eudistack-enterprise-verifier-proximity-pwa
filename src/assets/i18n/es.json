@@ -9,6 +9,20 @@
       "scanInstruction": "Escanea este código QR con tu Wallet EUDI",
       "expired": "Código QR expirado",
       "regenerate": "Generar nuevo código"
+    },
+    "validation": {
+      "title": "Validando Credencial",
+      "validating": "Validando...",
+      "checks": {
+        "vpSignature": "Firma VP válida",
+        "vcSignature": "Firma VC LEARCredentialEmployee válida",
+        "trustedIssuer": "Emisor confiable",
+        "notRevoked": "No revocada"
+      },
+      "buttons": {
+        "ok": "Aceptar",
+        "retry": "Reintentar"
+      }
     }
   }
 }

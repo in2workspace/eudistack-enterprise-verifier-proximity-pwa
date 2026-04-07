@@ -9,6 +9,20 @@
       "scanInstruction": "Scan this QR code with your EUDI Wallet",
       "expired": "QR code expired",
       "regenerate": "Generate new code"
+    },
+    "validation": {
+      "title": "Validating Credential",
+      "validating": "Validating...",
+      "checks": {
+        "vpSignature": "VP signature valid",
+        "vcSignature": "VC LEARCredentialEmployee signature valid",
+        "trustedIssuer": "Trusted issuer",
+        "notRevoked": "Not revoked"
+      },
+      "buttons": {
+        "ok": "OK",
+        "retry": "Retry"
+      }
     }
   }
 }
