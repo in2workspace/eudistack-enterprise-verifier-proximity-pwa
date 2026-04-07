@@ -1,8 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, of, firstValueFrom } from 'rxjs';
+import { Observable, of, firstValueFrom } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { TrustedIssuer, IssuerStatus } from '../models/trusted-issuer.model';
+import { TrustFrameworkJson, TrustFrameworkMetadata } from '../models/trust-framework-config.model';
+import { TrustFrameworkError } from '../errors/trust-framework.error';
 import { StorageService } from './storage.service';
 
 /**
@@ -31,18 +34,19 @@ import { StorageService } from './storage.service';
 export class TrustFrameworkService {
   private readonly TRUST_FRAMEWORK_PATH = '/assets/trust-framework/trusted-issuers.json';
   
-  // Trust framework loaded state
-  private loadedSubject$ = new BehaviorSubject<boolean>(false);
-  public readonly loaded$ = this.loadedSubject$.asObservable();
+  // Dependencies
+  private readonly http = inject(HttpClient);
+  private readonly storage = inject(StorageService);
+  
+  // Trust framework loaded state (signal)
+  private readonly loadedSignal = signal<boolean>(false);
+  public readonly loaded$ = toObservable(this.loadedSignal);
+  public readonly isLoaded = computed(() => this.loadedSignal());
 
-  // Trust framework metadata
-  private metadataSubject$ = new BehaviorSubject<TrustFrameworkMetadata | null>(null);
-  public readonly metadata$ = this.metadataSubject$.asObservable();
-
-  public constructor(
-    private http: HttpClient,
-    private storage: StorageService
-  ) {}
+  // Trust framework metadata (signal)
+  private readonly metadataSignal = signal<TrustFrameworkMetadata | null>(null);
+  public readonly metadata$ = toObservable(this.metadataSignal);
+  public readonly metadata = computed(() => this.metadataSignal());
 
   /**
    * Load trust framework from JSON file
@@ -74,7 +78,7 @@ export class TrustFrameworkService {
       await Promise.all(savePromises);
 
       // Update metadata
-      this.metadataSubject$.next({
+      this.metadataSignal.set({
         version: trustFramework.version,
         lastUpdated: trustFramework.lastUpdated,
         totalIssuers: trustFramework.metadata?.totalIssuers ?? trustFramework.trustedIssuers.length,
@@ -85,12 +89,12 @@ export class TrustFrameworkService {
       });
 
       // Mark as loaded
-      this.loadedSubject$.next(true);
+      this.loadedSignal.set(true);
 
       console.log('[TrustFramework] Trust framework loaded successfully');
     } catch (error) {
       console.error('[TrustFramework] Failed to load trust framework:', error);
-      this.loadedSubject$.next(false);
+      this.loadedSignal.set(false);
       throw new TrustFrameworkError('Failed to load trust framework', error);
     }
   }
@@ -202,21 +206,13 @@ export class TrustFrameworkService {
   }
 
   /**
-   * Check if trust framework is loaded
-   * 
-   * @returns boolean
-   */
-  public isLoaded(): boolean {
-    return this.loadedSubject$.value;
-  }
-
-  /**
    * Get trust framework metadata
    * 
    * @returns TrustFrameworkMetadata | null
+   * @deprecated Use metadata() signal instead
    */
   public getMetadata(): TrustFrameworkMetadata | null {
-    return this.metadataSubject$.value;
+    return this.metadataSignal();
   }
 
   /**
@@ -229,7 +225,7 @@ export class TrustFrameworkService {
    */
   public async refreshTrustFramework(): Promise<void> {
     console.log('[TrustFramework] Refreshing trust framework...');
-    this.loadedSubject$.next(false);
+    this.loadedSignal.set(false);
     await this.loadTrustFramework();
   }
 
@@ -239,51 +235,10 @@ export class TrustFrameworkService {
    * @throws {TrustFrameworkError} If trust framework is not loaded
    */
   private ensureLoaded(): void {
-    if (!this.loadedSubject$.value) {
+    if (!this.loadedSignal()) {
       throw new TrustFrameworkError(
         'Trust framework not loaded. Call loadTrustFramework() first.'
       );
     }
-  }
-}
-
-/**
- * Trust Framework JSON structure
- */
-interface TrustFrameworkJson {
-  version: string;
-  lastUpdated: string;
-  description?: string;
-  trustedIssuers: TrustedIssuer[];
-  metadata?: {
-    totalIssuers: number;
-    activeIssuers: number;
-    revokedIssuers?: number;
-    eidasIssuers: number;
-    supportedMethods?: string[];
-  };
-}
-
-/**
- * Trust Framework Metadata
- */
-export interface TrustFrameworkMetadata {
-  version: string;
-  lastUpdated: string;
-  totalIssuers: number;
-  activeIssuers: number;
-  eidasIssuers: number;
-}
-
-/**
- * Trust Framework Error
- */
-export class TrustFrameworkError extends Error {
-  public constructor(
-    message: string,
-    public readonly cause?: unknown
-  ) {
-    super(message);
-    this.name = 'TrustFrameworkError';
   }
 }

@@ -13,6 +13,7 @@ export * from './validated-presentation.model';
 
 // Trust framework models
 export * from './trusted-issuer.model';
+export * from './trust-framework-config.model';
 
 // Status list models
 export * from './status-list-entry.model';

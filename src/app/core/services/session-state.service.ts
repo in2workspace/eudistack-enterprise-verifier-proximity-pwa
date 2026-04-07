@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { BehaviorSubject, Observable, timer, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,6 +24,9 @@ import { CryptoService } from './crypto.service';
   providedIn: 'root'
 })
 export class SessionStateService implements OnDestroy {
+  // Dependencies
+  private readonly cryptoService = inject(CryptoService);
+  
   // Session timeout in seconds (default: 120s)
   private readonly SESSION_TIMEOUT_SECONDS = 120;
 
@@ -35,8 +38,6 @@ export class SessionStateService implements OnDestroy {
 
   // Timer cancellation
   private cancelTimer$ = new Subject<void>();
-
-  public constructor(private cryptoService: CryptoService) {}
 
   /**
    * Create a new verification session

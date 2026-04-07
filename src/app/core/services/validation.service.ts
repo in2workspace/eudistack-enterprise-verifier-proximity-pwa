@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, from, of, firstValueFrom } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { decodeJwt, jwtVerify, JWTPayload } from 'jose';
@@ -31,13 +31,12 @@ import { ValidatedPresentation } from '../models/validated-presentation.model';
   providedIn: 'root'
 })
 export class ValidationService {
+  // Dependencies
+  private readonly cryptoService = inject(CryptoService);
+  private readonly trustFramework = inject(TrustFrameworkService);
+  private readonly statusList = inject(StatusListService);
+  
   private readonly didResolver = new DidResolver();
-
-  public constructor(
-    private cryptoService: CryptoService,
-    private trustFramework: TrustFrameworkService,
-    private statusList: StatusListService
-  ) {}
 
   /**
    * Validate Verifiable Presentation

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, from, firstValueFrom } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
@@ -29,10 +29,9 @@ import { StatusListEntry } from '../models/status-list-entry.model';
 export class StatusListService {
   private static readonly CACHE_TTL_SECONDS = 300; // 5 minutes
 
-  public constructor(
-    private http: HttpClient,
-    private storage: StorageService
-  ) {}
+  // Dependencies
+  private readonly http = inject(HttpClient);
+  private readonly storage = inject(StorageService);
 
   /**
    * Check if a credential is revoked
