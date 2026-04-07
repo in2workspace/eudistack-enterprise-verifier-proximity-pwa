@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, from, firstValueFrom } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 import { gunzipSync } from 'fflate';
 import { StorageService } from './storage.service';
 import { StatusListEntry } from '../models/status-list-entry.model';
