@@ -69,7 +69,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "v${{ env.VERSION }}" \
-            --title "KPMG Verifier PWA v${{ env.VERSION }}" \
+            --title "Enterprise Verifier PWA v${{ env.VERSION }}" \
             --notes-file release-notes.md \
             --target main \
             www/

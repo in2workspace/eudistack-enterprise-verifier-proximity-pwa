@@ -1,4 +1,4 @@
-# Contributing to KPMG Verifier PWA
+# Contributing to Enterprise Proximity Verifier PWA
 
 Thank you for your interest in contributing! This document outlines our development practices aligned with EUDIStack standards.
 
@@ -34,8 +34,8 @@ Thank you for your interest in contributing! This document outlines our developm
 ### Initial Setup
 
 ```bash
-git clone https://github.com/in2workspace/eudistack-verifier-pwa-kpmg.git
-cd eudistack-verifier-pwa-kpmg
+git clone https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa.git
+cd eudistack-enterprise-verifier-proximity-pwa
 npm install
 npm start  # http://localhost:8100
 ```

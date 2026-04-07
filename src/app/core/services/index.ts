@@ -1,5 +1,5 @@
 /**
- * Core services for KPMG Verifier PWA
+ * Core services for Enterprise Proximity Verifier PWA
  * 
  * Barrel export for all service modules
  */
@@ -10,3 +10,4 @@ export * from './session-state.service';
 export * from './trust-framework.service';
 export * from './status-list.service';
 export * from './validation.service';
+export * from './theme.service';

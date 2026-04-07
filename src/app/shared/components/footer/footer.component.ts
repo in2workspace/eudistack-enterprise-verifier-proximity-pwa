@@ -31,13 +31,13 @@ export class FooterComponent {
   readonly legalLinks = [
     {
       label: 'Política de Privacidad',
-      url: 'https://kpmg.com/privacy',
-      external: true
+      url: '/privacy',
+      external: false
     },
     {
       label: 'Términos de Uso',
-      url: 'https://kpmg.com/terms',
-      external: true
+      url: '/terms',
+      external: false
     }
   ];
 

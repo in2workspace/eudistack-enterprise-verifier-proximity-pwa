@@ -1,10 +1,10 @@
-# KPMG Verifier PWA
+# Enterprise Proximity Verifier PWA
 
-> **100% PWA standalone** — Credential verifier compliant with OID4VP 1.0, DCQL, and HAIP 1.0 for KPMG access control.
+> **100% PWA standalone** — Credential verifier compliant with OID4VP 1.0, DCQL, and HAIP 1.0 for enterprise proximity verification.
 
 ## Overview
 
-KPMG Verifier PWA is a **100% browser-based Progressive Web Application** that validates employee credentials presented by the EUDI Wallet. All cryptographic validation, trust framework checks, and revocation verification happen **locally in the browser** using Web Crypto API.
+Enterprise Proximity Verifier PWA is a **100% browser-based Progressive Web Application** that validates employee credentials presented by EUDI Wallets. All cryptographic validation, trust framework checks, and revocation verification happen **locally in the browser** using Web Crypto API.
 
 **Key principle**: Zero backend infrastructure — all validation logic runs client-side.
 

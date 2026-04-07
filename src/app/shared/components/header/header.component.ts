@@ -4,13 +4,13 @@ import { IonicModule } from '@ionic/angular';
 /**
  * Header Component
  * 
- * Global header with KPMG branding.
+ * Global header with organization branding (configurable via theme.json).
  * 
  * Features:
- * - KPMG logo
+ * - Organization logo (configurable)
  * - Application title
  * - Responsive design (desktop + tablet + mobile)
- * - Ionic toolbar with KPMG brand colors
+ * - Ionic toolbar with brand colors from theme
  * 
  * @component
  * @standalone

@@ -1,27 +1,27 @@
 {
   "branding": {
-    "name": "KPMG",
-    "primaryColor": "#00338D",
+    "name": "Enterprise Verifier",
+    "primaryColor": "#2563EB",
     "primaryContrastColor": "#ffffff",
-    "secondaryColor": "#0091DA",
+    "secondaryColor": "#10B981",
     "secondaryContrastColor": "#ffffff",
-    "logoUrl": "assets/logos/kpmg-logo.svg",
-    "logoDarkUrl": "assets/logos/kpmg-logo-dark.svg",
-    "faviconUrl": "assets/icons/kpmg-favicon.png",
-    "pwaIconUrl": "assets/icons/pwa-kpmg-512.png"
+    "logoUrl": "assets/images/logo-white.svg",
+    "logoDarkUrl": "assets/images/logo-dark.svg",
+    "faviconUrl": "assets/icons/favicon.png",
+    "pwaIconUrl": "assets/icons/pwa-512x512.png"
   },
   "content": {
     "links": [
       {
         "title": "Privacy Policy",
-        "url": "https://kpmg.com/privacy"
+        "url": "/privacy"
       },
       {
         "title": "Terms of Service",
-        "url": "https://kpmg.com/terms"
+        "url": "/terms"
       }
     ],
-    "footer": "© 2026 KPMG. All rights reserved."
+    "footer": "© {year} {brandName}. All rights reserved."
   },
   "i18n": {
     "defaultLang": "en",
