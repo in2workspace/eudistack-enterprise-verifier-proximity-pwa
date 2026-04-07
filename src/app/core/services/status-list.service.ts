@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, from, firstValueFrom } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
+import { gunzipSync } from 'fflate';
 import { StorageService } from './storage.service';
 import { StatusListEntry } from '../models/status-list-entry.model';
 
@@ -143,12 +144,12 @@ export class StatusListService {
         'Accept': 'application/vc+ld+json, application/json'
       }
     }).pipe(
-      map(statusListCredential => {
+      switchMap(async statusListCredential => {
         // Extract bitstring from status list credential
         const bitstring = this.extractBitstring(statusListCredential);
 
-        // Check if credential is revoked
-        const isRevoked = this.checkBit(bitstring, credentialIndex);
+        // Check if credential is revoked (async due to decompression)
+        const isRevoked = await this.checkBit(bitstring, credentialIndex);
 
         // Cache result
         this.cacheStatus(statusListUrl, credentialIndex, isRevoked);
@@ -194,25 +195,35 @@ export class StatusListService {
   /**
    * Check if a bit is set in the bitstring
    * 
-   * @param bitstring - Base64url encoded bitstring
+   * Per W3C Bitstring Status List spec, encodedList is:
+   * 1. A bitstring
+   * 2. GZIP-compressed
+   * 3. Base64url-encoded
+   * 
+   * So we must: base64url decode → GZIP decompress → check bit
+   * 
+   * @param bitstring - Base64url encoded, GZIP-compressed bitstring
    * @param index - Index to check
-   * @returns true if bit is set (revoked), false otherwise
+   * @returns Promise<boolean> - true if bit is set (revoked), false otherwise
    */
-  private checkBit(bitstring: string, index: number): boolean {
+  private async checkBit(bitstring: string, index: number): Promise<boolean> {
     try {
-      // Decode base64url to binary
-      const decoded = this.base64UrlDecode(bitstring);
+      // Step 1: Decode base64url to binary (compressed bytes)
+      const compressedBytes = this.base64UrlDecode(bitstring);
 
-      // Calculate byte and bit position
+      // Step 2: GZIP decompress to get the actual bitstring
+      const decompressed = await this.decompressGzip(compressedBytes);
+
+      // Step 3: Calculate byte and bit position
       const byteIndex = Math.floor(index / 8);
       const bitIndex = index % 8;
 
-      if (byteIndex >= decoded.length) {
-        throw new StatusListError(`Index ${index} out of bounds for bitstring length ${decoded.length * 8}`);
+      if (byteIndex >= decompressed.length) {
+        throw new StatusListError(`Index ${index} out of bounds for bitstring length ${decompressed.length * 8}`);
       }
 
-      // Check if bit is set
-      const byte = decoded[byteIndex];
+      // Step 4: Check if bit is set
+      const byte = decompressed[byteIndex];
       const bitMask = 1 << (7 - bitIndex); // MSB first
       const isSet = (byte & bitMask) !== 0;
 
@@ -248,6 +259,65 @@ export class StatusListService {
     }
 
     return bytes;
+  }
+
+  /**
+   * Decompress GZIP-compressed data
+   * 
+   * Uses browser's DecompressionStream API when available (modern browsers),
+   * falls back to fflate library for Node.js/test environments.
+   * 
+   * @param compressedData - GZIP-compressed bytes
+   * @returns Promise<Uint8Array> - Decompressed bytes
+   */
+  private async decompressGzip(compressedData: Uint8Array): Promise<Uint8Array> {
+    try {
+      // Try browser's native DecompressionStream API first (more efficient)
+      if (typeof DecompressionStream !== 'undefined') {
+        // Create a ReadableStream from the compressed data
+        const stream = new ReadableStream({
+          start(controller) {
+            controller.enqueue(compressedData);
+            controller.close();
+          }
+        });
+
+        // Pipe through decompression stream
+        const decompressedStream = stream.pipeThrough(
+          new DecompressionStream('gzip')
+        );
+
+        // Read all chunks from the decompressed stream
+        const reader = decompressedStream.getReader();
+        const chunks: Uint8Array[] = [];
+        let totalLength = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          
+          chunks.push(value);
+          totalLength += value.length;
+        }
+
+        // Concatenate all chunks into a single Uint8Array
+        const result = new Uint8Array(totalLength);
+        let offset = 0;
+        for (const chunk of chunks) {
+          result.set(chunk, offset);
+          offset += chunk.length;
+        }
+
+        return result;
+      } else {
+        // Fallback to fflate library (Node.js/test environments)
+        console.log('[StatusList] Using fflate for GZIP decompression (DecompressionStream not available)');
+        return gunzipSync(compressedData);
+      }
+    } catch (error) {
+      console.error('[StatusList] GZIP decompression failed:', error);
+      throw new StatusListError('Failed to decompress GZIP data', error);
+    }
   }
 
   /**

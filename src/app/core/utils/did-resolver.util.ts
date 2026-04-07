@@ -107,8 +107,10 @@ export class DidResolver {
     let result: DidResolutionResult;
     switch (method) {
       case 'key':
-        result = await this.resolveDidKey(did);
-        break;
+        // did:key requires multibase/multicodec decoding - not yet implemented
+        throw new UnsupportedDidMethodError(
+          `DID method 'key' is not yet implemented (requires multibase/multicodec library). Supported methods: web, elsi`
+        );
       case 'web':
         result = await this.resolveDidWeb(did);
         break;
@@ -117,7 +119,7 @@ export class DidResolver {
         break;
       default:
         throw new UnsupportedDidMethodError(
-          `DID method '${method}' is not supported. Supported methods: key, web, elsi`
+          `DID method '${method}' is not supported. Supported methods: web, elsi`
         );
     }
 
@@ -169,12 +171,13 @@ export class DidResolver {
   /**
    * Resolve did:key locally
    * 
-   * Extracts the public key directly from the DID identifier.
-   * No network requests required.
+   * NOT IMPLEMENTED - Requires multibase/multicodec library.
+   * This method is kept for future implementation reference.
    * 
    * @param did - did:key identifier
    * @returns DidResolutionResult
    * @throws {DidResolutionError} If resolution fails
+   * @deprecated Not yet implemented - use did:web or did:elsi instead
    */
   private async resolveDidKey(did: string): Promise<DidResolutionResult> {
     try {

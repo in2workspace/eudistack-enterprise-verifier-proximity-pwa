@@ -123,6 +123,18 @@ describe('DidResolver', () => {
     it('should reject unsupported DID method', async () => {
       await expect(resolver.resolve('did:example:123')).rejects.toThrow(UnsupportedDidMethodError);
     });
+
+    it('should reject did:key as not yet implemented', async () => {
+      await expect(resolver.resolve(DID_KEY_ES256)).rejects.toThrow(UnsupportedDidMethodError);
+      
+      try {
+        await resolver.resolve(DID_KEY_ES256);
+      } catch (error: any) {
+        expect(error.message).toContain('key');
+        expect(error.message).toContain('not yet implemented');
+        expect(error.message).toContain('multibase');
+      }
+    });
   });
 
   describe('did:key Resolution (Task 2.4)', () => {

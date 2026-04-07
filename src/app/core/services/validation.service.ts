@@ -60,6 +60,9 @@ export class ValidationService {
       catchError(error => {
         console.error('[Validation] Presentation validation failed:', error);
         
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorDetails = String(error);
+        
         return of(this.buildValidationResult(
           sessionId,
           vpToken,
@@ -70,8 +73,8 @@ export class ValidationService {
             statusValid: false,
             errors: [{
               code: ValidationErrorCode.UNKNOWN_ERROR,
-              message: `Validation error: ${error.message}`,
-              details: { error: error.toString() }
+              message: `Validation error: ${errorMessage}`,
+              details: { error: errorDetails }
             }],
             vpPayload: undefined,
             vcPayload: null
@@ -187,16 +190,18 @@ export class ValidationService {
       vcSignatureValid = true;
     } catch (error) {
       if (error instanceof DidResolutionError) {
+        const causeDetails = error.cause !== undefined ? String(error.cause) : 'unknown';
         errors.push({
           code: ValidationErrorCode.DID_RESOLUTION_FAILED,
           message: 'Failed to resolve issuer DID',
-          details: { error: error.message, cause: String(error.cause) }
+          details: { error: error.message, cause: causeDetails }
         });
       } else {
+        const errorMessage = error instanceof Error ? error.message : String(error);
         errors.push({
           code: ValidationErrorCode.INVALID_VC_SIGNATURE,
           message: 'VC signature verification failed',
-          details: { error: String(error) }
+          details: { error: errorMessage }
         });
       }
     }
