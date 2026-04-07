@@ -1,0 +1,41 @@
+<div class="welcome-message">
+  <!-- Success Icon -->
+  <div class="welcome-message__icon">
+    <ion-icon name="checkmark-circle" color="light"></ion-icon>
+  </div>
+
+  <!-- Welcome Message -->
+  <div class="welcome-message__content">
+    <h1 class="welcome-message__title">
+      {{ 'verification.welcome.message' | translate: { firstName: firstName(), familyName: familyName() } }}
+    </h1>
+    <p class="welcome-message__subtitle">
+      {{ 'verification.welcome.accessGranted' | translate }}
+    </p>
+  </div>
+
+  <!-- Countdown -->
+  @if (autoRedirect() && isCountingDown()) {
+    <div class="welcome-message__countdown">
+      <p>
+        {{ 'verification.welcome.redirecting' | translate: { seconds: secondsRemaining() } }}
+      </p>
+      <ion-progress-bar 
+        [value]="secondsRemaining() / countdownDuration()"
+        color="light"
+      ></ion-progress-bar>
+    </div>
+  }
+
+  <!-- Continue Button -->
+  <div class="welcome-message__actions">
+    <ion-button 
+      expand="block" 
+      color="light"
+      size="large"
+      (click)="onContinueClick()"
+    >
+      {{ 'verification.welcome.button' | translate }}
+    </ion-button>
+  </div>
+</div>

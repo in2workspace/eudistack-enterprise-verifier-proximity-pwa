@@ -23,6 +23,13 @@
         "ok": "Aceptar",
         "retry": "Reintentar"
       }
+    },
+    "welcome": {
+      "title": "¡Bienvenido!",
+      "message": "¡Bienvenido, {{firstName}} {{familyName}}!",
+      "accessGranted": "Acceso concedido",
+      "redirecting": "Redirigiendo en {{seconds}} segundos...",
+      "button": "Continuar"
     }
   }
 }

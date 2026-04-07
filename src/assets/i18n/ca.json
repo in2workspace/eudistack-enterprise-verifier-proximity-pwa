@@ -23,6 +23,13 @@
         "ok": "Acceptar",
         "retry": "Reintentar"
       }
+    },
+    "welcome": {
+      "title": "Benvingut!",
+      "message": "Benvingut, {{firstName}} {{familyName}}!",
+      "accessGranted": "Accés concedit",
+      "redirecting": "Redirigint en {{seconds}} segons...",
+      "button": "Continuar"
     }
   }
 }

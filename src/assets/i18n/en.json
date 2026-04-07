@@ -23,6 +23,13 @@
         "ok": "OK",
         "retry": "Retry"
       }
+    },
+    "welcome": {
+      "title": "Welcome!",
+      "message": "Welcome, {{firstName}} {{familyName}}!",
+      "accessGranted": "Access granted",
+      "redirecting": "Redirecting in {{seconds}} seconds...",
+      "button": "Continue"
     }
   }
 }
