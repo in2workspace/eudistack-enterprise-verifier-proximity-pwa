@@ -38,12 +38,12 @@ export class TrustFrameworkService {
   private readonly http = inject(HttpClient);
   private readonly storage = inject(StorageService);
   
-  // Trust framework loaded state (signal)
+  // Trust framework loaded state (signal) //TODO: Check if this is needed
   private readonly loadedSignal = signal<boolean>(false);
   public readonly loaded$ = toObservable(this.loadedSignal);
   public readonly isLoaded = computed(() => this.loadedSignal());
 
-  // Trust framework metadata (signal)
+  // Trust framework metadata (signal) //TODO: Check if this is needed
   private readonly metadataSignal = signal<TrustFrameworkMetadata | null>(null);
   public readonly metadata$ = toObservable(this.metadataSignal);
   public readonly metadata = computed(() => this.metadataSignal());
