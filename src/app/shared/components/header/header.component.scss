@@ -1,0 +1,67 @@
+// ─────────────────────────────────────────────────────────────────
+// Header Component Styles
+// ─────────────────────────────────────────────────────────────────
+
+ion-header {
+  ion-toolbar {
+    --background: var(--primary-color);
+    --color: var(--primary-contrast-color);
+    --border-width: 0;
+    --padding-top: env(safe-area-inset-top, 0);
+    --padding-start: var(--space-md);
+    --padding-end: var(--space-md);
+    --min-height: 64px;
+
+    @media (max-width: 767px) {
+      --min-height: 56px;
+      --padding-start: var(--space-sm);
+      --padding-end: var(--space-sm);
+    }
+  }
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  @media (max-width: 767px) {
+    gap: var(--space-sm);
+  }
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  .logo-image {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+
+    @media (max-width: 767px) {
+      height: 28px;
+    }
+  }
+}
+
+.header-title {
+  --color: var(--primary-contrast-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  padding: 0;
+  margin: 0;
+
+  @media (max-width: 767px) {
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 374px) {
+    font-size: 1rem;
+  }
+}

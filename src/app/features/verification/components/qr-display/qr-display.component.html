@@ -1,0 +1,64 @@
+<div class="qr-display-container">
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p class="loading-text">{{ 'verification.qr.generating' | translate }}</p>
+    </div>
+  } @else {
+    <!-- QR Code + Countdown -->
+    <div class="qr-content">
+      <!-- Countdown Timer (Circular) -->
+      <div class="countdown-wrapper">
+        <ion-progress-bar
+          [value]="progress() / 100"
+          [color]="isWarning() ? 'warning' : 'primary'"
+          class="countdown-progress"
+        ></ion-progress-bar>
+        
+        <div class="countdown-circle" [class.warning]="isWarning()">
+          <span class="countdown-time">{{ formattedTime() }}</span>
+        </div>
+      </div>
+
+      <!-- QR Code -->
+      <div class="qr-code-wrapper">
+        <qrcode
+          [qrdata]="qrData()"
+          [width]="512"
+          [errorCorrectionLevel]="'M'"
+          [elementType]="'canvas'"
+          [margin]="2"
+          cssClass="qr-code"
+        ></qrcode>
+      </div>
+
+      <!-- Instructions -->
+      <div class="qr-instructions">
+        <ion-icon name="scan-outline" class="scan-icon"></ion-icon>
+        <p class="instruction-text">
+          {{ 'verification.qr.scanInstruction' | translate }}
+        </p>
+      </div>
+
+      <!-- Expired State -->
+      @if (isExpired()) {
+        <div class="expired-overlay">
+          <div class="expired-content">
+            <ion-icon name="time-outline" class="expired-icon"></ion-icon>
+            <p class="expired-text">{{ 'verification.qr.expired' | translate }}</p>
+            @if (!autoRegenerate()) {
+              <ion-button
+                (click)="onRegenerate()"
+                color="primary"
+                size="default"
+              >
+                {{ 'verification.qr.regenerate' | translate }}
+              </ion-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

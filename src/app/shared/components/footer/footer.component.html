@@ -1,0 +1,23 @@
+<ion-footer class="ion-no-border">
+  <ion-toolbar color="light">
+    <div class="footer-content">
+      <div class="footer-links">
+        @for (link of legalLinks; track link.url) {
+          <button 
+            class="footer-link"
+            (click)="onLinkClick(link.url, link.external)"
+            type="button"
+          >
+            {{ link.label }}
+          </button>
+        }
+      </div>
+      
+      <div class="footer-copyright">
+        <span class="copyright-text">
+          © {{ currentYear }} KPMG. Todos los derechos reservados.
+        </span>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-footer>

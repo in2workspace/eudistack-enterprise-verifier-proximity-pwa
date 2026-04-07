@@ -1,0 +1,19 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <div class="header-content">
+      @if (showLogo()) {
+        <div class="header-logo">
+          <img 
+            src="assets/images/kpmg-logo-white.svg" 
+            alt="KPMG Logo"
+            class="logo-image"
+          />
+        </div>
+      }
+      
+      <ion-title class="header-title">
+        {{ title() }}
+      </ion-title>
+    </div>
+  </ion-toolbar>
+</ion-header>

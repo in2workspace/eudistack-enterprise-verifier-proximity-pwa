@@ -1,0 +1,88 @@
+// ─────────────────────────────────────────────────────────────────
+// Footer Component Styles
+// ─────────────────────────────────────────────────────────────────
+
+ion-footer {
+  ion-toolbar {
+    --background: var(--surface-muted);
+    --border-width: 1px 0 0 0;
+    --border-color: var(--border-default);
+    --padding-start: var(--space-md);
+    --padding-end: var(--space-md);
+    --padding-top: var(--space-sm);
+    --padding-bottom: var(--space-sm);
+    --min-height: auto;
+
+    @media (max-width: 767px) {
+      --padding-start: var(--space-sm);
+      --padding-end: var(--space-sm);
+    }
+  }
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-sm) 0;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: var(--space-xs) 0;
+  }
+}
+
+.footer-links {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @media (min-width: 768px) {
+    justify-content: flex-start;
+  }
+
+  @media (max-width: 374px) {
+    gap: var(--space-sm);
+  }
+}
+
+.footer-link {
+  background: none;
+  border: none;
+  color: var(--action-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--action-primary-hover);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--action-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+.footer-copyright {
+  .copyright-text {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-align: center;
+
+    @media (min-width: 768px) {
+      text-align: right;
+    }
+  }
+}

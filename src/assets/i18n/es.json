@@ -2,5 +2,13 @@
   "app": {
     "title": "Verificador KPMG",
     "loading": "Cargando..."
+  },
+  "verification": {
+    "qr": {
+      "generating": "Generando código QR...",
+      "scanInstruction": "Escanea este código QR con tu Wallet EUDI",
+      "expired": "Código QR expirado",
+      "regenerate": "Generar nuevo código"
+    }
   }
 }

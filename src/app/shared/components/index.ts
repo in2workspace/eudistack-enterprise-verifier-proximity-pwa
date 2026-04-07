@@ -1,22 +1,6 @@
 // ─────────────────────────────────────────────────────────────────
-// App Component Styles
+// Shared Components Barrel Export
 // ─────────────────────────────────────────────────────────────────
 
-ion-app {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-ion-content {
-  --background: var(--surface-page);
-  --padding-start: 0;
-  --padding-end: 0;
-  --padding-top: 0;
-  --padding-bottom: 0;
-  
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
+export { HeaderComponent } from './header/header.component';
+export { FooterComponent } from './footer/footer.component';
