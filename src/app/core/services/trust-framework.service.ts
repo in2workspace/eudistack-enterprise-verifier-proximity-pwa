@@ -58,14 +58,11 @@ export class TrustFrameworkService {
    */
   public async loadTrustFramework(): Promise<void> {
     try {
-      console.log('[TrustFramework] Loading trust framework...');
 
       // Fetch trust framework JSON
       const trustFramework = await firstValueFrom(
         this.http.get<TrustFrameworkJson>(this.TRUST_FRAMEWORK_PATH)
       );
-
-      console.log(`[TrustFramework] Loaded ${trustFramework.trustedIssuers.length} trusted issuers`);
 
       // Clear existing trust framework in DB
       await firstValueFrom(this.storage.clearTrustFramework());
@@ -90,8 +87,6 @@ export class TrustFrameworkService {
 
       // Mark as loaded
       this.loadedSignal.set(true);
-
-      console.log('[TrustFramework] Trust framework loaded successfully');
     } catch (error) {
       console.error('[TrustFramework] Failed to load trust framework:', error);
       this.loadedSignal.set(false);
@@ -224,7 +219,6 @@ export class TrustFrameworkService {
    * @returns Promise<void>
    */
   public async refreshTrustFramework(): Promise<void> {
-    console.log('[TrustFramework] Refreshing trust framework...');
     this.loadedSignal.set(false);
     await this.loadTrustFramework();
   }

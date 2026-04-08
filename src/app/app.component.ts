@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent, FooterComponent } from './shared/components';
 
 /**
  * Root Application Component
  * 
- * Master layout with header, footer, and router outlet.
+ * Simple layout with router outlet only.
+ * Each page handles its own layout (header, footer, etc.)
  * 
  * @component
  */
@@ -15,9 +15,7 @@ import { HeaderComponent, FooterComponent } from './shared/components';
   standalone: true,
   imports: [
     IonicModule,
-    RouterOutlet,
-    HeaderComponent,
-    FooterComponent
+    RouterOutlet
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
