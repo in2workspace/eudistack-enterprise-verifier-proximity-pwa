@@ -1,11 +1,8 @@
 <ion-modal [isOpen]="isOpen()" [backdropDismiss]="false" class="validation-popup-modal">
   <ng-template>
-    <div class="validation-popup">
-      <!-- KPMG Logo -->
-      <div class="validation-popup__logo">
-        <img src="assets/logos/kpmg-logo.svg" alt="KPMG" />
-      </div>
+    <app-header [showLogo]="true" />
 
+    <div class="validation-popup">
       <!-- Main Content -->
       <div class="validation-popup__content">
         <!-- Title -->

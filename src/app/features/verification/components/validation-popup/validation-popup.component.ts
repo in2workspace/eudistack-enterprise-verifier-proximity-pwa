@@ -2,6 +2,7 @@ import { Component, input, output, signal, OnInit, OnDestroy } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { HeaderComponent } from '../../../../shared/components/header/header.component';
 
 /**
  * Validation check status
@@ -38,7 +39,8 @@ export interface ValidationCheck {
   imports: [
     CommonModule,
     IonicModule,
-    TranslateModule
+    TranslateModule,
+    HeaderComponent
   ],
   templateUrl: './validation-popup.component.html',
   styleUrls: ['./validation-popup.component.scss']

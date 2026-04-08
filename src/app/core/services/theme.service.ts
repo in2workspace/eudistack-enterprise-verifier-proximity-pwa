@@ -1,32 +1,41 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 /**
  * Theme Configuration Interface
  * 
- * Loaded from assets/theme.json
+ * Loaded from assets/themes/{tenantId}.theme.json
  */
 export interface ThemeConfig {
+  tenantId: string;
   branding: {
     name: string;
     primaryColor: string;
-    primaryContrastColor: string;
+    primaryDark?: string;
     secondaryColor: string;
-    secondaryContrastColor: string;
     logoUrl: string;
-    logoDarkUrl: string;
-    faviconUrl: string;
-    pwaIconUrl: string;
+    logoDarkUrl?: string;
+    faviconUrl?: string;
   };
-  content: {
-    links: Array<{
-      title: string;
-      url: string;
-    }>;
+  gradients?: {
+    primary: { start: string; end: string; angle: number };
+    success?: { start: string; end: string; angle: number };
+    error?: { start: string; end: string; angle: number };
+  };
+  components?: {
+    header?: {
+      backgroundColor: string;
+      textColor: string;
+      height: string;
+      logoHeight: string;
+    };
+  };
+  content?: {
+    links: Array<{ title: string; url: string }>;
     footer: string;
   };
-  i18n: {
+  i18n?: {
     defaultLang: string;
     available: string[];
   };
@@ -35,8 +44,8 @@ export interface ThemeConfig {
 /**
  * Theme Service
  * 
- * Manages application theming and branding configuration.
- * Loads theme from assets/theme.json and applies CSS variables.
+ * Manages multi-tenant theming and branding configuration.
+ * Loads theme from assets/themes/{tenantId}.theme.json and applies CSS variables.
  * 
  * @service
  * @injectable
@@ -45,37 +54,76 @@ export interface ThemeConfig {
   providedIn: 'root'
 })
 export class ThemeService {
-  private readonly THEME_CONFIG_PATH = '/assets/theme.json';
   private readonly http = inject(HttpClient);
 
-  private readonly themeConfigSubject = new BehaviorSubject<ThemeConfig | null>(null);
-  public readonly themeConfig$: Observable<ThemeConfig | null> = this.themeConfigSubject.asObservable();
+  // ── State (signals) ──
+  private readonly _theme = signal<ThemeConfig | null>(null);
+  private readonly _isLoading = signal<boolean>(false);
+  private readonly _error = signal<string | null>(null);
+
+  // ── Public API (computed signals) ──
+  
+  readonly theme = computed(() => this._theme());
+  readonly tenantId = computed(() => this._theme()?.tenantId ?? 'kpmg');
+  readonly brandName = computed(() => this._theme()?.branding.name ?? 'KPMG Verification');
+  readonly logoUrl = computed(() => this._theme()?.branding.logoUrl ?? 'assets/logos/kpmg-logo.svg');
+  readonly logoDarkUrl = computed(() => this._theme()?.branding.logoDarkUrl);
+  readonly primaryColor = computed(() => this._theme()?.branding.primaryColor ?? '#00338D');
+  readonly primaryDark = computed(() => this._theme()?.branding.primaryDark ?? '#002770');
+  readonly secondaryColor = computed(() => this._theme()?.branding.secondaryColor ?? '#8ab4f8');
+  readonly headerBackgroundColor = computed(() => this._theme()?.components?.header?.backgroundColor ?? '#ffffff');
+  readonly headerTextColor = computed(() => this._theme()?.components?.header?.textColor ?? '#00338D');
+  readonly headerHeight = computed(() => this._theme()?.components?.header?.height ?? '64px');
+  readonly headerLogoHeight = computed(() => this._theme()?.components?.header?.logoHeight ?? '40px');
+  readonly isLoading = computed(() => this._isLoading());
+  readonly error = computed(() => this._error());
 
   /**
-   * Load theme configuration from JSON file
+   * Load theme configuration for specific tenant
    * 
-   * Should be called on app initialization (APP_INITIALIZER).
+   * Falls back to 'kpmg' theme if tenant theme not found.
    * Applies CSS variables to :root element.
    * 
-   * @returns Promise<ThemeConfig>
+   * @param tenantId - Tenant identifier (default: 'kpmg' from env or URL)
+   * @returns Promise<void>
    */
-  public async loadTheme(): Promise<ThemeConfig> {
+  public async loadTheme(tenantId: string = 'kpmg'): Promise<void> {
+    this._isLoading.set(true);
+    this._error.set(null);
+
     try {
-      console.log('[ThemeService] Loading theme configuration...');
+      console.log(`[ThemeService] Loading theme for tenant: ${tenantId}`);
 
-      const config = await firstValueFrom(
-        this.http.get<ThemeConfig>(this.THEME_CONFIG_PATH)
-      );
+      // Try tenant-specific theme first
+      let themeUrl = `assets/themes/${tenantId}.theme.json`;
+      let config: ThemeConfig;
 
-      this.themeConfigSubject.next(config);
+      try {
+        config = await firstValueFrom(this.http.get<ThemeConfig>(themeUrl));
+      } catch (error) {
+        console.warn(`[ThemeService] Theme not found for ${tenantId}, using fallback theme.json`);
+        // Fallback to default theme.json if tenant theme doesn't exist
+        themeUrl = 'assets/theme.json';
+        config = await firstValueFrom(this.http.get<ThemeConfig>(themeUrl));
+        config.tenantId = tenantId;
+      }
+
+      this._theme.set(config);
       this.applyTheme(config);
 
       console.log('[ThemeService] Theme loaded successfully:', config.branding.name);
-
-      return config;
     } catch (error) {
-      console.error('[ThemeService] Failed to load theme:', error);
-      throw new Error('Failed to load theme configuration');
+      const errorMessage = `Failed to load theme for tenant: ${tenantId}`;
+      console.error('[ThemeService]', errorMessage, error);
+      this._error.set(errorMessage);
+      
+      // Last resort: apply hardcoded KPMG theme
+      if (tenantId !== 'kpmg') {
+        console.warn('[ThemeService] Falling back to hardcoded KPMG theme');
+        this.applyHardcodedKpmgTheme();
+      }
+    } finally {
+      this._isLoading.set(false);
     }
   }
 
@@ -87,17 +135,72 @@ export class ThemeService {
   private applyTheme(config: ThemeConfig): void {
     const root = document.documentElement;
 
-    // Apply brand colors
-    root.style.setProperty('--primary-color', config.branding.primaryColor);
-    root.style.setProperty('--primary-contrast-color', config.branding.primaryContrastColor);
-    root.style.setProperty('--secondary-color', config.branding.secondaryColor);
-    root.style.setProperty('--secondary-contrast-color', config.branding.secondaryContrastColor);
+    // ── Brand Colors ──
+    root.style.setProperty('--theme-primary', config.branding.primaryColor);
+    root.style.setProperty('--theme-primary-dark', config.branding.primaryDark || config.branding.primaryColor);
+    root.style.setProperty('--theme-secondary', config.branding.secondaryColor);
 
-    // Update page title
+    // ── Gradients ──
+    if (config.gradients?.primary) {
+      const { start, end, angle } = config.gradients.primary;
+      root.style.setProperty('--theme-gradient-primary', `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`);
+    }
+
+    if (config.gradients?.success) {
+      const { start, end, angle } = config.gradients.success;
+      root.style.setProperty('--theme-gradient-success', `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`);
+    }
+
+    if (config.gradients?.error) {
+      const { start, end, angle } = config.gradients.error;
+      root.style.setProperty('--theme-gradient-error', `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`);
+    }
+
+    // ── Header ──
+    if (config.components?.header) {
+      root.style.setProperty('--theme-header-bg', config.components.header.backgroundColor);
+      root.style.setProperty('--theme-header-text', config.components.header.textColor);
+      root.style.setProperty('--theme-header-height', config.components.header.height);
+      root.style.setProperty('--theme-header-logo-height', config.components.header.logoHeight);
+    }
+
+    // ── Page Title & Favicon ──
     document.title = config.branding.name;
+    if (config.branding.faviconUrl) {
+      this.updateFavicon(config.branding.faviconUrl);
+    }
+  }
 
-    // Update favicon
-    this.updateFavicon(config.branding.faviconUrl);
+  /**
+   * Apply hardcoded KPMG theme as last-resort fallback
+   */
+  private applyHardcodedKpmgTheme(): void {
+    const fallbackTheme: ThemeConfig = {
+      tenantId: 'kpmg',
+      branding: {
+        name: 'KPMG Verification',
+        primaryColor: '#00338D',
+        primaryDark: '#002770',
+        secondaryColor: '#8ab4f8',
+        logoUrl: 'assets/logos/kpmg-logo.svg'
+      },
+      gradients: {
+        primary: { start: '#00338D', end: '#002770', angle: 180 },
+        success: { start: '#00A878', end: '#008C63', angle: 135 },
+        error: { start: '#D32F2F', end: '#B71C1C', angle: 135 }
+      },
+      components: {
+        header: {
+          backgroundColor: '#ffffff',
+          textColor: '#00338D',
+          height: '64px',
+          logoHeight: '40px'
+        }
+      }
+    };
+
+    this._theme.set(fallbackTheme);
+    this.applyTheme(fallbackTheme);
   }
 
   /**
@@ -114,41 +217,45 @@ export class ThemeService {
   }
 
   /**
-   * Get current theme configuration
-   * 
-   * @returns Current theme config or null if not loaded
+   * Get primary gradient CSS string
    */
-  public getThemeConfig(): ThemeConfig | null {
-    return this.themeConfigSubject.value;
+  getPrimaryGradient(): string {
+    const theme = this._theme();
+    if (!theme?.gradients?.primary) return 'linear-gradient(180deg, #00338D 0%, #002770 100%)';
+    
+    const { start, end, angle } = theme.gradients.primary;
+    return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
   }
 
   /**
-   * Get brand name
-   * 
-   * @returns Brand name or 'Enterprise Verifier' as fallback
+   * Get success gradient CSS string
    */
-  public getBrandName(): string {
-    return this.themeConfigSubject.value?.branding.name || 'Enterprise Verifier';
+  getSuccessGradient(): string {
+    const theme = this._theme();
+    if (!theme?.gradients?.success) return 'linear-gradient(135deg, #00A878 0%, #008C63 100%)';
+    
+    const { start, end, angle } = theme.gradients.success;
+    return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
   }
 
   /**
-   * Get logo URL (white version for dark backgrounds)
-   * 
-   * @returns Logo URL
+   * Get error gradient CSS string
    */
-  public getLogoUrl(): string {
-    return this.themeConfigSubject.value?.branding.logoUrl || 'assets/images/logo-white.svg';
+  getErrorGradient(): string {
+    const theme = this._theme();
+    if (!theme?.gradients?.error) return 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)';
+    
+    const { start, end, angle } = theme.gradients.error;
+    return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
   }
 
   /**
    * Get footer text with year and brand name interpolated
-   * 
-   * @returns Footer text
    */
-  public getFooterText(): string {
-    const config = this.themeConfigSubject.value;
-    if (!config) {
-      return `© ${new Date().getFullYear()} Enterprise Verifier. All rights reserved.`;
+  getFooterText(): string {
+    const config = this._theme();
+    if (!config?.content?.footer) {
+      return `© ${new Date().getFullYear()} ${this.brandName()}. All rights reserved.`;
     }
 
     return config.content.footer
@@ -158,10 +265,8 @@ export class ThemeService {
 
   /**
    * Get legal links
-   * 
-   * @returns Array of legal links
    */
-  public getLegalLinks(): Array<{ title: string; url: string }> {
-    return this.themeConfigSubject.value?.content.links || [];
+  getLegalLinks(): Array<{ title: string; url: string }> {
+    return this._theme()?.content?.links || [];
   }
 }

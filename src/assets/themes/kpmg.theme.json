@@ -1,13 +1,17 @@
 {
   "tenantId": "kpmg",
+  "tenantName": "KPMG",
   "branding": {
     "name": "KPMG Verification",
     "primaryColor": "#00338D",
     "primaryDark": "#002770",
+    "primaryLight": "#1a54a0",
     "secondaryColor": "#8ab4f8",
+    "backgroundColor": "#ffffff",
+    "textColor": "#ffffff",
     "logoUrl": "assets/logos/kpmg-logo.svg",
     "logoDarkUrl": "assets/logos/kpmg-logo-dark.svg",
-    "faviconUrl": "assets/icons/favicon.png"
+    "faviconUrl": "assets/logos/kpmg-favicon.ico"
   },
   "gradients": {
     "primary": {
@@ -32,14 +36,11 @@
       "textColor": "#00338D",
       "height": "64px",
       "logoHeight": "40px"
+    },
+    "card": {
+      "backgroundColor": "#1a2942",
+      "borderRadius": "16px",
+      "shadow": "0 20px 60px rgba(0, 0, 0, 0.3)"
     }
-  },
-  "content": {
-    "links": [],
-    "footer": "© {year} {brandName}. All rights reserved."
-  },
-  "i18n": {
-    "defaultLang": "en",
-    "available": ["en", "es", "ca"]
   }
 }

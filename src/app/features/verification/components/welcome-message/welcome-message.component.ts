@@ -2,6 +2,7 @@ import { Component, input, output, signal, computed, OnInit, OnDestroy } from '@
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { HeaderComponent } from '../../../../shared/components/header/header.component';
 import { interval, Subscription } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
 
@@ -27,7 +28,8 @@ import { takeWhile } from 'rxjs/operators';
   imports: [
     CommonModule,
     IonicModule,
-    TranslateModule
+    TranslateModule,
+    HeaderComponent
   ],
   templateUrl: './welcome-message.component.html',
   styleUrls: ['./welcome-message.component.scss']

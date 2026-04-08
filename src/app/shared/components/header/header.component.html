@@ -1,19 +1,17 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
-    <div class="header-content">
-      @if (showLogo()) {
-        <div class="header-logo">
-          <img 
-            src="assets/images/logo-white.svg" 
-            alt="Logo"
-            class="logo-image"
-          />
-        </div>
-      }
-      
-      <ion-title class="header-title">
-        {{ title() }}
-      </ion-title>
-    </div>
-  </ion-toolbar>
+<ion-header class="app-header">
+  <div class="header-container">
+    @if (showLogo()) {
+      <div class="header-logo">
+        <img 
+          [src]="logoUrl" 
+          [alt]="effectiveTitle"
+          class="logo-image"
+        />
+      </div>
+    }
+    
+    @if (title()) {
+      <h1 class="header-title">{{ effectiveTitle }}</h1>
+    }
+  </div>
 </ion-header>
