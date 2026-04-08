@@ -64,15 +64,15 @@ export class ThemeService {
   // ── Public API (computed signals) ──
   
   readonly theme = computed(() => this._theme());
-  readonly tenantId = computed(() => this._theme()?.tenantId ?? 'kpmg');
-  readonly brandName = computed(() => this._theme()?.branding.name ?? 'KPMG Verification');
-  readonly logoUrl = computed(() => this._theme()?.branding.logoUrl ?? 'assets/logos/kpmg-logo.svg');
+  readonly tenantId = computed(() => this._theme()?.tenantId ?? 'altia');
+  readonly brandName = computed(() => this._theme()?.branding.name ?? 'Altia Verification');
+  readonly logoUrl = computed(() => this._theme()?.branding.logoUrl ?? 'assets/logos/altia-logo-dark.svg');
   readonly logoDarkUrl = computed(() => this._theme()?.branding.logoDarkUrl);
-  readonly primaryColor = computed(() => this._theme()?.branding.primaryColor ?? '#00338D');
-  readonly primaryDark = computed(() => this._theme()?.branding.primaryDark ?? '#002770');
-  readonly secondaryColor = computed(() => this._theme()?.branding.secondaryColor ?? '#8ab4f8');
+  readonly primaryColor = computed(() => this._theme()?.branding.primaryColor ?? '#001E8C');
+  readonly primaryDark = computed(() => this._theme()?.branding.primaryDark ?? '#001570');
+  readonly secondaryColor = computed(() => this._theme()?.branding.secondaryColor ?? '#00ff94');
   readonly headerBackgroundColor = computed(() => this._theme()?.components?.header?.backgroundColor ?? '#ffffff');
-  readonly headerTextColor = computed(() => this._theme()?.components?.header?.textColor ?? '#00338D');
+  readonly headerTextColor = computed(() => this._theme()?.components?.header?.textColor ?? '#001E8C');
   readonly headerHeight = computed(() => this._theme()?.components?.header?.height ?? '64px');
   readonly headerLogoHeight = computed(() => this._theme()?.components?.header?.logoHeight ?? '40px');
   readonly isLoading = computed(() => this._isLoading());
@@ -172,27 +172,27 @@ export class ThemeService {
   }
 
   /**
-   * Apply hardcoded KPMG theme as last-resort fallback
+   * Apply hardcoded Altia theme as last-resort fallback
    */
   private applyHardcodedKpmgTheme(): void {
     const fallbackTheme: ThemeConfig = {
-      tenantId: 'kpmg',
+      tenantId: 'altia',
       branding: {
-        name: 'KPMG Verification',
-        primaryColor: '#00338D',
-        primaryDark: '#002770',
-        secondaryColor: '#8ab4f8',
-        logoUrl: 'assets/logos/kpmg-logo.svg'
+        name: 'Altia Verification',
+        primaryColor: '#001E8C',
+        primaryDark: '#001570',
+        secondaryColor: '#00ff94',
+        logoUrl: 'assets/logos/altia-logo-dark.svg'
       },
       gradients: {
-        primary: { start: '#00338D', end: '#002770', angle: 180 },
-        success: { start: '#00A878', end: '#008C63', angle: 135 },
+        primary: { start: '#001E8C', end: '#001570', angle: 180 },
+        success: { start: '#00ff94', end: '#00cc77', angle: 135 },
         error: { start: '#D32F2F', end: '#B71C1C', angle: 135 }
       },
       components: {
         header: {
           backgroundColor: '#ffffff',
-          textColor: '#00338D',
+          textColor: '#001E8C',
           height: '64px',
           logoHeight: '40px'
         }

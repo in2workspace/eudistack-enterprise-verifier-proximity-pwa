@@ -7,10 +7,10 @@
   // ── Multi-Tenancy Configuration ──
   // Change this value to switch themes: "kpmg" | "altia" | "dome"
   // Can be overridden with URL parameter: ?tenant=altia
-  window["env"]["tenant"] = "kpmg";
+  window["env"]["tenant"] = "altia";
   
-  window["env"]["verifier_name"] = "KPMG Verifier";
-  window["env"]["verifier_did"] = "did:web:kpmg-verifier.demo.eudistack.com";
+  window["env"]["verifier_name"] = "Altia Verifier";
+  window["env"]["verifier_did"] = "did:web:altia-verifier.demo.eudistack.com";
   window["env"]["qr_expiration_seconds"] = "120";
   window["env"]["audit_retention_days"] = "90";
   window["env"]["log_level"] = "debug";

@@ -4,7 +4,7 @@
 // Uses dynamic CSS variables set by ThemeService
 
 .app-header {
-  background: var(--theme-header-bg, #ffffff);
+  background: var(--theme-header-bg-gradient, var(--theme-header-bg, #ffffff));
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;

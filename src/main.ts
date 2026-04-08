@@ -47,9 +47,9 @@ function initializeTheme(themeService: ThemeService): () => Promise<void> {
       console.log('[Theme] Using tenant from env.js:', tenantId);
     }
     
-    // Priority 3: Default to KPMG
+    // Priority 3: Default to Altia
     if (!tenantId) {
-      tenantId = 'kpmg';
+      tenantId = 'altia';
     }
     
     console.log('[Theme] Loading theme for tenant:', tenantId);

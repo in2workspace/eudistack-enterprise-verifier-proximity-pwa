@@ -36,7 +36,7 @@
 // ── INITIALIZING STATE ──
 
 .initializing {
-  background: linear-gradient(135deg, #00338D 0%, #002770 100%);
+  background: var(--theme-gradient-primary, linear-gradient(180deg, #1E49E2 0%, #00338D 100%));
   color: white;
   
   ion-spinner {
