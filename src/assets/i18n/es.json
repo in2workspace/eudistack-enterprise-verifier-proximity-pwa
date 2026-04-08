@@ -4,15 +4,27 @@
     "loading": "Cargando..."
   },
   "verification": {
+    "title": "Verificación de Credenciales",
+    "initializing": "Inicializando sesión de verificación...",
+    "scanQr": "Escanear código QR",
+    "scanInstruction": "Escanea este código QR con tu Wallet EUDI para verificar tu identidad",
     "qr": {
+      "title": "Escanear para Verificar",
+      "subtitle": "VERIFICA TU IDENTIDAD DIGITAL",
       "generating": "Generando código QR...",
       "scanInstruction": "Escanea este código QR con tu Wallet EUDI",
       "expired": "Código QR expirado",
-      "regenerate": "Generar nuevo código"
+      "regenerate": "Generar nuevo código",
+      "footer": "Escanea con tu Wallet EUDI para completar la verificación"
     },
     "validation": {
-      "title": "Validando Credencial",
+      "title": "Verificación en Progreso",
+      "subtitle": "AUTENTICACIÓN SEGURA ACTIVA",
       "validating": "Validando...",
+      "message": "Esperando credenciales de tu wallet...",
+      "submessage": "Por favor, autoriza la solicitud en tu dispositivo.",
+      "encrypted": "CIFRADO DE EXTREMO A EXTREMO",
+      "footer": "La verificación suele tardar 10-15 segundos.",
       "checks": {
         "vpSignature": "Firma VP válida",
         "vcSignature": "Firma VC LEARCredentialEmployee válida",
@@ -25,11 +37,21 @@
       }
     },
     "welcome": {
-      "title": "¡Bienvenido!",
-      "message": "¡Bienvenido, {{firstName}} {{familyName}}!",
+      "title": "Verificación Exitosa",
+      "subtitle": "IDENTIDAD CONFIRMADA",
+      "welcome": "Bienvenido,",
+      "message": "{{firstName}} {{familyName}}!",
+      "submessage": "Acceso concedido. Has sido verificado exitosamente.",
+      "verified": "CREDENCIAL VERIFICADA",
       "accessGranted": "Acceso concedido",
-      "redirecting": "Redirigiendo en {{seconds}} segundos...",
-      "button": "Continuar"
+      "redirecting": "Continuando en {{seconds}} segundos...",
+      "button": "Continuar",
+      "footer": "Ahora puedes proceder a acceder a los servicios solicitados."
+    },
+    "error": {
+      "title": "Verificación Fallida",
+      "details": "Detalles Técnicos",
+      "retry": "Intentar de Nuevo"
     }
   }
 }

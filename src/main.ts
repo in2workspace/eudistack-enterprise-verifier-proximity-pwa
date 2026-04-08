@@ -3,13 +3,23 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { RouteReuseStrategy, provideRouter } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, HttpClient } from '@angular/common/http';
 import { NgxIndexedDBModule, DBConfig } from 'ngx-indexed-db';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 import { IonicStorageModule } from '@ionic/storage-angular';
 import { DB_CONFIG } from './app/core/services/storage.service';
 import { TrustFrameworkService } from './app/core/services/trust-framework.service';
+
+/**
+ * TranslateHttpLoader factory
+ * Loads translation files from assets/i18n/
+ */
+export function createTranslateLoader(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 // IndexedDB configuration
 const dbConfig: DBConfig = {
@@ -35,12 +45,22 @@ bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(routes),
+    provideHttpClient(withInterceptorsFromDi()),
     importProvidersFrom(
       IonicModule.forRoot({ innerHTMLTemplatesEnabled: true })
     ),    
     importProvidersFrom(IonicStorageModule.forRoot()),
     importProvidersFrom(NgxIndexedDBModule.forRoot(dbConfig)),
-    provideHttpClient(withInterceptorsFromDi()),
+    importProvidersFrom(
+      TranslateModule.forRoot({
+        defaultLanguage: 'en',
+        loader: {
+          provide: TranslateLoader,
+          useFactory: createTranslateLoader,
+          deps: [HttpClient]
+        }
+      })
+    ),
     {
       provide: APP_INITIALIZER,
       useFactory: initializeTrustFramework,

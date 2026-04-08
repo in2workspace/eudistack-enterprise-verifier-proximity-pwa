@@ -4,15 +4,27 @@
     "loading": "Loading..."
   },
   "verification": {
+    "title": "Credential Verification",
+    "initializing": "Initializing verification session...",
+    "scanQr": "Scan QR Code",
+    "scanInstruction": "Scan this QR code with your EUDI Wallet to verify your identity",
     "qr": {
+      "title": "Scan to Verify",
+      "subtitle": "VERIFY YOUR DIGITAL IDENTITY",
       "generating": "Generating QR code...",
       "scanInstruction": "Scan this QR code with your EUDI Wallet",
       "expired": "QR code expired",
-      "regenerate": "Generate new code"
+      "regenerate": "Generate new code",
+      "footer": "Scan with your EUDI Wallet to complete verification"
     },
     "validation": {
-      "title": "Validating Credential",
+      "title": "Verification in Progress",
+      "subtitle": "SECURE AUTHENTICATION ACTIVE",
       "validating": "Validating...",
+      "message": "Waiting for credentials from your wallet...",
+      "submessage": "Please authorize the request on your device.",
+      "encrypted": "END-TO-END ENCRYPTED",
+      "footer": "Verification typically takes 10-15 seconds.",
       "checks": {
         "vpSignature": "VP signature valid",
         "vcSignature": "VC LEARCredentialEmployee signature valid",
@@ -25,11 +37,21 @@
       }
     },
     "welcome": {
-      "title": "Welcome!",
-      "message": "Welcome, {{firstName}} {{familyName}}!",
+      "title": "Verification Successful",
+      "subtitle": "IDENTITY CONFIRMED",
+      "welcome": "Welcome,",
+      "message": "{{firstName}} {{familyName}}!",
+      "submessage": "Access granted. You have been successfully verified.",
+      "verified": "VERIFIED CREDENTIAL",
       "accessGranted": "Access granted",
-      "redirecting": "Redirecting in {{seconds}} seconds...",
-      "button": "Continue"
+      "redirecting": "Continuing in {{seconds}} seconds...",
+      "button": "Continue",
+      "footer": "You may now proceed to access requested services."
+    },
+    "error": {
+      "title": "Verification Failed",
+      "details": "Technical Details",
+      "retry": "Try Again"
     }
   }
 }

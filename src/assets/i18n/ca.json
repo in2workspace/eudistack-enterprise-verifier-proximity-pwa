@@ -4,15 +4,27 @@
     "loading": "Carregant..."
   },
   "verification": {
+    "title": "Verificació de Credencials",
+    "initializing": "Inicialitzant sessió de verificació...",
+    "scanQr": "Escanejar codi QR",
+    "scanInstruction": "Escaneja aquest codi QR amb la teva Wallet EUDI per verificar la teva identitat",
     "qr": {
+      "title": "Escanejar per Verificar",
+      "subtitle": "VERIFICA LA TEVA IDENTITAT DIGITAL",
       "generating": "Generant codi QR...",
       "scanInstruction": "Escaneja aquest codi QR amb la teva Wallet EUDI",
       "expired": "Codi QR caducat",
-      "regenerate": "Generar nou codi"
+      "regenerate": "Generar nou codi",
+      "footer": "Escaneja amb la teva Wallet EUDI per completar la verificació"
     },
     "validation": {
-      "title": "Validant Credencial",
+      "title": "Verificació en Progrés",
+      "subtitle": "AUTENTICACIÓ SEGURA ACTIVA",
       "validating": "Validant...",
+      "message": "Esperant credencials del teu wallet...",
+      "submessage": "Si us plau, autoritza la sol·licitud al teu dispositiu.",
+      "encrypted": "XIFRAT D'EXTREM A EXTREM",
+      "footer": "La verificació sol trigar 10-15 segons.",
       "checks": {
         "vpSignature": "Signatura VP vàlida",
         "vcSignature": "Signatura VC LEARCredentialEmployee vàlida",
@@ -25,11 +37,21 @@
       }
     },
     "welcome": {
-      "title": "Benvingut!",
-      "message": "Benvingut, {{firstName}} {{familyName}}!",
+      "title": "Verificació Exitosa",
+      "subtitle": "IDENTITAT CONFIRMADA",
+      "welcome": "Benvingut,",
+      "message": "{{firstName}} {{familyName}}!",
+      "submessage": "Accés concedit. Has estat verificat exitosament.",
+      "verified": "CREDENCIAL VERIFICADA",
       "accessGranted": "Accés concedit",
-      "redirecting": "Redirigint en {{seconds}} segons...",
-      "button": "Continuar"
+      "redirecting": "Continuant en {{seconds}} segons...",
+      "button": "Continuar",
+      "footer": "Ara pots procedir a accedir als serveis sol·licitats."
+    },
+    "error": {
+      "title": "Verificació Fallida",
+      "details": "Detalls Tècnics",
+      "retry": "Intentar de Nou"
     }
   }
 }
