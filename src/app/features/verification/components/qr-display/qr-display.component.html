@@ -39,15 +39,28 @@
           </div>
         }
         
-        <!-- Refresh Button -->
-        <ion-button 
-          (click)="onRegenerate()" 
-          fill="outline" 
-          class="qr-section__refresh-btn"
-          [disabled]="isLoading()">
-          <ion-icon name="refresh" slot="start"></ion-icon>
-          {{ 'verification.qr.regenerate' | translate }}
-        </ion-button>
+        <!-- Action Buttons -->
+        <div class="qr-section__actions">
+          <!-- Copy QR Button -->
+          <ion-button 
+            (click)="onCopyQR()" 
+            fill="solid" 
+            class="qr-section__copy-btn"
+            [disabled]="isLoading() || isExpired()">
+            <ion-icon [name]="isCopied() ? 'checkmark-outline' : 'copy-outline'" slot="start"></ion-icon>
+            {{ (isCopied() ? 'verification.qr.copied' : 'verification.qr.copy') | translate }}
+          </ion-button>
+
+          <!-- Refresh Button -->
+          <ion-button 
+            (click)="onRegenerate()" 
+            fill="outline" 
+            class="qr-section__refresh-btn"
+            [disabled]="isLoading()">
+            <ion-icon name="refresh" slot="start"></ion-icon>
+            {{ 'verification.qr.regenerate' | translate }}
+          </ion-button>
+        </div>
       </div>
     </div>
 
@@ -84,6 +97,15 @@
             <div class="step__content">
               <h3 class="step__title">{{ 'verification.qr.step2Title' | translate }}</h3>
               <p class="step__description">{{ 'verification.qr.step2Description' | translate }}</p>
+            </div>
+          </div>
+
+          <!-- Step 03 -->
+          <div class="step">
+            <div class="step__number">03</div>
+            <div class="step__content">
+              <h3 class="step__title">{{ 'verification.qr.step3Title' | translate }}</h3>
+              <p class="step__description">{{ 'verification.qr.step3Description' | translate }}</p>
             </div>
           </div>
 

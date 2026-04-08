@@ -103,6 +103,75 @@
     }
   }
 
+  /* Action Buttons Container */
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  /* Copy QR Button */
+  &__copy-btn {
+    --background: rgba(255, 255, 255, 0.95);
+    --background-hover: rgba(255, 255, 255, 1);
+    --background-activated: rgba(255, 255, 255, 0.9);
+    --color: var(--theme-gradient-primary, #1E49E2);
+    --border-radius: 40px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --padding-start: 28px;
+    --padding-end: 28px;
+    --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --ripple-color: rgba(30, 73, 226, 0.2);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.03em;
+    transition: var(--transition);
+    cursor: pointer;
+
+    ion-icon {
+      font-size: 18px;
+      margin-right: 2px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Hover State */
+    &:hover:not([disabled]) {
+      --background: rgba(255, 255, 255, 1);
+      --box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+
+      ion-icon {
+        transform: scale(1.1);
+      }
+    }
+
+    /* Active/Pressed State */
+    &:active:not([disabled]) {
+      --background: rgba(255, 255, 255, 0.9);
+      --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transform: translateY(0px);
+    }
+
+    /* Disabled State */
+    &[disabled] {
+      --background: rgba(255, 255, 255, 0.3);
+      --color: rgba(255, 255, 255, 0.5);
+      --box-shadow: none;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Focus State (Accessibility) */
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.8);
+      outline-offset: 3px;
+    }
+  }
+
   /* Refresh Button */
   &__refresh-btn {
     --background: rgba(255, 255, 255, 0.12);

@@ -15,13 +15,17 @@
       "expired": "QR code expired",
       "expiresIn": "QR expires in",
       "regenerate": "Refresh QR",
+      "copy": "Copy QR",
+      "copied": "Copied",
       "footer": "Scan the QR code with your wallet to verify your identity",
       "credentialLabel": "YOU WILL BE ASKED TO PRESENT:",
       "credentialType": "Employee Credential",
       "step1Title": "Scan the QR code",
       "step1Description": "Align your camera with the code displayed on the left.",
       "step2Title": "Select required credential on your digital Wallet",
-      "step2Description": "Choose the verified attributes requested by the system."
+      "step2Description": "Choose the verified attributes requested by the system.",
+      "step3Title": "Or copy the QR content",
+      "step3Description": "Click 'Copy QR' and paste the content directly in your wallet to continue."
     },
     "validation": {
       "title": "Verification in Progress",

@@ -64,10 +64,16 @@ export class QRDisplayComponent implements OnDestroy {
    */
   regenerate = output<void>();
 
+  /**
+   * Event emitted when QR is copied to clipboard
+   */
+  copied = output<void>();
+
   // ── State ──
   readonly timeRemaining = signal<number>(120);
   readonly isExpired = signal<boolean>(false);
   readonly isLoading = signal<boolean>(false);
+  readonly isCopied = signal<boolean>(false);
 
   // ── Computed values ──
   readonly progress = computed(() => {
@@ -149,7 +155,29 @@ export class QRDisplayComponent implements OnDestroy {
     }, 500);
   }
 
+  /**
+   * Copy QR data to clipboard
+   */
+  async onCopyQR(): Promise<void> {
+    try {
+      const data = this.qrData();
+      if (!data) return;
+
+      await navigator.clipboard.writeText(data);
+      this.isCopied.set(true);
+      this.copied.emit();
+
+      // Reset copied state after 2 seconds
+      setTimeout(() => {
+        this.isCopied.set(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to copy QR data:', error);
+    }
+  }
+
   ngOnDestroy(): void {
     this.countdownSubscription?.unsubscribe();
   }
 }
+
