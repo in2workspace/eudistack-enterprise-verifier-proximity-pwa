@@ -9,13 +9,19 @@
     "scanQr": "Escanear código QR",
     "scanInstruction": "Escanea este código QR con tu Wallet EUDI para verificar tu identidad",
     "qr": {
-      "title": "Escanear para Verificar",
-      "subtitle": "VERIFICA TU IDENTIDAD DIGITAL",
+      "title": "Verificación de Credenciales",
       "generating": "Generando código QR...",
-      "scanInstruction": "Escanea este código QR con tu Wallet EUDI",
+      "scanInstruction": "Escanea este código QR con tu wallet",
       "expired": "Código QR expirado",
-      "regenerate": "Generar nuevo código",
-      "footer": "Escanea con tu Wallet EUDI para completar la verificación"
+      "expiresIn": "El QR expira en",
+      "regenerate": "Actualizar QR",
+      "footer": "Escanea el código QR con tu wallet para verificar tu identidad",
+      "credentialLabel": "SE TE PEDIRÁ QUE PRESENTES:",
+      "credentialType": "Credencial de Empleado",
+      "step1Title": "Escanea el código QR",
+      "step1Description": "Alinea tu cámara con el código mostrado a la izquierda.",
+      "step2Title": "Selecciona la credencial requerida en tu Wallet digital",
+      "step2Description": "Elige los atributos verificados solicitados por el sistema."
     },
     "validation": {
       "title": "Verificación en Progreso",

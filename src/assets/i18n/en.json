@@ -9,13 +9,19 @@
     "scanQr": "Scan QR Code",
     "scanInstruction": "Scan this QR code with your EUDI Wallet to verify your identity",
     "qr": {
-      "title": "Scan to Verify",
-      "subtitle": "VERIFY YOUR DIGITAL IDENTITY",
+      "title": "Credential Verification",
       "generating": "Generating QR code...",
-      "scanInstruction": "Scan this QR code with your EUDI Wallet",
+      "scanInstruction": "Scan this QR code with your wallet",
       "expired": "QR code expired",
-      "regenerate": "Generate new code",
-      "footer": "Scan with your EUDI Wallet to complete verification"
+      "expiresIn": "QR expires in",
+      "regenerate": "Refresh QR",
+      "footer": "Scan the QR code with your wallet to verify your identity",
+      "credentialLabel": "YOU WILL BE ASKED TO PRESENT:",
+      "credentialType": "Employee Credential",
+      "step1Title": "Scan the QR code",
+      "step1Description": "Align your camera with the code displayed on the left.",
+      "step2Title": "Select required credential on your digital Wallet",
+      "step2Description": "Choose the verified attributes requested by the system."
     },
     "validation": {
       "title": "Verification in Progress",

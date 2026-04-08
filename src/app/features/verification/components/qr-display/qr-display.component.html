@@ -1,65 +1,93 @@
 <app-header [showLogo]="true" />
 
 <div class="qr-display">
-  <!-- Main Content -->
-  <div class="qr-display__content">
-    <h1 class="qr-display__title">{{ 'verification.qr.title' | translate }}</h1>
-    <p class="qr-display__subtitle">{{ 'verification.qr.subtitle' | translate }}</p>
-
-    <!-- QR Card -->
-    <div class="qr-display__card">
-      <div class="card__corner card__corner--tl"></div>
-      <div class="card__corner card__corner--tr"></div>
-      <div class="card__corner card__corner--bl"></div>
-      <div class="card__corner card__corner--br"></div>
-
-      @if (isLoading()) {
-        <div class="card__loading">
-          <ion-spinner name="crescent" class="card__spinner"></ion-spinner>
-          <p class="card__loading-text">{{ 'verification.qr.generating' | translate }}</p>
-        </div>
-      } @else if (isExpired()) {
-        <div class="card__expired">
-          <ion-icon name="time-outline" class="card__expired-icon"></ion-icon>
-          <h3 class="card__expired-title">{{ 'verification.qr.expired' | translate }}</h3>
-          @if (!autoRegenerate()) {
-            <ion-button (click)="onRegenerate()" fill="outline" class="card__regenerate-btn">
-              <ion-icon name="refresh" slot="start"></ion-icon>
-              {{ 'verification.qr.regenerate' | translate }}
-            </ion-button>
-          }
-        </div>
-      } @else {
-        <div class="card__content">
-          <!-- QR Code -->
-          <div class="card__qr-wrapper">
+  <!-- 2-Column Layout -->
+  <div class="qr-display__container">
+    
+    <!-- LEFT COLUMN: QR Code Section -->
+    <div class="qr-display__left">
+      <div class="qr-section">
+        @if (isLoading()) {
+          <div class="qr-section__loading">
+            <ion-spinner name="crescent" class="qr-section__spinner"></ion-spinner>     
+            <p class="qr-section__loading-text">{{ 'verification.qr.generating' | translate }}</p>
+          </div>
+        } @else if (isExpired()) {
+          <div class="qr-section__expired">
+            <ion-icon name="time-outline" class="qr-section__expired-icon"></ion-icon>  
+            <h3 class="qr-section__expired-title">{{ 'verification.qr.expired' | translate }}</h3>
+          </div>
+        } @else {
+          <!-- QR Code Container -->
+          <div class="qr-section__qr-container">
             <qrcode
               [qrdata]="qrData()"
-              [width]="320"
+              [width]="360"
               [errorCorrectionLevel]="'M'"
               [elementType]="'canvas'"
               [margin]="1"
-              cssClass="card__qr-code"
+              cssClass="qr-section__qr-code"
             ></qrcode>
           </div>
-
-          <!-- Timer -->
-          <div class="card__timer" [class.card__timer--warning]="isWarning()">
+        }
+        
+        <!-- Timer Badge -->
+        @if (!isLoading() && !isExpired()) {
+          <div class="qr-section__timer" [class.qr-section__timer--warning]="isWarning()">
             <ion-icon name="time-outline"></ion-icon>
-            <span>{{ formattedTime() }}</span>
+            <span>{{ 'verification.qr.expiresIn' | translate }} {{ formattedTime() }}</span>
           </div>
-
-          <!-- Instructions -->
-          <p class="card__instructions">
-            {{ 'verification.qr.scanInstruction' | translate }}
-          </p>
-        </div>
-      }
+        }
+        
+        <!-- Refresh Button -->
+        <ion-button 
+          (click)="onRegenerate()" 
+          fill="outline" 
+          class="qr-section__refresh-btn"
+          [disabled]="isLoading()">
+          <ion-icon name="refresh" slot="start"></ion-icon>
+          {{ 'verification.qr.regenerate' | translate }}
+        </ion-button>
+      </div>
     </div>
 
-    <!-- Footer Note -->
-    <p class="qr-display__footer">
-      {{ 'verification.qr.footer' | translate }}
-    </p>
-  </div>
-</div>
+    <!-- RIGHT COLUMN: Instructions Section -->
+    <div class="qr-display__right">
+      <div class="info-section">
+        
+        <!-- Credential Info Card -->
+        <div class="info-section__credential-card">
+          <div class="credential-card__label">
+            {{ 'verification.qr.credentialLabel' | translate }}
+          </div>
+          <div class="credential-card__badge">
+            <ion-icon name="card-outline"></ion-icon>
+            <span>{{ 'verification.qr.credentialType' | translate }}</span>
+          </div>
+        </div>
+
+        <!-- Steps -->
+        <div class="info-section__steps">
+          
+          <!-- Step 01 -->
+          <div class="step">
+            <div class="step__number">01</div>
+            <div class="step__content">
+              <h3 class="step__title">{{ 'verification.qr.step1Title' | translate }}</h3>
+              <p class="step__description">{{ 'verification.qr.step1Description' | translate }}</p>
+            </div>
+          </div>
+
+          <!-- Step 02 -->
+          <div class="step">
+            <div class="step__number">02</div>
+            <div class="step__content">
+              <h3 class="step__title">{{ 'verification.qr.step2Title' | translate }}</h3>
+              <p class="step__description">{{ 'verification.qr.step2Description' | translate }}</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
