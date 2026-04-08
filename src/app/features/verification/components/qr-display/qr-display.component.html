@@ -1,64 +1,68 @@
-<div class="qr-display-container">
-  <!-- Loading State -->
-  @if (isLoading()) {
-    <div class="loading-state">
-      <ion-spinner name="crescent" color="primary"></ion-spinner>
-      <p class="loading-text">{{ 'verification.qr.generating' | translate }}</p>
-    </div>
-  } @else {
-    <!-- QR Code + Countdown -->
-    <div class="qr-content">
-      <!-- Countdown Timer (Circular) -->
-      <div class="countdown-wrapper">
-        <ion-progress-bar
-          [value]="progress() / 100"
-          [color]="isWarning() ? 'warning' : 'primary'"
-          class="countdown-progress"
-        ></ion-progress-bar>
-        
-        <div class="countdown-circle" [class.warning]="isWarning()">
-          <span class="countdown-time">{{ formattedTime() }}</span>
+<div class="qr-display">
+  <!-- KPMG Logo -->
+  <div class="qr-display__logo">
+    <img src="assets/logos/kpmg-logo.svg" alt="KPMG" />
+  </div>
+
+  <!-- Main Content -->
+  <div class="qr-display__content">
+    <h1 class="qr-display__title">{{ 'verification.qr.title' | translate }}</h1>
+    <p class="qr-display__subtitle">{{ 'verification.qr.subtitle' | translate }}</p>
+
+    <!-- QR Card -->
+    <div class="qr-display__card">
+      <div class="card__corner card__corner--tl"></div>
+      <div class="card__corner card__corner--tr"></div>
+      <div class="card__corner card__corner--bl"></div>
+      <div class="card__corner card__corner--br"></div>
+
+      @if (isLoading()) {
+        <div class="card__loading">
+          <ion-spinner name="crescent" class="card__spinner"></ion-spinner>
+          <p class="card__loading-text">{{ 'verification.qr.generating' | translate }}</p>
         </div>
-      </div>
-
-      <!-- QR Code -->
-      <div class="qr-code-wrapper">
-        <qrcode
-          [qrdata]="qrData()"
-          [width]="512"
-          [errorCorrectionLevel]="'M'"
-          [elementType]="'canvas'"
-          [margin]="2"
-          cssClass="qr-code"
-        ></qrcode>
-      </div>
-
-      <!-- Instructions -->
-      <div class="qr-instructions">
-        <ion-icon name="scan-outline" class="scan-icon"></ion-icon>
-        <p class="instruction-text">
-          {{ 'verification.qr.scanInstruction' | translate }}
-        </p>
-      </div>
-
-      <!-- Expired State -->
-      @if (isExpired()) {
-        <div class="expired-overlay">
-          <div class="expired-content">
-            <ion-icon name="time-outline" class="expired-icon"></ion-icon>
-            <p class="expired-text">{{ 'verification.qr.expired' | translate }}</p>
-            @if (!autoRegenerate()) {
-              <ion-button
-                (click)="onRegenerate()"
-                color="primary"
-                size="default"
-              >
-                {{ 'verification.qr.regenerate' | translate }}
-              </ion-button>
-            }
+      } @else if (isExpired()) {
+        <div class="card__expired">
+          <ion-icon name="time-outline" class="card__expired-icon"></ion-icon>
+          <h3 class="card__expired-title">{{ 'verification.qr.expired' | translate }}</h3>
+          @if (!autoRegenerate()) {
+            <ion-button (click)="onRegenerate()" fill="outline" class="card__regenerate-btn">
+              <ion-icon name="refresh" slot="start"></ion-icon>
+              {{ 'verification.qr.regenerate' | translate }}
+            </ion-button>
+          }
+        </div>
+      } @else {
+        <div class="card__content">
+          <!-- QR Code -->
+          <div class="card__qr-wrapper">
+            <qrcode
+              [qrdata]="qrData()"
+              [width]="320"
+              [errorCorrectionLevel]="'M'"
+              [elementType]="'canvas'"
+              [margin]="1"
+              cssClass="card__qr-code"
+            ></qrcode>
           </div>
+
+          <!-- Timer -->
+          <div class="card__timer" [class.card__timer--warning]="isWarning()">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ formattedTime() }}</span>
+          </div>
+
+          <!-- Instructions -->
+          <p class="card__instructions">
+            {{ 'verification.qr.scanInstruction' | translate }}
+          </p>
         </div>
       }
     </div>
-  }
+
+    <!-- Footer Note -->
+    <p class="qr-display__footer">
+      {{ 'verification.qr.footer' | translate }}
+    </p>
+  </div>
 </div>

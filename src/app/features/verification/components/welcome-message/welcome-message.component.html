@@ -1,41 +1,63 @@
 <div class="welcome-message">
-  <!-- Success Icon -->
-  <div class="welcome-message__icon">
-    <ion-icon name="checkmark-circle" color="light"></ion-icon>
+  <!-- KPMG Logo -->
+  <div class="welcome-message__logo">
+    <img src="assets/logos/kpmg-logo.svg" alt="KPMG" />
   </div>
 
-  <!-- Welcome Message -->
+  <!-- Main Content -->
   <div class="welcome-message__content">
-    <h1 class="welcome-message__title">
-      {{ 'verification.welcome.message' | translate: { firstName: firstName(), familyName: familyName() } }}
-    </h1>
-    <p class="welcome-message__subtitle">
-      {{ 'verification.welcome.accessGranted' | translate }}
-    </p>
-  </div>
+    <h1 class="welcome-message__title">{{ 'verification.welcome.title' | translate }}</h1>
+    <p class="welcome-message__subtitle">{{ 'verification.welcome.subtitle' | translate }}</p>
 
-  <!-- Countdown -->
-  @if (autoRedirect() && isCountingDown()) {
-    <div class="welcome-message__countdown">
-      <p>
+    <!-- Success Card -->
+    <div class="welcome-message__card">
+      <div class="card__corner card__corner--tl"></div>
+      <div class="card__corner card__corner--tr"></div>
+      <div class="card__corner card__corner--bl"></div>
+      <div class="card__corner card__corner--br"></div>
+
+      <div class="card__content">
+        <!-- Success Icon -->
+        <div class="card__icon">
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </div>
+
+        <!-- Welcome Message -->
+        <h2 class="card__message">
+          {{ 'verification.welcome.welcome' | translate }}<br/>{{ fullName() }}
+        </h2>
+
+        <p class="card__submessage">
+          {{ 'verification.welcome.submessage' | translate }}
+        </p>
+
+        <!-- Badge -->
+        <div class="card__badge">
+          <ion-icon name="shield-checkmark"></ion-icon>
+          <span>{{ 'verification.welcome.verified' | translate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Countdown or Continue Button -->
+    @if (autoRedirect() && isCountingDown()) {
+      <p class="welcome-message__countdown">
         {{ 'verification.welcome.redirecting' | translate: { seconds: secondsRemaining() } }}
       </p>
-      <ion-progress-bar 
-        [value]="secondsRemaining() / countdownDuration()"
-        color="light"
-      ></ion-progress-bar>
-    </div>
-  }
+    } @else {
+      <ion-button 
+        class="welcome-message__button"
+        expand="block"
+        size="large"
+        (click)="onContinueClick()"
+      >
+        {{ 'verification.welcome.button' | translate }}
+      </ion-button>
+    }
 
-  <!-- Continue Button -->
-  <div class="welcome-message__actions">
-    <ion-button 
-      expand="block" 
-      color="light"
-      size="large"
-      (click)="onContinueClick()"
-    >
-      {{ 'verification.welcome.button' | translate }}
-    </ion-button>
+    <!-- Footer Note -->
+    <p class="welcome-message__footer">
+      {{ 'verification.welcome.footer' | translate }}
+    </p>
   </div>
 </div>

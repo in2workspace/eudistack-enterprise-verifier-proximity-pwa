@@ -1,213 +1,298 @@
-// ─────────────────────────────────────────────────────────────────
-// QR Display Component Styles
-// ─────────────────────────────────────────────────────────────────
-
-.qr-display-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-lg);
-  min-height: 600px;
-
-  @media (max-width: 767px) {
-    padding: var(--space-md);
-    min-height: 500px;
-  }
-}
-
-// ── Loading State ──
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-md);
-
-  .loading-text {
-    color: var(--text-secondary);
-    font-size: 1rem;
-    margin: 0;
-  }
-
-  ion-spinner {
-    width: 48px;
-    height: 48px;
-  }
-}
-
-// ── QR Content ──
-.qr-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-lg);
-  position: relative;
+.qr-display {
   width: 100%;
-  max-width: 600px;
-}
-
-// ── Countdown Timer ──
-.countdown-wrapper {
-  position: relative;
-  width: 120px;
-  height: 120px;
+  min-height: 100vh;
+  padding: 32px 24px;
+  background: linear-gradient(180deg, #00338D 0%, #002770 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-
-  @media (max-width: 767px) {
-    width: 100px;
-    height: 100px;
-  }
-}
-
-.countdown-progress {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  --background: var(--surface-muted);
-  --progress-background: var(--action-primary);
-  transform: rotate(-90deg); // Start from top
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
   
-  &::part(progress) {
-    border-radius: 50%;
-  }
-}
+  // Smooth scrolling on mobile
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 
-.countdown-circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: var(--surface-card);
-  box-shadow: var(--shadow-md);
-  transition: all 0.3s ease;
+  &__logo {
+    position: absolute;
+    top: 32px;
+    left: 32px;
 
-  @media (max-width: 767px) {
-    width: 80px;
-    height: 80px;
-  }
-
-  &.warning {
-    background: rgba(217, 119, 6, 0.1);
-    box-shadow: 0 0 20px rgba(217, 119, 6, 0.3);
-    
-    .countdown-time {
-      color: var(--status-warning);
+    img {
+      height: 48px;
+      width: auto;
     }
   }
-}
 
-.countdown-time {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-  
-  @media (max-width: 767px) {
-    font-size: 1.25rem;
+  &__content {
+    width: 100%;
+    max-width: 640px;
+    margin-top: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__title {
+    font-size: 3rem;
+    font-weight: 400;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+    text-align: center;
+    letter-spacing: -0.02em;
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.15em;
+    margin: 0 0 48px 0;
+    text-align: center;
+  }
+
+  &__card {
+    width: 100%;
+    max-width: 480px;
+    background: #1a2942;
+    border-radius: 16px;
+    padding: 48px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  &__footer {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+    margin: 32px 0 0 0;
+    text-align: center;
   }
 }
 
-// ── QR Code ──
-.qr-code-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-lg);
-  background: var(--surface-card);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.2s ease;
+// ── Card Styles ──
 
-  &:hover {
-    transform: scale(1.02);
+.card {
+  &__corner {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+
+    &--tl {
+      top: 16px;
+      left: 16px;
+      border-right: none;
+      border-bottom: none;
+      border-radius: 4px 0 0 0;
+    }
+
+    &--tr {
+      top: 16px;
+      right: 16px;
+      border-left: none;
+      border-bottom: none;
+      border-radius: 0 4px 0 0;
+    }
+
+    &--bl {
+      bottom: 16px;
+      left: 16px;
+      border-right: none;
+      border-top: none;
+      border-radius: 0 0 0 4px;
+    }
+
+    &--br {
+      bottom: 16px;
+      right: 16px;
+      border-left: none;
+      border-top: none;
+      border-radius: 0 0 4px 0;
+    }
   }
 
-  @media (max-width: 767px) {
-    padding: var(--space-md);
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 
-  ::ng-deep .qr-code {
-    display: block;
-    max-width: 100%;
-    height: auto;
-    
-    canvas {
+  &__qr-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+    background: #ffffff;
+    border-radius: 12px;
+    margin-bottom: 24px;
+
+    ::ng-deep canvas {
+      display: block;
       max-width: 100%;
       height: auto !important;
-      width: 100% !important;
     }
   }
-}
 
-// ── Instructions ──
-.qr-instructions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-sm);
-  text-align: center;
-
-  .scan-icon {
-    font-size: 2rem;
-    color: var(--action-primary);
-  }
-
-  .instruction-text {
-    color: var(--text-secondary);
+  &__timer {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(138, 180, 248, 0.15);
+    border: 1px solid rgba(138, 180, 248, 0.3);
+    border-radius: 24px;
+    color: #8ab4f8;
     font-size: 1rem;
-    line-height: 1.5;
-    max-width: 400px;
-    margin: 0;
+    font-weight: 600;
+    margin-bottom: 16px;
 
-    @media (max-width: 767px) {
-      font-size: 0.9rem;
+    ion-icon {
+      font-size: 18px;
+    }
+
+    &--warning {
+      background: rgba(255, 193, 7, 0.15);
+      border-color: rgba(255, 193, 7, 0.3);
+      color: #ffc107;
     }
   }
-}
 
-// ── Expired Overlay ──
-.expired-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-lg);
-  z-index: 10;
-}
-
-.expired-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-lg);
-  text-align: center;
-
-  .expired-icon {
-    font-size: 3rem;
-    color: var(--status-warning);
+  &__instructions {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    line-height: 1.5;
   }
 
-  .expired-text {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-primary);
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 64px 32px;
+  }
+
+  &__spinner {
+    width: 64px;
+    height: 64px;
+    --color: #8ab4f8;
+  }
+
+  &__loading-text {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
     margin: 0;
   }
 
-  ion-button {
-    --padding-start: var(--space-lg);
-    --padding-end: var(--space-lg);
+  &__expired {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 64px 32px;
+  }
+
+  &__expired-icon {
+    font-size: 64px;
+    color: #ffc107;
+  }
+
+  &__expired-title {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+  }
+
+  &__regenerate-btn {
+    --color: #8ab4f8;
+    --border-color: #8ab4f8;
+  }
+}
+
+// ── Responsive ──
+
+@media (max-width: 768px) {
+  .qr-display {
+    padding: 24px 16px;
+    
+    &__logo {
+      top: 24px;
+      left: 24px;
+      
+      img {
+        height: 36px;
+      }
+    }
+
+    &__content {
+      margin-top: 72px;
+    }
+
+    &__title {
+      font-size: 2rem;
+    }
+
+    &__card {
+      padding: 32px 24px;
+    }
+  }
+
+  .card__qr-wrapper {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .qr-display {
+    padding: 16px 12px;
+
+    &__logo {
+      top: 16px;
+      left: 16px;
+      
+      img {
+        height: 32px;
+      }
+    }
+
+    &__content {
+      margin-top: 64px;
+    }
+
+    &__title {
+      font-size: 1.5rem;
+    }
+
+    &__subtitle {
+      font-size: 0.75rem;
+      margin-bottom: 32px;
+    }
+
+    &__card {
+      padding: 24px 16px;
+    }
+  }
+
+  .card {
+    &__corner {
+      width: 24px;
+      height: 24px;
+    }
+
+    &__qr-wrapper {
+      padding: 12px;
+    }
+
+    &__timer {
+      font-size: 0.875rem;
+      padding: 6px 12px;
+    }
+
+    &__instructions {
+      font-size: 0.875rem;
+    }
   }
 }

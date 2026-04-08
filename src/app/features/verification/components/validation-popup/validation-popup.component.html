@@ -1,56 +1,51 @@
 <ion-modal [isOpen]="isOpen()" [backdropDismiss]="false" class="validation-popup-modal">
   <ng-template>
     <div class="validation-popup">
-      <!-- Header -->
-      <div class="validation-popup__header">
-        <h2>{{ 'verification.validation.title' | translate }}</h2>
+      <!-- KPMG Logo -->
+      <div class="validation-popup__logo">
+        <img src="assets/logos/kpmg-logo.svg" alt="KPMG" />
       </div>
 
-      <!-- Validation Checks -->
-      <div class="validation-popup__checks">
-        @for (check of checks(); track check.key) {
-          <div 
-            class="validation-check"
-            [class.validation-check--pending]="check.status === 'pending'"
-            [class.validation-check--validating]="check.status === 'validating'"
-            [class.validation-check--success]="check.status === 'success'"
-            [class.validation-check--error]="check.status === 'error'"
-          >
-            <ion-icon 
-              [name]="getIconName(check.status)" 
-              [color]="getIconColor(check.status)"
-              [class.spinning]="check.status === 'validating'"
-            ></ion-icon>
-            <span class="validation-check__label">
-              {{ check.label | translate }}
-            </span>
+      <!-- Main Content -->
+      <div class="validation-popup__content">
+        <!-- Title -->
+        <h1 class="validation-popup__title">{{ 'verification.validation.title' | translate }}</h1>
+        <p class="validation-popup__subtitle">{{ 'verification.validation.subtitle' | translate }}</p>
+
+        <!-- Card with decorated corners -->
+        <div class="validation-popup__card">
+          <div class="card__corner card__corner--tl"></div>
+          <div class="card__corner card__corner--tr"></div>
+          <div class="card__corner card__corner--bl"></div>
+          <div class="card__corner card__corner--br"></div>
+
+          <div class="card__content">
+            <!-- Spinner -->
+            <ion-spinner name="crescent" class="card__spinner"></ion-spinner>
+
+            <!-- Main Message -->
+            <h2 class="card__message">
+              {{ 'verification.validation.message' | translate }}
+            </h2>
+
+            <!-- Sub Message -->
+            <p class="card__submessage">
+              {{ 'verification.validation.submessage' | translate }}
+            </p>
+
+            <!-- Encryption Badge -->
+            <div class="card__badge">
+              <ion-icon name="lock-closed"></ion-icon>
+              <span>{{ 'verification.validation.encrypted' | translate }}</span>
+            </div>
           </div>
-        }
+        </div>
+
+        <!-- Footer Note -->
+        <p class="validation-popup__footer">
+          {{ 'verification.validation.footer' | translate }}
+        </p>
       </div>
-
-      <!-- Validating Message -->
-      @if (isValidating()) {
-        <div class="validation-popup__status validation-popup__status--validating">
-          <ion-spinner name="crescent"></ion-spinner>
-          <p>{{ 'verification.validation.validating' | translate }}</p>
-        </div>
-      }
-
-      <!-- Action Buttons -->
-      @if (!isValidating()) {
-        <div class="validation-popup__actions">
-          @if (allSuccess()) {
-            <ion-button expand="block" color="success" (click)="onOkClick()">
-              {{ 'verification.validation.buttons.ok' | translate }}
-            </ion-button>
-          }
-          @if (hasError()) {
-            <ion-button expand="block" color="danger" (click)="onRetryClick()">
-              {{ 'verification.validation.buttons.retry' | translate }}
-            </ion-button>
-          }
-        </div>
-      }
     </div>
   </ng-template>
 </ion-modal>

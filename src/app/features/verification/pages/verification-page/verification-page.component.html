@@ -1,0 +1,62 @@
+<!-- STATE: INITIALIZING / WAITING / VALIDATING / SUCCESS / ERROR -->
+
+<!-- Initializing: Show KPMG branded loading -->
+@if (isInitializing()) {
+  <div class="fullscreen-state initializing">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>{{ 'verification.initializing' | translate }}</p>
+  </div>
+}
+
+<!-- Waiting for Scan: Show fullscreen QR display -->
+@if (isWaitingForScan()) {
+  <app-qr-display
+    [qrData]="qrCodeUrl()"
+    [duration]="120"
+    [autoRegenerate]="true"
+    (expired)="onQrExpired()"
+    (regenerate)="onQrRegenerate()"
+  />
+}
+
+<!-- Validating: Show fullscreen validation popup -->
+@if (isValidating()) {
+  <app-validation-popup
+    [isOpen]="true"
+    [validationResults]="validationChecks()"
+    (okClicked)="onValidationRetry()"
+    (retryClicked)="onValidationRetry()"
+  />
+}
+
+<!-- Success: Show fullscreen welcome message -->
+@if (isSuccess()) {
+  <app-welcome-message
+    [firstName]="userFirstName()"
+    [familyName]="userFamilyName()"
+    [countdownDuration]="10"
+    [autoRedirect]="true"
+    (continueClicked)="onWelcomeContinue()"
+    (countdownComplete)="onWelcomeCountdownComplete()"
+  />
+}
+
+<!-- Error: Show fullscreen error display -->
+@if (isError()) {
+  <div class="fullscreen-state error">
+    <ion-icon name="close-circle" class="error-icon"></ion-icon>
+    <h2>{{ 'verification.error.title' | translate }}</h2>
+    <p class="error-message">{{ errorMessage() }}</p>
+    
+    @if (errorDetails()) {
+      <div class="error-details">
+        <pre>{{ errorDetails() }}</pre>
+      </div>
+    }
+    
+    <ion-button expand="block" (click)="onErrorRetry()">
+      <ion-icon name="refresh" slot="start"></ion-icon>
+      {{ 'verification.error.retry' | translate }}
+    </ion-button>
+  </div>
+}

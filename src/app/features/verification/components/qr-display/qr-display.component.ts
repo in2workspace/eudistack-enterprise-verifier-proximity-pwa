@@ -63,9 +63,9 @@ export class QRDisplayComponent implements OnDestroy {
   regenerate = output<void>();
 
   // ── State ──
-  private readonly timeRemaining = signal<number>(120);
-  private readonly isExpired = signal<boolean>(false);
-  private readonly isLoading = signal<boolean>(false);
+  readonly timeRemaining = signal<number>(120);
+  readonly isExpired = signal<boolean>(false);
+  readonly isLoading = signal<boolean>(false);
 
   // ── Computed values ──
   readonly progress = computed(() => {
