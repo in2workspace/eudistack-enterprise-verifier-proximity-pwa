@@ -142,4 +142,128 @@ describe('CryptoService', () => {
       expect(algorithms.length).toBe(2);
     });
   });
+
+  describe('DID:key Generation', () => {
+    it('should generate did:key from P-256 public key', async () => {
+      const keypair = await service.generateKeyPair('ES256');
+      const didKey = await service.generateDidKey(keypair.publicKey);
+
+      expect(didKey).toBeDefined();
+      expect(didKey).toMatch(/^did:key:z[1-9A-HJ-NP-Za-km-z]+$/);
+      expect(didKey.startsWith('did:key:z')).toBe(true);
+    });
+
+    it('should generate deterministic did:key for same public key', async () => {
+      const keypair = await service.generateKeyPair('ES256');
+      const didKey1 = await service.generateDidKey(keypair.publicKey);
+      const didKey2 = await service.generateDidKey(keypair.publicKey);
+
+      expect(didKey1).toBe(didKey2);
+    });
+
+    it('should generate different did:key for different keypairs', async () => {
+      const keypair1 = await service.generateKeyPair('ES256');
+      const keypair2 = await service.generateKeyPair('ES256');
+      
+      const didKey1 = await service.generateDidKey(keypair1.publicKey);
+      const didKey2 = await service.generateDidKey(keypair2.publicKey);
+
+      expect(didKey1).not.toBe(didKey2);
+    });
+
+    it('should generate verifier identity with clientId and keypair', async () => {
+      const identity = await service.generateVerifierIdentity();
+
+      expect(identity).toBeDefined();
+      expect(identity.clientId).toBeDefined();
+      expect(identity.clientId).toMatch(/^did:key:z[1-9A-HJ-NP-Za-km-z]+$/);
+      expect(identity.keypair).toBeDefined();
+      expect(identity.keypair.publicKey).toBeDefined();
+      expect(identity.keypair.privateKey).toBeDefined();
+    });
+
+    it('should generate valid multibase-encoded did:key', async () => {
+      const keypair = await service.generateKeyPair('ES256');
+      const didKey = await service.generateDidKey(keypair.publicKey);
+
+      // Extract multibase-encoded part (after 'did:key:z')
+      const multibaseEncoded = didKey.substring('did:key:z'.length);
+
+      // Verify base58 alphabet (Bitcoin)
+      const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
+      expect(multibaseEncoded).toMatch(base58Regex);
+    });
+  });
+
+  describe('JWT Signing', () => {
+    it('should sign JWT with default typ=JWT', async () => {
+      const keypair = await service.generateKeyPair('ES256');
+      const payload = { sub: 'test', iat: Math.floor(Date.now() / 1000) };
+      
+      const jwt = await service.signJwt(payload, keypair.privateKey);
+
+      // Decode header and verify typ
+      const header = service.extractAlgorithm(jwt);
+      expect(header).toBe('ES256');
+      
+      // Verify the JWT is valid
+      const decoded = service.decodeJwt(jwt);
+      expect(decoded.sub).toBe('test');
+    });
+
+    it('should sign JWT with custom typ for OID4VP authorization requests', async () => {
+      const keypair = await service.generateKeyPair('ES256');
+      const payload = {
+        client_id: 'did:key:z...',
+        response_type: 'vp_token',
+        nonce: 'test-nonce'
+      };
+      
+      const jwt = await service.signJwt(
+        payload,
+        keypair.privateKey,
+        'ES256',
+        'oauth-authz-req+jwt'
+      );
+
+      expect(jwt).toBeDefined();
+      
+      // Decode and verify structure
+      const decoded = service.decodeJwt(jwt);
+      expect(decoded.client_id).toBe('did:key:z...');
+      expect(decoded.response_type).toBe('vp_token');
+    });
+
+    it('should include kid in JWT header when provided', async () => {
+      const keypair = await service.generateKeyPair('ES256');
+      const didKey = 'did:key:zDnaegqxnGrSfnHR4WjT9g1RtdThNigx3NuDs84RyV733ecaF';
+      const payload = {
+        iss: didKey,
+        client_id: didKey,
+        response_type: 'vp_token'
+      };
+      
+      const jwt = await service.signJwt(
+        payload,
+        keypair.privateKey,
+        'ES256',
+        'oauth-authz-req+jwt',
+        didKey  // kid parameter
+      );
+
+      expect(jwt).toBeDefined();
+      
+      // Split JWT to inspect header
+      const parts = jwt.split('.');
+      expect(parts.length).toBe(3);
+      
+      // Decode header (base64url)
+      const headerJson = atob(parts[0].replace(/-/g, '+').replace(/_/g, '/'));
+      const header = JSON.parse(headerJson);
+      
+      expect(header.alg).toBe('ES256');
+      expect(header.typ).toBe('oauth-authz-req+jwt');
+      expect(header.kid).toBe(didKey);
+    });
+  });
 });

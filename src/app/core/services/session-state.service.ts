@@ -63,9 +63,11 @@ export class SessionStateService implements OnDestroy {
       // Generate session ID
       const sessionId = uuidv4();
 
-      // Generate ephemeral keypair
+      // Use provided keypair or generate new one
+      // IMPORTANT: When using did:key as client_id, the keypair MUST be the same
+      // one used to derive the DID. Otherwise signature verification will fail.
       const algorithm = options.algorithm ?? 'ES256';
-      const keypair = await this.cryptoService.generateKeyPair(algorithm);
+      const keypair = options.keypair ?? await this.cryptoService.generateKeyPair(algorithm);
 
       // Generate random nonce
       const nonce = this.cryptoService.generateNonce();
@@ -80,10 +82,20 @@ export class SessionStateService implements OnDestroy {
       ).toISOString();
 
       // Build authorization request payload
+      const clientId = options.clientId ?? 'kpmg-verifier';
+      
+      // Response URI for same-device proximity flow
+      // PWA registers custom protocol handler in manifest.json
+      const responseUri = options.responseUri ?? window.location.origin + '/verify/response';
+      
       const requestPayload = {
+        // Per OID4VP spec, iss (issuer) must equal client_id
+        iss: clientId,
+        aud: 'https://self-issued.me/v2',
         response_type: 'vp_token',
         response_mode: 'direct_post',
-        client_id: options.clientId ?? 'kpmg-verifier',
+        response_uri: responseUri,
+        client_id: clientId,
         client_metadata: {
           vp_formats_supported: {
             jwt_vp_json: {
@@ -93,20 +105,26 @@ export class SessionStateService implements OnDestroy {
         },
         nonce: nonce,
         state: this.cryptoService.generateState(),
+        jti: uuidv4(), // JWT ID for uniqueness
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + timeoutSeconds
       };
 
       // Sign authorization request (JAR)
+      // Per OID4VP spec, typ must be 'oauth-authz-req+jwt' for authorization requests
+      // kid must be the DID (client_id) for wallet to resolve public key
       const requestObject = await this.cryptoService.signJwt(
         requestPayload,
         keypair.privateKey,
-        algorithm
+        algorithm,
+        'oauth-authz-req+jwt',
+        clientId  // kid = DID
       );
 
       // Create session object
       const session: VerificationSession = {
         sessionId,
+        clientId,
         keypair,
         nonce,
         requestObject,
@@ -299,10 +317,24 @@ export class SessionStateService implements OnDestroy {
  */
 export interface CreateSessionOptions {
   /**
-   * Client ID for authorization request
-   * Default: 'kpmg-verifier'
+   * Client ID for authorization request (verifier DID:key)
+   * Should be dynamically generated using VerifierIdentityService
    */
   clientId?: string;
+
+  /**
+   * Keypair for signing the authorization request
+   * MUST be the same keypair used to generate the clientId (DID)
+   * If not provided, a new keypair will be generated
+   */
+  keypair?: CryptoKeyPair;
+
+  /**
+   * Response URI where wallet will POST the VP token
+   * Default: window.location.origin + '/verify/response'
+   * For same-device flow, can use custom protocol handler
+   */
+  responseUri?: string;
 
   /**
    * Signing algorithm

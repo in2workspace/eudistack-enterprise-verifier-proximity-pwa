@@ -6,6 +6,7 @@
 
 export * from './storage.service';
 export * from './crypto.service';
+export * from './verifier-identity.service';
 export * from './session-state.service';
 export * from './trust-framework.service';
 export * from './status-list.service';

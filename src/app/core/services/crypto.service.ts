@@ -81,17 +81,27 @@ export class CryptoService {
    * @param payload JWT payload object
    * @param privateKey Private key for signing
    * @param algorithm Signing algorithm (default: ES256)
+   * @param typ JWT type (default: 'JWT', use 'oauth-authz-req+jwt' for OID4VP authorization requests)
+   * @param kid Key ID (optional, should be DID when using did:key)
    * @returns Signed JWT string (JWS)
    * @throws CryptoException if signing fails
    */
   public async signJwt(
     payload: Record<string, unknown>,
     privateKey: CryptoKey,
-    algorithm: 'ES256' | 'EdDSA' = 'ES256'
+    algorithm: 'ES256' | 'EdDSA' = 'ES256',
+    typ: string = 'JWT',
+    kid?: string
   ): Promise<string> {
     try {
+      const header: { alg: string; typ: string; kid?: string } = { alg: algorithm, typ };
+      
+      if (kid) {
+        header.kid = kid;
+      }
+      
       const jwt = await new jose.SignJWT(payload)
-        .setProtectedHeader({ alg: algorithm, typ: 'JWT' })
+        .setProtectedHeader(header)
         .setIssuedAt()
         .sign(privateKey);
 
@@ -300,6 +310,122 @@ export class CryptoService {
   }
 
   /**
+   * Generate a did:key identifier from a P-256 public key
+   * 
+   * Format: did:key:z{base58btc(multicodec_prefix + compressed_pubkey)}
+   * Multicodec for P-256: 0x1200 (varint: 0x80 0x24)
+   * 
+   * @param publicKey P-256 public key
+   * @returns DID:key identifier
+   * @throws CryptoException if generation fails
+   */
+  public async generateDidKey(publicKey: CryptoKey): Promise<string> {
+    try {
+      // Export public key to JWK
+      const jwk = await this.exportPublicKey(publicKey);
+      
+      if (!jwk.x || !jwk.y) {
+        throw new CryptoException('Invalid EC public key: missing x or y coordinate');
+      }
+
+      // Decode base64url coordinates
+      const x = this.base64UrlDecode(jwk.x);
+      const y = this.base64UrlDecode(jwk.y);
+
+      // Compress public key (SEC1 format)
+      // If Y is even: 0x02 + X, if Y is odd: 0x03 + X
+      const yLastByte = y[y.length - 1];
+      const prefix = (yLastByte & 1) === 0 ? 0x02 : 0x03;
+      const compressedKey = new Uint8Array(33);
+      compressedKey[0] = prefix;
+      compressedKey.set(x, 1);
+
+      // Multicodec prefix for P-256 public key: 0x1200 as varint = [0x80, 0x24]
+      const multicodecPrefix = new Uint8Array([0x80, 0x24]);
+      const multicodecKey = new Uint8Array(multicodecPrefix.length + compressedKey.length);
+      multicodecKey.set(multicodecPrefix, 0);
+      multicodecKey.set(compressedKey, multicodecPrefix.length);
+
+      // Base58btc encode with 'z' prefix (multibase convention)
+      const base58Encoded = this.base58Encode(multicodecKey);
+      
+      return `did:key:z${base58Encoded}`;
+    } catch (error) {
+      throw new CryptoException('Failed to generate DID:key', error);
+    }
+  }
+
+  /**
+   * Generate or retrieve verifier client_id (DID:key)
+   * 
+   * Generates an ephemeral P-256 keypair and derives a did:key identifier.
+   * In production, this should be stored and reused.
+   * 
+   * @returns Object containing clientId (did:key) and keypair
+   */
+  public async generateVerifierIdentity(): Promise<VerifierIdentity> {
+    try {
+      const keypair = await this.generateKeyPair('ES256');
+      const clientId = await this.generateDidKey(keypair.publicKey);
+      
+      return {
+        clientId,
+        keypair
+      };
+    } catch (error) {
+      throw new CryptoException('Failed to generate verifier identity', error);
+    }
+  }
+
+  /**
+   * Base58 encode a Uint8Array (Bitcoin alphabet)
+   */
+  private base58Encode(data: Uint8Array): string {
+    const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    
+    let num = BigInt(0);
+    for (const byte of data) {
+      num = num * BigInt(256) + BigInt(byte);
+    }
+
+    let encoded = '';
+    while (num > 0) {
+      const remainder = Number(num % BigInt(58));
+      encoded = ALPHABET[remainder] + encoded;
+      num = num / BigInt(58);
+    }
+
+    // Handle leading zeros
+    for (const byte of data) {
+      if (byte === 0) {
+        encoded = ALPHABET[0] + encoded;
+      } else {
+        break;
+      }
+    }
+
+    return encoded;
+  }
+
+  /**
+   * Base64URL decode to Uint8Array
+   */
+  private base64UrlDecode(base64url: string): Uint8Array {
+    // Convert base64url to base64
+    const base64 = base64url
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+      .padEnd(base64url.length + (4 - base64url.length % 4) % 4, '=');
+    
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+  /**
    * Base64URL encode a Uint8Array
    * 
    * @param data Uint8Array to encode
@@ -340,4 +466,17 @@ export interface JwtVerifyOptions {
   issuer?: string | string[];
   clockTolerance?: number;
   maxTokenAge?: number;
+}
+
+/**
+ * Verifier Identity
+ * 
+ * Generated cryptographic identity for the verifier.
+ * Includes DID:key identifier and keypair.
+ */
+export interface VerifierIdentity {
+  /** DID:key identifier (client_id for OID4VP) */
+  clientId: string;
+  /** EC P-256 keypair for signing */
+  keypair: CryptoKeyPair;
 }

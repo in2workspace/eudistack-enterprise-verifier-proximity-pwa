@@ -14,6 +14,12 @@ export interface VerificationSession {
   sessionId: string;
 
   /**
+   * Verifier client_id (DID:key)
+   * Used in OID4VP authorization request
+   */
+  clientId: string;
+
+  /**
    * Ephemeral keypair for signing authorization request
    * Generated using Web Crypto API (ES256)
    */

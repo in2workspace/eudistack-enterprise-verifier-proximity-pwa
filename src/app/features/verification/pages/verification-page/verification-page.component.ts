@@ -10,6 +10,7 @@ import { takeUntil } from 'rxjs/operators';
 import { SessionStateService } from '../../../../core/services/session-state.service';
 import { ValidationService } from '../../../../core/services/validation.service';
 import { StorageService } from '../../../../core/services/storage.service';
+import { VerifierIdentityService } from '../../../../core/services/verifier-identity.service';
 
 // Components
 import { QRDisplayComponent } from '../../components/qr-display/qr-display.component';
@@ -70,6 +71,7 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
   private readonly sessionService = inject(SessionStateService);
   private readonly validationService = inject(ValidationService);
   private readonly storageService = inject(StorageService);
+  private readonly verifierIdentity = inject(VerifierIdentityService);
   private readonly router = inject(Router);
 
   // ── State ──
@@ -84,11 +86,13 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
     const session = this.currentSession();
     if (!session) return '';
     
-    // Base URL for the verifier (in production this would be the actual domain)
-    const baseUrl = window.location.origin;
+    // OID4VP authorization request with JAR by Value
+    // Since this is a PWA without backend, we include the JWT directly in the QR
+    // Per OID4VP spec: request parameter contains the signed JWT
+    const clientId = session.clientId;
+    const request = session.requestObject;
     
-    // OID4VP authorization request with JAR (JWT-Secured Authorization Request)
-    return `openid4vp://?client_id=kpmg-verifier&request_uri=${baseUrl}/api/request/${session.sessionId}`;
+    return `openid4vp://?client_id=${encodeURIComponent(clientId)}&request=${encodeURIComponent(request)}`;
   });
 
   readonly isInitializing = computed(() => this.currentState() === PageState.INITIALIZING);
@@ -151,9 +155,14 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
     try {
       this.currentState.set(PageState.INITIALIZING);
 
-      // Create new session
+      // Get verifier's identity (DID + keypair)
+      const identity = await this.verifierIdentity.getIdentity();
+
+      // Create new session with the same keypair used for the DID
+      // This ensures the JWT signature can be verified with the public key from the DID
       const session = await this.sessionService.createSession({
-        clientId: 'kpmg-verifier',
+        clientId: identity.clientId,
+        keypair: identity.keypair,
         timeoutSeconds: 120
       });
 
