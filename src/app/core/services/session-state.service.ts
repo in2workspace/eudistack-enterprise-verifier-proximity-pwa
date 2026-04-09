@@ -1,9 +1,8 @@
-import { Injectable, OnDestroy, inject } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, timer, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 import { VerificationSession, SessionStatus } from '../models/verification-session.model';
-import { CryptoService } from './crypto.service';
 
 /**
  * Session State Service
@@ -11,11 +10,17 @@ import { CryptoService } from './crypto.service';
  * Manages ephemeral verification sessions with automatic timeout.
  * Uses RxJS BehaviorSubjects for reactive state management.
  * 
- * Session lifecycle:
- * 1. createSession() - Generate keypair, nonce, create JWT authorization request
+ * **TODO (FASE 1 - API Integration):**
+ * - Remove CryptoService dependency (eliminated - backend generates auth requests)
+ * - Simplify createSession() to only track sessionId and state
+ * - Backend provides authorization request JWT via API
+ * - Remove keypair generation and JWT signing logic
+ * 
+ * Session lifecycle (NEW):
+ * 1. createSession() - Generate sessionId, call backend for auth request JWT
  * 2. ACTIVE - Wait for VP submission (120s timeout)
- * 3. VALIDATING - VP received, validation in progress
- * 4. COMPLETED/FAILED - Validation result
+ * 3. VALIDATING - VP received (backend validates)
+ * 4. COMPLETED/FAILED - Validation result from backend (via SSE)
  * 5. EXPIRED - Timeout reached, session regenerated
  * 
  * @service
@@ -24,9 +29,6 @@ import { CryptoService } from './crypto.service';
   providedIn: 'root'
 })
 export class SessionStateService implements OnDestroy {
-  // Dependencies
-  private readonly cryptoService = inject(CryptoService);
-  
   // Session timeout in seconds (default: 120s)
   private readonly SESSION_TIMEOUT_SECONDS = 120;
 
@@ -42,20 +44,31 @@ export class SessionStateService implements OnDestroy {
   /**
    * Create a new verification session
    * 
-   * Generates:
-   * - Unique session ID
-   * - Ephemeral keypair (ES256)
-   * - Random nonce
-   * - JWT authorization request (JAR)
+   * **TODO (FASE 1 - API Integration):**
+   * This method needs to be reimplemented to use the backend API instead of local crypto.
    * 
-   * Starts automatic timeout timer.
+   * New implementation should:
+   * 1. Generate sessionId (UUID)
+   * 2. Call VerifierApiService.getAuthRequest(sessionId) → get JWT from backend
+   * 3. Store sessionId and JWT in session state
+   * 4. Start SSE listener for this sessionId
+   * 5. Start timeout timer
    * 
-   * @param options Session creation options
+   * @param options Session creation options (currently unused)
    * @returns Created session
    */
   public async createSession(
     options: CreateSessionOptions = {}
   ): Promise<VerificationSession> {
+    throw new Error(
+      'SessionStateService.createSession() is deprecated. ' +
+      'It depended on CryptoService (removed). ' +
+      'Needs reimplementation in FASE 1 to consume backend API. ' +
+      'See ROADMAP.md section "Integración con Backend".'
+    );
+    
+    /*
+    // OLD IMPLEMENTATION (REMOVED - depended on CryptoService)
     try {
       // Cancel existing timer
       this.cancelTimer$.next();
@@ -63,86 +76,20 @@ export class SessionStateService implements OnDestroy {
       // Generate session ID
       const sessionId = uuidv4();
 
-      // Use provided keypair or generate new one
-      // IMPORTANT: When using did:key as client_id, the keypair MUST be the same
-      // one used to derive the DID. Otherwise signature verification will fail.
+      // Generate keypair (backend now does this)
       const algorithm = options.algorithm ?? 'ES256';
       const keypair = options.keypair ?? await this.cryptoService.generateKeyPair(algorithm);
 
-      // Generate random nonce
+      // Generate nonce (backend now does this)
       const nonce = this.cryptoService.generateNonce();
 
-      // Get timeout duration
-      const timeoutSeconds = options.timeoutSeconds ?? this.SESSION_TIMEOUT_SECONDS;
-
-      // Create timestamps
-      const createdAt = new Date().toISOString();
-      const expiresAt = new Date(
-        Date.now() + timeoutSeconds * 1000
-      ).toISOString();
-
-      // Build authorization request payload
-      const clientId = options.clientId ?? 'kpmg-verifier';
-      
-      // Response URI for same-device proximity flow
-      // PWA registers custom protocol handler in manifest.json
-      const responseUri = options.responseUri ?? window.location.origin + '/verify/response';
-      
-      const requestPayload = {
-        // Per OID4VP spec, iss (issuer) must equal client_id
-        iss: clientId,
-        aud: 'https://self-issued.me/v2',
-        response_type: 'vp_token',
-        response_mode: 'direct_post',
-        response_uri: responseUri,
-        client_id: clientId,
-        client_metadata: {
-          vp_formats_supported: {
-            jwt_vp_json: {
-              alg_values_supported: ['ES256', 'EdDSA']
-            }
-          }
-        },
-        nonce: nonce,
-        state: this.cryptoService.generateState(),
-        jti: uuidv4(), // JWT ID for uniqueness
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + timeoutSeconds
-      };
-
-      // Sign authorization request (JAR)
-      // Per OID4VP spec, typ must be 'oauth-authz-req+jwt' for authorization requests
-      // kid must be the DID (client_id) for wallet to resolve public key
-      const requestObject = await this.cryptoService.signJwt(
-        requestPayload,
-        keypair.privateKey,
-        algorithm,
-        'oauth-authz-req+jwt',
-        clientId  // kid = DID
-      );
-
-      // Create session object
-      const session: VerificationSession = {
-        sessionId,
-        clientId,
-        keypair,
-        nonce,
-        requestObject,
-        createdAt,
-        expiresAt,
-        status: SessionStatus.ACTIVE
-      };
-
-      // Update state
-      this.sessionSubject$.next(session);
-
-      // Start timeout timer
-      this.startSessionTimer(sessionId, timeoutSeconds);
+      // ... rest of implementation removed ...
 
       return session;
     } catch (error) {
       throw new SessionError('Failed to create session', error);
     }
+    */
   }
 
   /**

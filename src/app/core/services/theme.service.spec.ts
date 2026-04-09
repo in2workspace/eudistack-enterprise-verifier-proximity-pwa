@@ -7,16 +7,15 @@ describe('ThemeService', () => {
   let httpMock: HttpTestingController;
 
   const mockThemeConfig: ThemeConfig = {
+    tenantId: 'test-tenant',
     branding: {
       name: 'Test Brand',
       primaryColor: '#123456',
-      primaryContrastColor: '#ffffff',
+      primaryDark: '#0a1a2a',
       secondaryColor: '#654321',
-      secondaryContrastColor: '#ffffff',
       logoUrl: 'assets/test-logo.svg',
       logoDarkUrl: 'assets/test-logo-dark.svg',
-      faviconUrl: 'assets/test-favicon.png',
-      pwaIconUrl: 'assets/test-icon.png'
+      faviconUrl: 'assets/test-favicon.png'
     },
     content: {
       links: [
@@ -49,60 +48,59 @@ describe('ThemeService', () => {
   });
 
   it('should load theme configuration', async () => {
-    const loadPromise = service.loadTheme();
+    const loadPromise = service.loadTheme('test-tenant');
 
-    const req = httpMock.expectOne('/assets/theme.json');
+    const req = httpMock.expectOne('assets/themes/test-tenant.theme.json');
     expect(req.request.method).toBe('GET');
     req.flush(mockThemeConfig);
 
-    const result = await loadPromise;
-    expect(result).toEqual(mockThemeConfig);
-    expect(service.getThemeConfig()).toEqual(mockThemeConfig);
+    await loadPromise;
+    expect(service.theme()).toEqual(mockThemeConfig);
   });
 
   it('should apply CSS variables when theme is loaded', async () => {
     const loadPromise = service.loadTheme();
 
-    const req = httpMock.expectOne('/assets/theme.json');
+    const req = httpMock.expectOne('assets/themes/kpmg.theme.json');
     req.flush(mockThemeConfig);
 
     await loadPromise;
 
     const root = document.documentElement;
-    expect(root.style.getPropertyValue('--primary-color')).toBe(mockThemeConfig.branding.primaryColor);
-    expect(root.style.getPropertyValue('--secondary-color')).toBe(mockThemeConfig.branding.secondaryColor);
+    expect(root.style.getPropertyValue('--theme-primary')).toBe(mockThemeConfig.branding.primaryColor);
+    expect(root.style.getPropertyValue('--theme-secondary')).toBe(mockThemeConfig.branding.secondaryColor);
   });
 
   it('should return brand name', async () => {
     const loadPromise = service.loadTheme();
 
-    const req = httpMock.expectOne('/assets/theme.json');
+    const req = httpMock.expectOne('assets/themes/kpmg.theme.json');
     req.flush(mockThemeConfig);
 
     await loadPromise;
 
-    expect(service.getBrandName()).toBe('Test Brand');
+    expect(service.brandName()).toBe('Test Brand');
   });
 
   it('should return default brand name when config not loaded', () => {
-    expect(service.getBrandName()).toBe('Enterprise Verifier');
+    expect(service.brandName()).toBe('Altia Verification');
   });
 
   it('should return logo URL', async () => {
     const loadPromise = service.loadTheme();
 
-    const req = httpMock.expectOne('/assets/theme.json');
+    const req = httpMock.expectOne('assets/themes/kpmg.theme.json');
     req.flush(mockThemeConfig);
 
     await loadPromise;
 
-    expect(service.getLogoUrl()).toBe('assets/test-logo.svg');
+    expect(service.logoUrl()).toBe('assets/test-logo.svg');
   });
 
   it('should return footer text with interpolated values', async () => {
     const loadPromise = service.loadTheme();
 
-    const req = httpMock.expectOne('/assets/theme.json');
+    const req = httpMock.expectOne('assets/themes/kpmg.theme.json');
     req.flush(mockThemeConfig);
 
     await loadPromise;
@@ -117,21 +115,37 @@ describe('ThemeService', () => {
   it('should return legal links', async () => {
     const loadPromise = service.loadTheme();
 
-    const req = httpMock.expectOne('/assets/theme.json');
+    const req = httpMock.expectOne('assets/themes/kpmg.theme.json');
     req.flush(mockThemeConfig);
 
     await loadPromise;
 
     const links = service.getLegalLinks();
-    expect(links).toEqual(mockThemeConfig.content.links);
+    expect(links).toEqual(mockThemeConfig.content?.links);
   });
 
-  it('should handle theme loading error', async () => {
-    const loadPromise = service.loadTheme();
+  it('should handle theme loading error and use fallback', (done) => {
+    service.loadTheme().then(() => {
+      // Service should have loaded the fallback theme
+      expect(service.theme()).toEqual(jasmine.objectContaining({
+        branding: jasmine.objectContaining({
+          name: mockThemeConfig.branding.name
+        })
+      }));
+      done();
+    });
 
-    const req = httpMock.expectOne('/assets/theme.json');
-    req.error(new ProgressEvent('error'));
+    // First request fails (tenant-specific theme)
+    setTimeout(() => {
+      const req1 = httpMock.expectOne('assets/themes/kpmg.theme.json');
+      req1.error(new ProgressEvent('error'));
 
-    await expect(loadPromise).rejects.toThrow();
+      // Give time for the catch block to execute
+      setTimeout(() => {
+        // Second request succeeds (fallback theme.json)
+        const req2 = httpMock.expectOne('assets/theme.json');
+        req2.flush(mockThemeConfig);
+      }, 0);
+    }, 0);
   });
 });

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HeaderComponent } from './header.component';
 import { IonicModule } from '@ionic/angular';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
@@ -8,7 +9,7 @@ describe('HeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HeaderComponent, IonicModule.forRoot()]
+      imports: [HeaderComponent, IonicModule.forRoot(), HttpClientTestingModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(HeaderComponent);
@@ -20,8 +21,10 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have default title', () => {
-    expect(component.title()).toBe('Verificador de Credenciales');
+  it('should have default title from theme service', () => {
+    // Default title comes from ThemeService.brandName() when no input title is set
+    expect(component.title()).toBeNull();
+    expect(component.effectiveTitle).toBe('Altia Verification');
   });
 
   it('should show logo by default', () => {

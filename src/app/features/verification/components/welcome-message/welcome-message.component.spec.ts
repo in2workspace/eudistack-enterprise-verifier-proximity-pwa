@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { TranslateModule } from '@ngx-translate/core';
 import { IonicModule } from '@ionic/angular';
 import { WelcomeMessageComponent } from './welcome-message.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('WelcomeMessageComponent', () => {
   let component: WelcomeMessageComponent;
@@ -12,7 +13,8 @@ describe('WelcomeMessageComponent', () => {
       imports: [
         WelcomeMessageComponent,
         TranslateModule.forRoot(),
-        IonicModule.forRoot()
+        IonicModule.forRoot(),
+        HttpClientTestingModule
       ]
     }).compileComponents();
 

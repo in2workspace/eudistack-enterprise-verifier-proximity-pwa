@@ -2,6 +2,7 @@ import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { QRDisplayComponent } from './qr-display.component';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 /**
  * QR Display Component Tests
@@ -16,7 +17,8 @@ describe('QRDisplayComponent (Logic)', () => {
     await TestBed.configureTestingModule({
       imports: [
         IonicModule.forRoot(),
-        TranslateModule.forRoot()
+        TranslateModule.forRoot(),
+        HttpClientTestingModule
       ]
     }).compileComponents();
     

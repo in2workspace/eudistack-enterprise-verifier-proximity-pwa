@@ -11,7 +11,6 @@ import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 import { IonicStorageModule } from '@ionic/storage-angular';
 import { DB_CONFIG } from './app/core/services/storage.service';
-import { TrustFrameworkService } from './app/core/services/trust-framework.service';
 import { ThemeService } from './app/core/services/theme.service';
 
 /**
@@ -62,19 +61,6 @@ function initializeTheme(themeService: ThemeService): () => Promise<void> {
   };
 }
 
-/**
- * Initialize Trust Framework on app startup
- * 
- * Loads trusted issuers from JSON and syncs to IndexedDB
- */
-function initializeTrustFramework(trustFramework: TrustFrameworkService): () => Promise<void> {
-  return () => trustFramework.loadTrustFramework().catch(error => {
-    console.error('Failed to initialize trust framework:', error);
-    // Don't block app startup on trust framework failure
-    return Promise.resolve();
-  });
-}
-
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
@@ -99,12 +85,6 @@ bootstrapApplication(AppComponent, {
       provide: APP_INITIALIZER,
       useFactory: initializeTheme,
       deps: [ThemeService],
-      multi: true
-    },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeTrustFramework,
-      deps: [TrustFrameworkService],
       multi: true
     },
     provideServiceWorker('ngsw-worker.js', {

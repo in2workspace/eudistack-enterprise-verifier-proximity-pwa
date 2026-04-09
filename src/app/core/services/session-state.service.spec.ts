@@ -1,19 +1,23 @@
 import { TestBed } from '@angular/core/testing';
 import { SessionStateService } from './session-state.service';
-import { CryptoService } from './crypto.service';
 
 /**
  * SessionStateService Tests
  * 
- * Note: Most tests are skipped in Node.js because they depend on JWT signing.
- * Use the Phase 1 Demo page in a browser for comprehensive testing.
+ * **TODO (FASE 1 - API Integration):**
+ * These tests need to be updated after SessionStateService is reimplemented
+ * to consume backend API instead of using local CryptoService.
+ * 
+ * Current status: Most tests will fail because createSession() is deprecated.
+ * 
+ * Note: CryptoService dependency has been removed.
  */
 describe('SessionStateService', () => {
   let service: SessionStateService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [SessionStateService, CryptoService]
+      providers: [SessionStateService]
     });
     service = TestBed.inject(SessionStateService);
   });
