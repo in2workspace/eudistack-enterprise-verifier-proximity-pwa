@@ -2,12 +2,20 @@ import { Injectable, inject } from '@angular/core';
 import { NgxIndexedDBService, ObjectStoreMeta } from 'ngx-indexed-db';
 import { Observable, from, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { TrustedIssuer } from '../models/trusted-issuer.model';
-import { ValidatedPresentation } from '../models/validated-presentation.model';
-import { StatusListEntry } from '../models/status-list-entry.model';
+
+// NOTE: This service is deprecated in FASE 1 - API Integration
+// Storage is now handled by the backend
+// Keeping for backward compatibility with existing components
+
+// Temporary type definitions for backward compatibility
+type TrustedIssuer = any;
+type ValidatedPresentation = any;
+type StatusListEntry = any;
 
 /**
  * Storage Service
+ * 
+ * **DEPRECATED** - Backend now handles storage
  * 
  * Wrapper for IndexedDB using ngx-indexed-db library.
  * Provides CRUD operations for trust framework, validation logs, and status list cache.

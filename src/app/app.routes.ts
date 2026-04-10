@@ -7,7 +7,7 @@ export const routes: Routes = [
       .then(m => m.VerificationPageComponent)
   },
   {
-    path: 'verification',
+    path: 'login',
     loadComponent: () => import('./features/verification/pages/verification-page/verification-page.component')
       .then(m => m.VerificationPageComponent)
   },

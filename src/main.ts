@@ -3,7 +3,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { RouteReuseStrategy, provideRouter } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { provideHttpClient, withInterceptorsFromDi, HttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
 import { NgxIndexedDBModule, DBConfig } from 'ngx-indexed-db';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -12,6 +12,7 @@ import { routes } from './app/app.routes';
 import { IonicStorageModule } from '@ionic/storage-angular';
 import { DB_CONFIG } from './app/core/services/storage.service';
 import { ThemeService } from './app/core/services/theme.service';
+import { errorInterceptor } from './app/core/interceptors/error.interceptor';
 
 /**
  * TranslateHttpLoader factory
@@ -65,7 +66,9 @@ bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideRouter(routes),
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(
+      withInterceptors([errorInterceptor])
+    ),
     importProvidersFrom(
       IonicModule.forRoot({ innerHTMLTemplatesEnabled: true })
     ),    

@@ -1,46 +1,52 @@
 # Enterprise Proximity Verifier PWA
 
-> **100% PWA standalone** — Credential verifier compliant with OID4VP 1.0, DCQL, and HAIP 1.0 for enterprise proximity verification.
+> **OAuth2 Client for eudistack-core-verifier** — Acts as OAuth2 client to initiate verification sessions and display QR codes for wallet scanning.
 
 ## Overview
 
-Enterprise Proximity Verifier PWA is a **100% browser-based Progressive Web Application** that validates employee credentials presented by EUDI Wallets. All cryptographic validation, trust framework checks, and revocation verification happen **locally in the browser** using Web Crypto API.
+Enterprise Proximity Verifier PWA is a **Progressive Web Application** that acts as an **OAuth2 public client** of the verifier backend, following the same pattern as the issuer's MFE login.
 
-**Key principle**: Zero backend infrastructure — all validation logic runs client-side.
+**OAuth2 Flow:** PWA → `/oauth2/authorize` → Backend redirects with `authRequest` → Display QR → SSE events
 
 ## Architecture
 
-- **Deployment**: Static files only (CDN/S3) — **NO backend server**
+- **Backend**: `eudistack-core-verifier` (Java Spring Boot)
+  - OAuth2 Authorization Server
+  - Generates authorization request JWTs
+  - Validates VP tokens from wallets
+  - Emits SSE events with verification results
+- **Frontend**: This PWA (Angular 19 + Ionic 8)
+  - **OAuth2 public client** (registered in backend)
+  - Redirects to `/oauth2/authorize` to initiate flow
+  - Receives `authRequest` via OAuth2 redirect
+  - Displays QR codes
+  - Listens to SSE for verification status
+- **Deployment**: 
+  - Backend: `http://localhost:8082` (development)
+  - Frontend: `http://localhost:4200` (development)
 - **Framework**: Ionic 8.2.x + Angular 19.2.x (standalone components)
-- **Protocols**: OID4VP 1.0, DCQL, HAIP 1.0
-- **Crypto**: Web Crypto API + jose 6.1.x + @noble/curves 2.0.x (100% browser)
-- **Storage**: ngx-indexed-db 19.x (trust framework + audit log local)
-- **Testing**: Jest 29.7.x + jest-preset-angular 14.2.x
+- **Protocols**: OAuth2 + OID4VP 1.0 + SSE
 - **i18n**: @ngx-translate/core 16.x (en, es, ca)
 
-## Verification Flow (100% Browser)
+## OAuth2 Client Flow
 
 ```
-1. User lands → PWA generates ephemeral keypair (Web Crypto API)
-                → Creates OID4VP authorization request (JAR signed locally)
-                → Displays QR code
+┌─────────────┐         ┌──────────────────┐         ┌────────────┐
+│ Verifier PWA│────1───▶│  Core Verifier   │◀───3───│   Wallet   │
+│ (OAuth2     │◀───2────│    (Backend)     │         │   (EUDIW)  │
+│  Client)    │         └──────────────────┘         └────────────┘
+                                 │
+                                 └──────────4──────────┘
+                                    (SSE 'redirect')
 
-2. Wallet scans QR → Presents VP token (2 VCs: Employee + DID)
-                   → POST to /direct_post (intercepted by Service Worker)
-
-3. PWA validates (ALL IN BROWSER):
-   ✓ VP signature verification (Web Crypto API)
-   ✓ VC signatures verification (Web Crypto API)
-   ✓ Issuer trust framework check (local IndexedDB)
-   ✓ Credential status via HTTP GET (Bitstring Status List)
-   ✓ Identity match (first_name + family_name cross-check)
-   ✓ Nonce validation
-   ✓ Timestamp validation
-
-4. Result → Visual feedback (animated checks)
-          → Audit log stored locally (IndexedDB)
-          → NO data sent to any server
+1. PWA → Backend: GET /oauth2/authorize?client_id=proximity-verifier-pwa&...
+2. Backend → PWA: Redirect to /login?authRequest=openid4vp://...&state=...
+3. PWA displays QR → Wallet scans → POST /oid4vp/auth-response (to backend)
+4. Backend → PWA: SSE event 'redirect'
 ```
+
+**Client Registration Required:** PWA must be registered as OAuth2 client in backend.  
+**See [docs/OAUTH2-CLIENT.md](docs/OAUTH2-CLIENT.md) for registration details.**
 
 ## Project Structure
 
@@ -49,31 +55,38 @@ src/
   app/
     core/
       services/
-        verifier.service.ts         # OID4VP protocol logic
-        crypto.service.ts            # Signature verification
-        trust.service.ts             # Trust framework validation
-        status-list.service.ts       # Revocation checks
-        audit.service.ts             # Audit logging
+        verifier-api.service.ts      # HTTP client for backend API
+        sse-listener.service.ts      # Server-Sent Events listener
+        qr-generation.service.ts     # QR code management (from backend)
+        verification-flow.service.ts # Flow orchestration
       models/
-        vp-token.model.ts            # VP/VC data structures
-        dcql.model.ts                # DCQL query models
-      guards/
-        ... (placeholder)
-      interceptors/
-        ... (placeholder)
+        error.model.ts               # Error types
+        verification.model.ts        # Verification state models
     features/
       verification/
         pages/
-          verification-page/         # Main QR + validation UI
+          verification-page/         # Main verification UI
+        components/
+          qr-display/                # QR code display component
+          validation-popup/          # Validation status popup
+          welcome-message/           # Success message component
     shared/
       components/
-        qr-display/                  # QR code component
-        validation-checks/           # Validation progress UI
+        ... (shared UI components)
   assets/
     i18n/                            # Translations (en, es, ca)
-    trust-framework/
-      trusted-issuers.json           # Trust anchor list
+    env.js                           # Runtime configuration (backend URL)
 ```
+
+**FASE 1 Services (API Integration):**
+- `VerifierApiService` → HTTP calls to backend (`GET /oid4vp/auth-request/{id}`)
+- `SseListenerService` → SSE connection (`GET /api/login/events?state={state}`)
+- `QrGenerationService` → Receives authRequest from backend redirect
+- `VerificationFlowService` → Orchestrates QR + SSE
+
+**Backend Configuration:**
+- `assets/env.js` → `verifierBackendUrl: "http://localhost:8082"` (development)
+- Production: Override via environment-specific config
 
 ## Local Development
 

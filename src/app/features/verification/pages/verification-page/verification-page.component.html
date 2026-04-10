@@ -1,20 +1,11 @@
-<!-- STATE: INITIALIZING / WAITING / VALIDATING / SUCCESS / ERROR -->
-
-<!-- Initializing: Show KPMG branded loading -->
-@if (isInitializing()) {
-  <div class="fullscreen-state initializing">
-    <ion-spinner name="crescent"></ion-spinner>
-    <p>{{ 'verification.initializing' | translate }}</p>
-  </div>
-}
+<!-- STATE: WAITING / VALIDATING / SUCCESS / ERROR -->
 
 <!-- Waiting for Scan: Show fullscreen QR display -->
-@if (isWaitingForScan()) {
+@if (isWaiting()) {
   <app-qr-display
     [qrData]="qrCodeUrl()"
     [duration]="120"
     [autoRegenerate]="true"
-    (expired)="onQrExpired()"
     (regenerate)="onQrRegenerate()"
   />
 }
@@ -23,21 +14,17 @@
 @if (isValidating()) {
   <app-validation-popup
     [isOpen]="true"
-    [validationResults]="validationChecks()"
-    (okClicked)="onValidationRetry()"
-    (retryClicked)="onValidationRetry()"
   />
 }
 
 <!-- Success: Show fullscreen welcome message -->
 @if (isSuccess()) {
   <app-welcome-message
-    [firstName]="userFirstName()"
-    [familyName]="userFamilyName()"
+    [firstName]="userName()"
+    [familyName]="''"
     [countdownDuration]="10"
     [autoRedirect]="true"
-    (continueClicked)="onWelcomeContinue()"
-    (countdownComplete)="onWelcomeCountdownComplete()"
+    (continueClicked)="onRetry()"
   />
 }
 
@@ -48,15 +35,20 @@
     <h2>{{ 'verification.error.title' | translate }}</h2>
     <p class="error-message">{{ errorMessage() }}</p>
     
-    @if (errorDetails()) {
+    @if (errorCode()) {
       <div class="error-details">
-        <pre>{{ errorDetails() }}</pre>
+        <small>Código: {{ errorCode() }}</small>
       </div>
     }
     
-    <ion-button expand="block" (click)="onErrorRetry()">
+    <ion-button expand="block" (click)="onRetry()">
       <ion-icon name="refresh" slot="start"></ion-icon>
       {{ 'verification.error.retry' | translate }}
+    </ion-button>
+    
+    <ion-button expand="block" fill="outline" (click)="onGoHome()">
+      <ion-icon name="home" slot="start"></ion-icon>
+      {{ 'verification.error.go_home' | translate }}
     </ion-button>
   </div>
 }
