@@ -124,28 +124,23 @@ describe('ThemeService', () => {
     expect(links).toEqual(mockThemeConfig.content?.links);
   });
 
-  it('should handle theme loading error and use fallback', (done) => {
-    service.loadTheme().then(() => {
-      // Service should have loaded the fallback theme
-      expect(service.theme()).toEqual(jasmine.objectContaining({
-        branding: jasmine.objectContaining({
-          name: mockThemeConfig.branding.name
-        })
-      }));
-      done();
-    });
+  it('should handle theme loading error and use fallback', async () => {
+    const loadPromise = service.loadTheme();
 
     // First request fails (tenant-specific theme)
-    setTimeout(() => {
-      const req1 = httpMock.expectOne('assets/themes/kpmg.theme.json');
-      req1.error(new ProgressEvent('error'));
+    const req1 = httpMock.expectOne('assets/themes/kpmg.theme.json');
+    req1.error(new ProgressEvent('error'));
 
-      // Give time for the catch block to execute
-      setTimeout(() => {
-        // Second request succeeds (fallback theme.json)
-        const req2 = httpMock.expectOne('assets/theme.json');
-        req2.flush(mockThemeConfig);
-      }, 0);
-    }, 0);
+    // Wait for async catch block to execute and make second request
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    // Second request succeeds (fallback theme.json)
+    const req2 = httpMock.expectOne('assets/theme.json');
+    req2.flush(mockThemeConfig);
+
+    await loadPromise;
+
+    // Service should have loaded the fallback theme
+    expect(service.theme()?.branding.name).toBe(mockThemeConfig.branding.name);
   });
 });

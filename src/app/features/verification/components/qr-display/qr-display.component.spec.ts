@@ -1,4 +1,4 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed, ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { QRDisplayComponent } from './qr-display.component';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
@@ -12,6 +12,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
  */
 describe('QRDisplayComponent (Logic)', () => {
   let component: QRDisplayComponent;
+  let fixture: ComponentFixture<QRDisplayComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -23,7 +24,7 @@ describe('QRDisplayComponent (Logic)', () => {
     }).compileComponents();
     
     // Create component instance WITHOUT rendering
-    const fixture = TestBed.createComponent(QRDisplayComponent);
+    fixture = TestBed.createComponent(QRDisplayComponent);
     component = fixture.componentInstance;
     // NOTE: We do NOT call fixture.detectChanges() to avoid QR Code rendering
   });
@@ -55,8 +56,10 @@ describe('QRDisplayComponent (Logic)', () => {
   });
 
   it('should calculate progress correctly',  () => {
-    // Set test duration
-    component['duration'] = (() => 100) as any;
+    // Set test duration and qrData via fixture input
+    fixture.componentRef.setInput('duration', 100);
+    fixture.componentRef.setInput('qrData', 'test-qr-data');
+    fixture.detectChanges();
     
     component['timeRemaining'].set(100);
     expect(component.progress()).toBe(100);

@@ -109,15 +109,5 @@ describe('VerifierApiService', () => {
       const req = httpMock.expectOne(`http://test-backend.com/oid4vp/auth-request/${sessionId}`);
       req.flush('jwt');
     });
-
-    it('should fallback to localhost if no config', () => {
-      delete (window as any)['env'];
-      
-      // Create new service instance
-      const newService = new VerifierApiService(TestBed.inject(HttpClientTestingModule) as any);
-      
-      // Note: This test would require accessing private method or testing constructor behavior
-      // Skipping for now as it's covered by integration tests
-    });
   });
 });

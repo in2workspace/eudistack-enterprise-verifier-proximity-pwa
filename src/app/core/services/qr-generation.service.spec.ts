@@ -8,12 +8,12 @@ import { of, throwError } from 'rxjs';
  */
 describe('QrGenerationService', () => {
   let service: QrGenerationService;
-  let verifierApiMock: jest.Mocked<Partial<VerifierApiService>>;
+  let verifierApiMock: jest.Mocked<VerifierApiService>;
 
   beforeEach(() => {
     verifierApiMock = {
-      getAuthRequest: jest.fn()
-    };
+      initiateVerification: jest.fn()
+    } as unknown as jest.Mocked<VerifierApiService>;
 
     TestBed.configureTestingModule({
       providers: [
@@ -31,13 +31,17 @@ describe('QrGenerationService', () => {
 
   describe('generateQr', () => {
     it('should generate QR data with JWT from backend', (done) => {
-      const mockJwt = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9...';
-      verifierApiMock.getAuthRequest?.mockReturnValue(of(mockJwt));
+      const mockSession = {
+        sessionId: 'test-session-id',
+        state: 'test-state',
+        authRequest: 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9...'
+      };
+      (verifierApiMock.initiateVerification as jest.Mock).mockReturnValue(of(mockSession));
 
       service.generateQr().subscribe((qrData: QrData) => {
-        expect(qrData.uri).toBe(mockJwt);
-        expect(qrData.sessionId).toBeTruthy();
-        expect(qrData.state).toBeTruthy();
+        expect(qrData.uri).toBe(mockSession.authRequest);
+        expect(qrData.sessionId).toBe(mockSession.sessionId);
+        expect(qrData.state).toBe(mockSession.state);
         expect(qrData.expiresAt).toBeInstanceOf(Date);
         expect(qrData.createdAt).toBeInstanceOf(Date);
         
@@ -48,21 +52,23 @@ describe('QrGenerationService', () => {
       });
     });
 
-    it('should call backend API with session ID', (done) => {
-      const mockJwt = 'jwt-token';
-      verifierApiMock.getAuthRequest?.mockReturnValue(of(mockJwt));
+    it('should call backend API to initiate verification', (done) => {
+      const mockSession = {
+        sessionId: 'test-session-id',
+        state: 'test-state',
+        authRequest: 'jwt-token'
+      };
+      (verifierApiMock.initiateVerification as jest.Mock).mockReturnValue(of(mockSession));
 
       service.generateQr().subscribe(() => {
-        expect(verifierApiMock.getAuthRequest).toHaveBeenCalledWith(
-          expect.any(String) // sessionId (UUID)
-        );
+        expect(verifierApiMock.initiateVerification).toHaveBeenCalled();
         done();
       });
     });
 
     it('should handle API errors', (done) => {
       const mockError = new Error('API Error');
-      verifierApiMock.getAuthRequest?.mockReturnValue(throwError(() => mockError));
+      (verifierApiMock.initiateVerification as jest.Mock).mockReturnValue(throwError(() => mockError));
 
       service.generateQr().subscribe({
         next: () => fail('Should have failed'),
@@ -76,11 +82,15 @@ describe('QrGenerationService', () => {
 
   describe('regenerateQr', () => {
     it('should generate new QR', (done) => {
-      const mockJwt = 'new-jwt-token';
-      verifierApiMock.getAuthRequest?.mockReturnValue(of(mockJwt));
+      const mockSession = {
+        sessionId: 'new-session-id',
+        state: 'new-state',
+        authRequest: 'new-jwt-token'
+      };
+      (verifierApiMock.initiateVerification as jest.Mock).mockReturnValue(of(mockSession));
 
       service.regenerateQr().subscribe((qrData: QrData) => {
-        expect(qrData.uri).toBe(mockJwt);
+        expect(qrData.uri).toBe(mockSession.authRequest);
         done();
       });
     });
