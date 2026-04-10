@@ -381,6 +381,7 @@ interface OAuth2TokenResponse {
  * Standard OIDC claims from ID token
  */
 interface JwtClaims {
+  [key: string]: unknown;
   iss?: string;
   sub?: string;
   aud?: string | string[];
@@ -391,7 +392,6 @@ interface JwtClaims {
   family_name?: string;
   email?: string;
   email_verified?: boolean;
-  [key: string]: unknown;
 }
 
 /**

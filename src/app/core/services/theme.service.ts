@@ -63,20 +63,20 @@ export class ThemeService {
 
   // ── Public API (computed signals) ──
   
-  readonly theme = computed(() => this._theme());
-  readonly tenantId = computed(() => this._theme()?.tenantId ?? 'altia');
-  readonly brandName = computed(() => this._theme()?.branding.name ?? 'Altia Verification');
-  readonly logoUrl = computed(() => this._theme()?.branding.logoUrl ?? 'assets/logos/altia-logo-dark.svg');
-  readonly logoDarkUrl = computed(() => this._theme()?.branding.logoDarkUrl);
-  readonly primaryColor = computed(() => this._theme()?.branding.primaryColor ?? '#001E8C');
-  readonly primaryDark = computed(() => this._theme()?.branding.primaryDark ?? '#001570');
-  readonly secondaryColor = computed(() => this._theme()?.branding.secondaryColor ?? '#00ff94');
-  readonly headerBackgroundColor = computed(() => this._theme()?.components?.header?.backgroundColor ?? '#ffffff');
-  readonly headerTextColor = computed(() => this._theme()?.components?.header?.textColor ?? '#001E8C');
-  readonly headerHeight = computed(() => this._theme()?.components?.header?.height ?? '64px');
-  readonly headerLogoHeight = computed(() => this._theme()?.components?.header?.logoHeight ?? '40px');
-  readonly isLoading = computed(() => this._isLoading());
-  readonly error = computed(() => this._error());
+  public readonly theme = computed(() => this._theme());
+  public readonly tenantId = computed(() => this._theme()?.tenantId ?? 'altia');
+  public readonly brandName = computed(() => this._theme()?.branding.name ?? 'Altia Verification');
+  public readonly logoUrl = computed(() => this._theme()?.branding.logoUrl ?? 'assets/logos/altia-logo-dark.svg');
+  public readonly logoDarkUrl = computed(() => this._theme()?.branding.logoDarkUrl);
+  public readonly primaryColor = computed(() => this._theme()?.branding.primaryColor ?? '#001E8C');
+  public readonly primaryDark = computed(() => this._theme()?.branding.primaryDark ?? '#001570');
+  public readonly secondaryColor = computed(() => this._theme()?.branding.secondaryColor ?? '#00ff94');
+  public readonly headerBackgroundColor = computed(() => this._theme()?.components?.header?.backgroundColor ?? '#ffffff');
+  public readonly headerTextColor = computed(() => this._theme()?.components?.header?.textColor ?? '#001E8C');
+  public readonly headerHeight = computed(() => this._theme()?.components?.header?.height ?? '64px');
+  public readonly headerLogoHeight = computed(() => this._theme()?.components?.header?.logoHeight ?? '40px');
+  public readonly isLoading = computed(() => this._isLoading());
+  public readonly error = computed(() => this._error());
 
   /**
    * Load theme configuration for specific tenant
@@ -100,7 +100,7 @@ export class ThemeService {
 
       try {
         config = await firstValueFrom(this.http.get<ThemeConfig>(themeUrl));
-      } catch (error) {
+      } catch {
         console.warn(`[ThemeService] Theme not found for ${tenantId}, using fallback theme.json`);
         // Fallback to default theme.json if tenant theme doesn't exist
         themeUrl = 'assets/theme.json';
@@ -219,7 +219,7 @@ export class ThemeService {
   /**
    * Get primary gradient CSS string
    */
-  getPrimaryGradient(): string {
+  public getPrimaryGradient(): string {
     const theme = this._theme();
     if (!theme?.gradients?.primary) return 'linear-gradient(180deg, #00338D 0%, #002770 100%)';
     
@@ -230,7 +230,7 @@ export class ThemeService {
   /**
    * Get success gradient CSS string
    */
-  getSuccessGradient(): string {
+  public getSuccessGradient(): string {
     const theme = this._theme();
     if (!theme?.gradients?.success) return 'linear-gradient(135deg, #00A878 0%, #008C63 100%)';
     
@@ -241,7 +241,7 @@ export class ThemeService {
   /**
    * Get error gradient CSS string
    */
-  getErrorGradient(): string {
+  public getErrorGradient(): string {
     const theme = this._theme();
     if (!theme?.gradients?.error) return 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)';
     
@@ -252,7 +252,7 @@ export class ThemeService {
   /**
    * Get footer text with year and brand name interpolated
    */
-  getFooterText(): string {
+  public getFooterText(): string {
     const config = this._theme();
     if (!config?.content?.footer) {
       return `© ${new Date().getFullYear()} ${this.brandName()}. All rights reserved.`;
@@ -266,7 +266,7 @@ export class ThemeService {
   /**
    * Get legal links
    */
-  getLegalLinks(): Array<{ title: string; url: string }> {
+  public getLegalLinks(): Array<{ title: string; url: string }> {
     return this._theme()?.content?.links || [];
   }
 }
