@@ -21,8 +21,8 @@
 <!-- Success: Show fullscreen welcome message -->
 @if (isSuccess()) {
   <app-welcome-message
-    [firstName]="userName()"
-    [familyName]="''"
+    [firstName]="userFirstName()"
+    [familyName]="userFamilyName()"
     [countdownDuration]="10"
     [autoRedirect]="true"
     (continueClicked)="onRetry()"

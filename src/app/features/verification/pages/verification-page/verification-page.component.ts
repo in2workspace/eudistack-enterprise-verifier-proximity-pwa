@@ -79,7 +79,17 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
 
   readonly userName = computed(() => {
     const user = this.userData();
-    return user?.name || 'Usuario';
+    return user?.name || user?.given_name || 'Usuario';
+  });
+
+  readonly userFirstName = computed(() => {
+    const user = this.userData();
+    return user?.given_name || '';
+  });
+
+  readonly userFamilyName = computed(() => {
+    const user = this.userData();
+    return user?.family_name || '';
   });
 
   // ── Lifecycle ──
@@ -113,12 +123,19 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Initiate OAuth2 authorization flow
+   * Initiate OAuth2 authorization flow with PKCE
    * 
    * Redirects to backend /oidc/authorize endpoint to start the flow.
    * Backend will redirect back to this PWA with authRequest + state.
+   * 
+   * PKCE (Proof Key for Code Exchange):
+   * 1. Generate random code_verifier
+   * 2. Calculate code_challenge = BASE64URL(SHA256(code_verifier))
+   * 3. Send code_challenge in authorization request
+   * 4. Store code_verifier in sessionStorage
+   * 5. Send code_verifier in token request
    */
-  private initiateOAuth2Flow(): void {
+  private async initiateOAuth2Flow(): Promise<void> {
     const backendUrl = this.getBackendUrl();
     const redirectUri = window.location.origin + '/login';  // Always redirect to /login
     const state = this.generateState();
@@ -127,21 +144,32 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
     const clientId = 'proximity-verifier-pwa';
     const scope = 'learcredential';
     
-    // Build OAuth2 authorization URL
+    // PKCE: Generate code_verifier and code_challenge
+    const codeVerifier = this.generateCodeVerifier();
+    const codeChallenge = await this.generateCodeChallenge(codeVerifier);
+    
+    // Store code_verifier in sessionStorage for later use in token request
+    sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+    sessionStorage.setItem('pkce_state', state);
+    
+    // Build OAuth2 authorization URL with PKCE parameters
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,
       response_type: 'code',
       scope: scope,
-      state: state
+      state: state,
+      code_challenge: codeChallenge,
+      code_challenge_method: 'S256'
     });
     
     const authUrl = `${backendUrl}/oidc/authorize?${params.toString()}`;
     
-    console.log('[VerificationPage] Redirecting to OAuth2 authorization:', {
+    console.log('[VerificationPage] Redirecting to OAuth2 authorization with PKCE:', {
       backendUrl,
       redirectUri,
       state,
+      codeChallenge: codeChallenge.substring(0, 10) + '...',
       authUrl
     });
     
@@ -167,6 +195,50 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
    */
   private generateState(): string {
     return crypto.randomUUID();
+  }
+
+  /**
+   * Generate PKCE code_verifier
+   * 
+   * Random URL-safe string with at least 43 characters and max 128.
+   * Uses cryptographically secure random values.
+   * 
+   * @returns code_verifier string
+   */
+  private generateCodeVerifier(): string {
+    const array = new Uint8Array(32); // 32 bytes = 256 bits
+    crypto.getRandomValues(array);
+    return this.base64UrlEncode(array);
+  }
+
+  /**
+   * Generate PKCE code_challenge from code_verifier
+   * 
+   * code_challenge = BASE64URL(SHA256(code_verifier))
+   * 
+   * @param codeVerifier The code verifier string
+   * @returns code_challenge string
+   */
+  private async generateCodeChallenge(codeVerifier: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(codeVerifier);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = new Uint8Array(hashBuffer);
+    return this.base64UrlEncode(hashArray);
+  }
+
+  /**
+   * Base64URL encode (without padding)
+   * 
+   * @param buffer Uint8Array to encode
+   * @returns Base64URL encoded string
+   */
+  private base64UrlEncode(buffer: Uint8Array): string {
+    const base64 = btoa(String.fromCharCode(...buffer));
+    return base64
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
   }
 
   /**
