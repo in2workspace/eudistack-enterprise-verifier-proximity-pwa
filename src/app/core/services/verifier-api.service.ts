@@ -94,7 +94,7 @@ export class VerifierApiService {
    * @returns Backend base URL
    */
   private getBackendUrl(): string {
-    const runtimeUrl = (window as any)["env"]?.["verifierBackendUrl"];
+    const runtimeUrl = window.env?.verifierBackendUrl;
     
     if (runtimeUrl) {
       console.log('[VerifierApiService] Using runtime backend URL:', runtimeUrl);

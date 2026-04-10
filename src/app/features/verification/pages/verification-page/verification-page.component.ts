@@ -181,7 +181,7 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
    * Get backend URL from configuration
    */
   private getBackendUrl(): string {
-    const runtimeUrl = (window as any)['env']?.['verifierBackendUrl'];
+    const runtimeUrl = window.env?.verifierBackendUrl;
     if (runtimeUrl) {
       return runtimeUrl;
     }

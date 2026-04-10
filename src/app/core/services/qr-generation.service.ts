@@ -130,7 +130,7 @@ export class QrGenerationService {
    * @returns Expiration in seconds
    */
   private getQrExpiration(): number {
-    const configValue = (window as any)["env"]?.["qrExpirationSeconds"];
+    const configValue = window.env?.qrExpirationSeconds;
     
     if (typeof configValue === 'number' && configValue > 0) {
       return configValue;

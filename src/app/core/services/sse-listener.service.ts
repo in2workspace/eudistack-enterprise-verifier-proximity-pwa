@@ -127,9 +127,10 @@ export class SseListenerService {
               observer.next(successEvent);
               cleanup();
               observer.complete();
-            } catch (error: any) {
+            } catch (error: unknown) {
               console.error('[SseListenerService] Error processing redirect:', error);
-              observer.error(new SseError('TOKEN_EXCHANGE_FAILED', error.message || 'Error al obtener datos de usuario'));
+              const errorMessage = error instanceof Error ? error.message : 'Error al obtener datos de usuario';
+              observer.error(new SseError('TOKEN_EXCHANGE_FAILED', errorMessage));
               cleanup();
             }
           });
@@ -226,7 +227,7 @@ export class SseListenerService {
    * @param state OAuth2 state parameter
    * @returns User data extracted from ID token
    */
-  private async exchangeCodeForTokens(code: string, state: string): Promise<any> {
+  private async exchangeCodeForTokens(code: string, state: string): Promise<Record<string, unknown>> {
     const tokenUrl = `${this.baseUrl}/oidc/token`;
     const redirectUri = window.location.origin + '/login';
     
@@ -258,7 +259,7 @@ export class SseListenerService {
     
     try {
       const response = await firstValueFrom(
-        this.http.post<any>(tokenUrl, body.toString(), {
+        this.http.post<OAuth2TokenResponse>(tokenUrl, body.toString(), {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
           }
@@ -282,7 +283,7 @@ export class SseListenerService {
       }
       
       return {};
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[SseListenerService] Token exchange error:', error);
       throw new Error('Error al intercambiar código por tokens');
     }
@@ -297,7 +298,7 @@ export class SseListenerService {
    * @param jwt JWT string
    * @returns Decoded claims object
    */
-  private parseJwtClaims(jwt: string): any {
+  private parseJwtClaims(jwt: string): JwtClaims {
     try {
       const parts = jwt.split('.');
       if (parts.length !== 3) {
@@ -323,13 +324,13 @@ export class SseListenerService {
    * @returns Backend base URL
    */
   private getBackendUrl(): string {
-    const runtimeUrl = (window as any)["env"]?.["verifierBackendUrl"];
+    const runtimeUrl = window.env?.verifierBackendUrl;
     
     if (runtimeUrl) {
       return runtimeUrl;
     }
     
-    return 'http://localhost:8081';
+    return 'http://localhost:8082';
   }
 }
 
@@ -346,10 +347,11 @@ export interface LoginEvent {
   redirectUrl?: string;
   
   /** User data extracted from VP (on success) */
-  userData?: {
+  userData?: Record<string, unknown> & {
     name?: string;
     email?: string;
-    [key: string]: any;
+    given_name?: string;
+    family_name?: string;
   };
   
   /** Error message (on error) */
@@ -357,6 +359,39 @@ export interface LoginEvent {
   
   /** Error code (on error) */
   errorCode?: string;
+}
+
+/**
+ * OAuth2 Token Response
+ * 
+ * Response from /oidc/token endpoint
+ */
+interface OAuth2TokenResponse {
+  access_token?: string;
+  token_type?: string;
+  expires_in?: number;
+  refresh_token?: string;
+  id_token?: string;
+  scope?: string;
+}
+
+/**
+ * JWT Claims (ID Token)
+ * 
+ * Standard OIDC claims from ID token
+ */
+interface JwtClaims {
+  iss?: string;
+  sub?: string;
+  aud?: string | string[];
+  exp?: number;
+  iat?: number;
+  name?: string;
+  given_name?: string;
+  family_name?: string;
+  email?: string;
+  email_verified?: boolean;
+  [key: string]: unknown;
 }
 
 /**
@@ -375,8 +410,9 @@ export class SseError extends Error {
     this.name = 'SseError';
     this.code = code;
     
-    if (typeof (Error as any).captureStackTrace === 'function') {
-      (Error as any).captureStackTrace(this, SseError);
+    // V8-specific stack trace capture (Node.js, Chrome)
+    if ('captureStackTrace' in Error) {
+      (Error as { captureStackTrace(target: object, constructor: Function): void }).captureStackTrace(this, SseError);
     }
   }
 }

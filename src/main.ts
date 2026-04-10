@@ -4,13 +4,11 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { RouteReuseStrategy, provideRouter } from '@angular/router';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
-import { NgxIndexedDBModule, DBConfig } from 'ngx-indexed-db';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
 import { IonicStorageModule } from '@ionic/storage-angular';
-import { DB_CONFIG } from './app/core/services/storage.service';
 import { ThemeService } from './app/core/services/theme.service';
 import { errorInterceptor } from './app/core/interceptors/error.interceptor';
 
@@ -21,13 +19,6 @@ import { errorInterceptor } from './app/core/interceptors/error.interceptor';
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
-
-// IndexedDB configuration
-const dbConfig: DBConfig = {
-  name: 'verifier_db',
-  version: 1,
-  objectStoresMeta: DB_CONFIG
-};
 
 /**
  * Initialize Theme on app startup
@@ -42,8 +33,8 @@ function initializeTheme(themeService: ThemeService): () => Promise<void> {
     let tenantId = urlParams.get('tenant');
     
     // Priority 2: env.js configuration
-    if (!tenantId && (window as any).env?.tenant) {
-      tenantId = (window as any).env.tenant;
+    if (!tenantId && window.env?.tenant) {
+      tenantId = window.env.tenant;
       console.log('[Theme] Using tenant from env.js:', tenantId);
     }
     
@@ -73,7 +64,6 @@ bootstrapApplication(AppComponent, {
       IonicModule.forRoot({ innerHTMLTemplatesEnabled: true })
     ),    
     importProvidersFrom(IonicStorageModule.forRoot()),
-    importProvidersFrom(NgxIndexedDBModule.forRoot(dbConfig)),
     importProvidersFrom(
       TranslateModule.forRoot({
         defaultLanguage: 'en',

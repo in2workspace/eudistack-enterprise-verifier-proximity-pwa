@@ -70,7 +70,7 @@ function enrichError(error: HttpErrorResponse, url: string): HttpErrorResponse {
     message = 'No se puede conectar con el servidor. Verifica tu conexión o configuración CORS.';
   } else if (error.status === 404) {
     message = 'Recurso no encontrado';
-  } else if (error.status === 408 || (error as any).name === 'TimeoutError') {
+  } else if (error.status === 408 || (error as unknown as { name?: string }).name === 'TimeoutError') {
     message = 'Tiempo de espera agotado';
   } else if (error.status === 401) {
     message = 'No autorizado';
