@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable, Subject, firstValueFrom } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 /**
  * SSE Listener Service
@@ -20,6 +21,7 @@ import { Observable, Subject } from 'rxjs';
  * - Configurable timeout
  * - Connection state monitoring
  * - Automatic cleanup on unsubscribe
+ * - OAuth2 token exchange for user data extraction
  * 
  * @service
  */
@@ -27,6 +29,7 @@ import { Observable, Subject } from 'rxjs';
   providedIn: 'root'
 })
 export class SseListenerService {
+  private readonly http = inject(HttpClient);
   // Backend URL from environment or window.env
   private readonly baseUrl = this.getBackendUrl();
   
@@ -91,22 +94,44 @@ export class SseListenerService {
           });
           
           // Listen specifically for 'redirect' event (same as MFE login)
-          eventSource.addEventListener('redirect', (event: MessageEvent) => {
+          eventSource.addEventListener('redirect', async (event: MessageEvent) => {
             console.log('[SseListenerService] Redirect event received:', event.data);
             
-            // For proximity flow, redirectUrl might not be relevant
-            // But we receive success notification
-            const successEvent: LoginEvent = {
-              type: 'success',
-              redirectUrl: event.data,
-              userData: {}, // TODO: Extract from VP in backend
-              errorCode: undefined,
-              error: undefined
-            };
-            
-            observer.next(successEvent);
-            cleanup();
-            observer.complete();
+            try {
+              // Extract code from redirect URL
+              const redirectUrl = event.data;
+              const url = new URL(redirectUrl);
+              const code = url.searchParams.get('code');
+              const state = url.searchParams.get('state');
+              
+              if (!code) {
+                console.error('[SseListenerService] No code in redirect URL');
+                observer.error(new SseError('NO_CODE', 'No se recibió código de autorización'));
+                cleanup();
+                return;
+              }
+              
+              console.log('[SseListenerService] Exchanging code for tokens...');
+              
+              // Exchange code for tokens (OAuth2 token endpoint)
+              const userData = await this.exchangeCodeForTokens(code, state || '');
+              
+              const successEvent: LoginEvent = {
+                type: 'success',
+                redirectUrl: event.data,
+                userData,
+                errorCode: undefined,
+                error: undefined
+              };
+              
+              observer.next(successEvent);
+              cleanup();
+              observer.complete();
+            } catch (error: any) {
+              console.error('[SseListenerService] Error processing redirect:', error);
+              observer.error(new SseError('TOKEN_EXCHANGE_FAILED', error.message || 'Error al obtener datos de usuario'));
+              cleanup();
+            }
           });
           
           // Handle connection open
@@ -191,11 +216,109 @@ export class SseListenerService {
   }
 
   /**
+   * Exchange authorization code for tokens with PKCE
+   * 
+   * Calls `/oidc/token` endpoint to exchange the authorization code for an ID token.
+   * Includes code_verifier from sessionStorage for PKCE validation.
+   * Extracts user data from the ID token JWT claims.
+   * 
+   * @param code Authorization code from redirect
+   * @param state OAuth2 state parameter
+   * @returns User data extracted from ID token
+   */
+  private async exchangeCodeForTokens(code: string, state: string): Promise<any> {
+    const tokenUrl = `${this.baseUrl}/oidc/token`;
+    const redirectUri = window.location.origin + '/login';
+    
+    // Retrieve PKCE code_verifier from sessionStorage
+    const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+    const storedState = sessionStorage.getItem('pkce_state');
+    
+    if (!codeVerifier) {
+      console.error('[SseListenerService] No code_verifier found in sessionStorage');
+      throw new Error('PKCE code_verifier no encontrado');
+    }
+    
+    if (storedState !== state) {
+      console.error('[SseListenerService] State mismatch:', { stored: storedState, received: state });
+      throw new Error('Estado OAuth2 no coincide');
+    }
+    
+    // Clean up sessionStorage
+    sessionStorage.removeItem('pkce_code_verifier');
+    sessionStorage.removeItem('pkce_state');
+    
+    const body = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: redirectUri,
+      client_id: 'proximity-verifier-pwa',
+      code_verifier: codeVerifier  // PKCE parameter
+    });
+    
+    try {
+      const response = await firstValueFrom(
+        this.http.post<any>(tokenUrl, body.toString(), {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        })
+      );
+      
+      console.log('[SseListenerService] Token response received');
+      
+      // Extract user data from ID token
+      if (response.id_token) {
+        const claims = this.parseJwtClaims(response.id_token);
+        console.log('[SseListenerService] ID token claims:', claims);
+        
+        return {
+          name: claims.name || claims.given_name || 'Usuario',
+          given_name: claims.given_name,
+          family_name: claims.family_name,
+          email: claims.email,
+          ...claims
+        };
+      }
+      
+      return {};
+    } catch (error: any) {
+      console.error('[SseListenerService] Token exchange error:', error);
+      throw new Error('Error al intercambiar código por tokens');
+    }
+  }
+  
+  /**
+   * Parse JWT claims from ID token
+   * 
+   * Extracts and decodes the payload from a JWT without verification
+   * (verification is done by the backend during token generation).
+   * 
+   * @param jwt JWT string
+   * @returns Decoded claims object
+   */
+  private parseJwtClaims(jwt: string): any {
+    try {
+      const parts = jwt.split('.');
+      if (parts.length !== 3) {
+        throw new Error('Invalid JWT format');
+      }
+      
+      const payload = parts[1];
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decoded);
+    } catch (error) {
+      console.error('[SseListenerService] Error parsing JWT:', error);
+      return {};
+    }
+  }
+
+  /**
    * Get backend URL from configuration
    * 
    * Priority:
    * 1. window["env"]["verifierBackendUrl"] (runtime config)
-   * 2. Fallback to localhost:8081
+   * 2. Fallback to localhost:8082
    * 
    * @returns Backend base URL
    */
