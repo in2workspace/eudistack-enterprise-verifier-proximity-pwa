@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 import { VerificationSession } from '../models';
+import { environment } from '../../../environments/environment';
 
 
 
@@ -26,11 +27,18 @@ import { VerificationSession } from '../models';
 export class VerifierApiService {
   private readonly http = inject(HttpClient);
   
-  // Backend URL from environment or window.env
-  private readonly baseUrl = this.getBackendUrl();
-  
   // HTTP timeout in milliseconds (30s)
   private readonly HTTP_TIMEOUT_MS = 30000;
+
+  /**
+   * Get backend URL from environment
+   * 
+   * Reads window.env?.verifierBackendUrl with fallback to localhost:8082
+   * Single source of truth defined in environment.ts
+   */
+  private get baseUrl(): string {
+    return environment.verifierBackendUrl;
+  }
 
   /**
    * Initiate a new proximity verification session
@@ -81,30 +89,6 @@ export class VerifierApiService {
         return throwError(() => this.handleError(error));
       })
     );
-  }
-
-  /**
-   * Get backend URL from configuration
-   * 
-   * Priority:
-   * 1. window["env"]["verifierBackendUrl"] (runtime config from assets/env.js)
-   * 2. environment.verifierBackendUrl (build-time config)
-   * 3. Fallback to localhost:8081
-   * 
-   * @returns Backend base URL
-   */
-  private getBackendUrl(): string {
-    const runtimeUrl = window.env?.verifierBackendUrl;
-    
-    if (runtimeUrl) {
-      console.log('[VerifierApiService] Using runtime backend URL:', runtimeUrl);
-      return runtimeUrl;
-    }
-    
-    // Fallback to localhost for development
-    const fallbackUrl = 'http://localhost:8081';
-    console.warn('[VerifierApiService] No backend URL configured, using fallback:', fallbackUrl);
-    return fallbackUrl;
   }
 
   /**

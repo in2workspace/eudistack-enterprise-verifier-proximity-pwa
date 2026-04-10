@@ -206,39 +206,18 @@ npx angular-cli-ghpages --dir=dist/eudistack-verifier-pwa-kpmg/browser
 - ✅ eIDAS 2.0 (ARF 1.5.0 credential types)
 - ⚠️ **Not eIDAS-qualified**: For demonstration/pilot use only
 
-## JAR by Value (No Backend Required)
+## Architecture
 
-This PWA uses **JAR by Value** instead of JAR by Reference, meaning the signed authorization request JWT is included **directly in the QR code** rather than fetched from an HTTP endpoint.
+This PWA is an **OAuth2/OIDC client** of the eudistack-core-verifier backend.
 
-**Why?** This PWA has **NO backend server** — it's a static web app deployed to CDN. JAR by Value allows the wallet to read the authorization request without making any HTTP GET call.
+**Flow:**
+1. PWA requests new verification session from backend (`/api/proximity/initiate`)
+2. Backend returns QR data (authorization request URL with `state` parameter)
+3. PWA subscribes to SSE endpoint (`/api/login/events?state={state}`) to listen for verification completion
+4. Wallet scans QR → submits VP to backend → backend validates → emits SSE event
+5. PWA receives SSE redirect event → exchanges authorization code for tokens → extracts user data
 
-### QR Code Format
-
-```
-openid4vp://?client_id=did:key:z...&request={SIGNED_JWT}
-```
-
-- `client_id`: Verifier's DID:key (ephemeral, generated at PWA startup)
-- `request`: Entire signed JWT containing authorization request
-
-### Differences vs Core Verifier
-
-| Aspect | Core Verifier (Backend) | Proximity PWA (No Backend) |
-|--------|------------------------|----------------------------|
-| Authorization Request | JAR by Reference (`request_uri`) | **JAR by Value (`request`)** |
-| QR Size | Small (~200 chars) | Larger (~1500-2000 chars) |
-| HTTP GET endpoint | Required (`/oid4vp/auth-request/{id}`) | ❌ Not needed |
-| Wallet flow | Scan QR → GET JWT → Parse | Scan QR → Parse JWT directly |
-
-### Response Flow
-
-The wallet sends the VP token back to `response_uri` (configured in the JWT). Since there's no backend, the PWA must handle the response via:
-
-1. **Same-device flow** (recommended for proximity): Wallet navigates back to PWA URL with POST data
-2. **Service Worker interception**: Capture POST in service worker, store in Cache API
-3. **Alternative**: WebSocket relay (requires minimal infrastructure)
-
-See [docs/JAR-BY-VALUE.md](docs/JAR-BY-VALUE.md) for detailed implementation guide.
+**Backend dependency:** Requires eudistack-core-verifier running on `localhost:8082` (or configured via `window.env.verifierBackendUrl`)
 
 ## Documentation
 
@@ -246,7 +225,6 @@ See [docs/JAR-BY-VALUE.md](docs/JAR-BY-VALUE.md) for detailed implementation gui
 - [TASKS](docs/EUDI-024-verifier-pwa-kpmg/TASKS.md) - Detailed task breakdown
 - [STACK](docs/EUDI-024-verifier-pwa-kpmg/STACK.md) - Technology stack alignment
 - [IMPLEMENTATION_GUIDE](docs/EUDI-024-verifier-pwa-kpmg/IMPLEMENTATION_GUIDE.md) - Developer guide
-- [JAR-BY-VALUE](docs/JAR-BY-VALUE.md) - ⭐ No backend implementation guide
 
 ## Contributing
 

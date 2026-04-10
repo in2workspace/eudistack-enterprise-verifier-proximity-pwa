@@ -1,45 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-
-/**
- * Theme Configuration Interface
- * 
- * Loaded from assets/themes/{tenantId}.theme.json
- */
-export interface ThemeConfig {
-  tenantId: string;
-  branding: {
-    name: string;
-    primaryColor: string;
-    primaryDark?: string;
-    secondaryColor: string;
-    logoUrl: string;
-    logoDarkUrl?: string;
-    faviconUrl?: string;
-  };
-  gradients?: {
-    primary: { start: string; end: string; angle: number };
-    success?: { start: string; end: string; angle: number };
-    error?: { start: string; end: string; angle: number };
-  };
-  components?: {
-    header?: {
-      backgroundColor: string;
-      textColor: string;
-      height: string;
-      logoHeight: string;
-    };
-  };
-  content?: {
-    links: Array<{ title: string; url: string }>;
-    footer: string;
-  };
-  i18n?: {
-    defaultLang: string;
-    available: string[];
-  };
-}
+import { ThemeConfig } from '../models/theme.model';
 
 /**
  * Theme Service
@@ -82,13 +44,13 @@ export class ThemeService {
   /**
    * Load theme configuration for specific tenant
    * 
-   * Falls back to 'kpmg' theme if tenant theme not found.
+   * Falls back to 'altia' theme if tenant theme not found.
    * Applies CSS variables to :root element.
    * 
-   * @param tenantId - Tenant identifier (default: 'kpmg' from env or URL)
+   * @param tenantId - Tenant identifier (default: 'altia' from env or URL)
    * @returns Promise<void>
    */
-  public async loadTheme(tenantId: string = 'kpmg'): Promise<void> {
+  public async loadTheme(tenantId: string = 'altia'): Promise<void> {
     this._isLoading.set(true);
     this._error.set(null);
 
@@ -118,10 +80,10 @@ export class ThemeService {
       console.error('[ThemeService]', errorMessage, error);
       this._error.set(errorMessage);
       
-      // Last resort: apply hardcoded KPMG theme
-      if (tenantId !== 'kpmg') {
-        console.warn('[ThemeService] Falling back to hardcoded KPMG theme');
-        this.applyHardcodedKpmgTheme();
+      // Last resort: apply hardcoded Altia theme
+      if (tenantId !== 'altia') {
+        console.warn('[ThemeService] Falling back to hardcoded Altia theme');
+        this.applyHardcodedAltiaTheme();
       }
     } finally {
       this._isLoading.set(false);
@@ -159,27 +121,6 @@ export class ThemeService {
     
     const { start, end, angle } = theme.gradients.error;
     return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
-  }
-
-  /**
-   * Get footer text with year and brand name interpolated
-   */
-  public getFooterText(): string {
-    const config = this._theme();
-    if (!config?.content?.footer) {
-      return `© ${new Date().getFullYear()} ${this.brandName()}. All rights reserved.`;
-    }
-
-    return config.content.footer
-      .replace('{year}', new Date().getFullYear().toString())
-      .replace('{brandName}', config.branding.name);
-  }
-
-  /**
-   * Get legal links
-   */
-  public getLegalLinks(): Array<{ title: string; url: string }> {
-    return this._theme()?.content?.links || [];
   }
 
   /**
@@ -229,7 +170,7 @@ export class ThemeService {
   /**
    * Apply hardcoded Altia theme as last-resort fallback
    */
-  private applyHardcodedKpmgTheme(): void {
+  private applyHardcodedAltiaTheme(): void {
     const fallbackTheme: ThemeConfig = {
       tenantId: 'altia',
       branding: {

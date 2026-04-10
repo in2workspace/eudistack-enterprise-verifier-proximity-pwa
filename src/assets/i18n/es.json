@@ -59,7 +59,8 @@
     "error": {
       "title": "Verificación Fallida",
       "details": "Detalles Técnicos",
-      "retry": "Intentar de Nuevo"
+      "retry": "Intentar de Nuevo",
+      "go_home": "Volver al inicio"
     }
   }
 }

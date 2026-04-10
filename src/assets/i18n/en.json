@@ -59,7 +59,8 @@
     "error": {
       "title": "Verification Failed",
       "details": "Technical Details",
-      "retry": "Try Again"
+      "retry": "Try Again",
+      "go_home": "Go Home"
     }
   }
 }

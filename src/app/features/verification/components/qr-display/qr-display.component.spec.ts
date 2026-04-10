@@ -3,6 +3,24 @@ import { QRDisplayComponent } from './qr-display.component';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Component, input } from '@angular/core';
+import { QRCodeComponent } from 'angularx-qrcode';
+
+/**
+ * Mock QRCode Component
+ * 
+ * Prevents canvas rendering issues in Jest/jsdom environment
+ */
+@Component({
+  selector: 'qrcode',
+  standalone: true,
+  template: '<div data-testid="mock-qrcode"></div>'
+})
+class MockQRCodeComponent {
+  public readonly qrdata = input<string>('');
+  public readonly width = input<number>(256);
+  public readonly errorCorrectionLevel = input<string>('M');
+}
 
 /**
  * QR Display Component Tests
@@ -17,11 +35,17 @@ describe('QRDisplayComponent (Logic)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        QRDisplayComponent,
         IonicModule.forRoot(),
         TranslateModule.forRoot(),
         HttpClientTestingModule
       ]
-    }).compileComponents();
+    })
+    .overrideComponent(QRDisplayComponent, {
+      remove: { imports: [QRCodeComponent] },
+      add: { imports: [MockQRCodeComponent] }
+    })
+    .compileComponents();
     
     // Create component instance WITHOUT rendering
     fixture = TestBed.createComponent(QRDisplayComponent);

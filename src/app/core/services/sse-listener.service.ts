@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 /**
  * SSE Listener Service
@@ -30,8 +31,6 @@ import { HttpClient } from '@angular/common/http';
 })
 export class SseListenerService {
   private readonly http = inject(HttpClient);
-  // Backend URL from environment or window.env
-  private readonly baseUrl = this.getBackendUrl();
   
   // Default timeout in milliseconds (120s)
   private readonly DEFAULT_TIMEOUT_MS = 120000;
@@ -40,6 +39,16 @@ export class SseListenerService {
   private readonly INITIAL_RETRY_DELAY_MS = 1000;
   private readonly MAX_RETRY_DELAY_MS = 32000;
   private readonly MAX_RETRY_ATTEMPTS = 5;
+
+  /**
+   * Get backend URL from environment
+   * 
+   * Reads window.env?.verifierBackendUrl with fallback to localhost:8082
+   * Single source of truth defined in environment.ts
+   */
+  private get baseUrl(): string {
+    return environment.verifierBackendUrl;
+  }
 
   /**
    * Subscribe to verification events via SSE
@@ -312,25 +321,6 @@ export class SseListenerService {
       console.error('[SseListenerService] Error parsing JWT:', error);
       return {};
     }
-  }
-
-  /**
-   * Get backend URL from configuration
-   * 
-   * Priority:
-   * 1. window["env"]["verifierBackendUrl"] (runtime config)
-   * 2. Fallback to localhost:8082
-   * 
-   * @returns Backend base URL
-   */
-  private getBackendUrl(): string {
-    const runtimeUrl = window.env?.verifierBackendUrl;
-    
-    if (runtimeUrl) {
-      return runtimeUrl;
-    }
-    
-    return 'http://localhost:8082';
   }
 }
 

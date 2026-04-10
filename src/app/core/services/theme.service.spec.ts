@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { ThemeService, ThemeConfig } from './theme.service';
+import { ThemeService } from './theme.service';
+import { ThemeConfig } from '../models/theme.model';
 
 describe('ThemeService', () => {
   let service: ThemeService;
@@ -61,7 +62,7 @@ describe('ThemeService', () => {
   it('should apply CSS variables when theme is loaded', async () => {
     const loadPromise = service.loadTheme();
 
-    const req = httpMock.expectOne('assets/themes/kpmg.theme.json');
+    const req = httpMock.expectOne('assets/themes/altia.theme.json');
     req.flush(mockThemeConfig);
 
     await loadPromise;
@@ -74,7 +75,7 @@ describe('ThemeService', () => {
   it('should return brand name', async () => {
     const loadPromise = service.loadTheme();
 
-    const req = httpMock.expectOne('assets/themes/kpmg.theme.json');
+    const req = httpMock.expectOne('assets/themes/altia.theme.json');
     req.flush(mockThemeConfig);
 
     await loadPromise;
@@ -89,7 +90,7 @@ describe('ThemeService', () => {
   it('should return logo URL', async () => {
     const loadPromise = service.loadTheme();
 
-    const req = httpMock.expectOne('assets/themes/kpmg.theme.json');
+    const req = httpMock.expectOne('assets/themes/altia.theme.json');
     req.flush(mockThemeConfig);
 
     await loadPromise;
@@ -97,38 +98,12 @@ describe('ThemeService', () => {
     expect(service.logoUrl()).toBe('assets/test-logo.svg');
   });
 
-  it('should return footer text with interpolated values', async () => {
-    const loadPromise = service.loadTheme();
-
-    const req = httpMock.expectOne('assets/themes/kpmg.theme.json');
-    req.flush(mockThemeConfig);
-
-    await loadPromise;
-
-    const currentYear = new Date().getFullYear();
-    const footerText = service.getFooterText();
-    
-    expect(footerText).toContain(currentYear.toString());
-    expect(footerText).toContain('Test Brand');
-  });
-
-  it('should return legal links', async () => {
-    const loadPromise = service.loadTheme();
-
-    const req = httpMock.expectOne('assets/themes/kpmg.theme.json');
-    req.flush(mockThemeConfig);
-
-    await loadPromise;
-
-    const links = service.getLegalLinks();
-    expect(links).toEqual(mockThemeConfig.content?.links);
-  });
 
   it('should handle theme loading error and use fallback', async () => {
     const loadPromise = service.loadTheme();
 
     // First request fails (tenant-specific theme)
-    const req1 = httpMock.expectOne('assets/themes/kpmg.theme.json');
+    const req1 = httpMock.expectOne('assets/themes/altia.theme.json');
     req1.error(new ProgressEvent('error'));
 
     // Wait for async catch block to execute and make second request

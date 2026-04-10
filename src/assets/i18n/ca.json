@@ -59,7 +59,8 @@
     "error": {
       "title": "Verificació Fallida",
       "details": "Detalls Tècnics",
-      "retry": "Intentar de Nou"
+      "retry": "Intentar de Nou",
+      "go_home": "Tornar a l'inici"
     }
   }
 }
