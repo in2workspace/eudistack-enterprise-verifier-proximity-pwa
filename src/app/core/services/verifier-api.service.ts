@@ -151,7 +151,7 @@ export class VerifierApiError extends Error {
   public readonly statusCode: number;
   public readonly originalError?: any;
 
-  constructor(
+  public constructor(
     code: string,
     message: string,
     statusCode: number = 0,

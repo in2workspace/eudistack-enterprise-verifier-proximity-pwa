@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, Subject, merge, of } from 'rxjs';
-import { switchMap, catchError, tap, takeUntil, finalize } from 'rxjs/operators';
+import { switchMap, catchError, takeUntil, finalize } from 'rxjs/operators';
 import { QrGenerationService, QrData } from './qr-generation.service';
 import { SseListenerService, LoginEvent } from './sse-listener.service';
 

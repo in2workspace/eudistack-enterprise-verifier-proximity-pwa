@@ -94,7 +94,7 @@ export class QRDisplayComponent implements OnDestroy {
   // ── Subscriptions ──
   private countdownSubscription?: Subscription;
 
-  constructor() {
+  public constructor() {
     // Start countdown when QR data changes
     effect(() => {
       const data = this.qrData();

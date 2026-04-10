@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, Subject, firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 /**
@@ -367,7 +367,7 @@ export interface LoginEvent {
 export class SseError extends Error {
   public readonly code: string;
 
-  constructor(
+  public constructor(
     code: string,
     message: string
   ) {
