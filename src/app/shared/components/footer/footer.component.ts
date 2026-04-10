@@ -23,12 +23,12 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent {
-  readonly currentYear = new Date().getFullYear();
+  public readonly currentYear = new Date().getFullYear();
 
   /**
    * Legal links configuration
    */
-  readonly legalLinks = [
+  public readonly legalLinks = [
     {
       label: 'Política de Privacidad',
       url: '/privacy',
@@ -47,7 +47,7 @@ export class FooterComponent {
    * @param url - Link URL
    * @param external - Open in new tab if true
    */
-  onLinkClick(url: string, external: boolean): void {
+  public onLinkClick(url: string, external: boolean): void {
     if (external) {
       window.open(url, '_blank', 'noopener,noreferrer');
     } else {

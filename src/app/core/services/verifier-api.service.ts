@@ -126,7 +126,7 @@ export class VerifierApiService {
     } else if (error.status === 404) {
       code = 'SESSION_NOT_FOUND';
       message = 'Sesión no encontrada o expirada';
-    } else if (error.status === 408 || (error as any).name === 'TimeoutError') {
+    } else if (error.status === 408 || (error as unknown as { name?: string }).name === 'TimeoutError') {
       code = 'TIMEOUT';
       message = 'Tiempo de espera agotado';
     } else if (error.status >= 500) {
@@ -149,13 +149,13 @@ export class VerifierApiService {
 export class VerifierApiError extends Error {
   public readonly code: string;
   public readonly statusCode: number;
-  public readonly originalError?: any;
+  public readonly originalError?: unknown;
 
   public constructor(
     code: string,
     message: string,
     statusCode: number = 0,
-    originalError?: any
+    originalError?: unknown
   ) {
     super(message);
     this.name = 'VerifierApiError';
@@ -164,8 +164,8 @@ export class VerifierApiError extends Error {
     this.originalError = originalError;
     
     // Maintain proper stack trace (only available in V8 engines like Chrome/Node.js)
-    if (typeof (Error as any).captureStackTrace === 'function') {
-      (Error as any).captureStackTrace(this, VerifierApiError);
+    if ('captureStackTrace' in Error && typeof (Error as { captureStackTrace?: unknown }).captureStackTrace === 'function') {
+      (Error as { captureStackTrace(target: object, constructor: object): void }).captureStackTrace(this, VerifierApiError);
     }
   }
 }

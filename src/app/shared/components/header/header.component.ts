@@ -25,7 +25,7 @@ import { ThemeService } from '../../../core/services/theme.service';
 })
 export class HeaderComponent {
   // ── Dependencies ──
-  readonly themeService = inject(ThemeService);
+  public readonly themeService = inject(ThemeService);
 
   // ── Inputs ──
   
@@ -33,27 +33,27 @@ export class HeaderComponent {
    * Optional title override
    * Default: brand name from theme
    */
-  title = input<string | null>(null);
+  public readonly title = input<string | null>(null);
 
   /**
    * Show/hide logo
    * Default: true
    */
-  showLogo = input<boolean>(true);
+  public readonly showLogo = input<boolean>(true);
 
   // ── Computed ──
   
   /**
    * Effective title (input or theme brand name)
    */
-  get effectiveTitle(): string {
+  public get effectiveTitle(): string {
     return this.title() || this.themeService.brandName();
   }
 
   /**
    * Logo URL from theme
    */
-  get logoUrl(): string {
+  public get logoUrl(): string {
     return this.themeService.logoUrl();
   }
 }

@@ -50,20 +50,15 @@ import { WelcomeMessageComponent } from '../../components/welcome-message/welcom
   styleUrls: ['./verification-page.component.scss']
 })
 export class VerificationPageComponent implements OnInit, OnDestroy {
-  // ── Dependencies ──
-  private readonly verificationFlow = inject(VerificationFlowService);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
   // ── State (reactive signals) ──
-  readonly currentState = signal<VerificationState['status']>('waiting');
-  readonly qrData = signal<QrData | null>(null);
-  readonly userData = signal<any>(null);
-  readonly errorMessage = signal<string>('');
-  readonly errorCode = signal<string>('');
+  public readonly currentState = signal<VerificationState['status']>('waiting');
+  public readonly qrData = signal<QrData | null>(null);
+  public readonly userData = signal<Record<string, unknown>>({}); 
+  public readonly errorMessage = signal<string>('');
+  public readonly errorCode = signal<string>('');
 
   // ── Computed ──
-  readonly qrCodeUrl = computed(() => {
+  public readonly qrCodeUrl = computed(() => {
     const qr = this.qrData();
     if (!qr) return '';
     
@@ -72,30 +67,35 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
     return qr.uri;
   });
 
-  readonly isWaiting = computed(() => this.currentState() === 'waiting');
-  readonly isValidating = computed(() => this.currentState() === 'validating');
-  readonly isSuccess = computed(() => this.currentState() === 'success');
-  readonly isError = computed(() => this.currentState() === 'error');
+  public readonly isWaiting = computed(() => this.currentState() === 'waiting');
+  public readonly isValidating = computed(() => this.currentState() === 'validating');
+  public readonly isSuccess = computed(() => this.currentState() === 'success');
+  public readonly isError = computed(() => this.currentState() === 'error');
 
-  readonly userName = computed(() => {
+  public readonly userName = computed(() => {
     const user = this.userData();
-    return user?.name || user?.given_name || 'Usuario';
+    return (user['name'] as string) || (user['given_name'] as string) || 'Usuario';
   });
 
-  readonly userFirstName = computed(() => {
+  public readonly userFirstName = computed(() => {
     const user = this.userData();
-    return user?.given_name || '';
+    return (user['given_name'] as string) || '';
   });
 
-  readonly userFamilyName = computed(() => {
+  public readonly userFamilyName = computed(() => {
     const user = this.userData();
-    return user?.family_name || '';
+    return (user['family_name'] as string) || '';
   });
+
+  // ── Dependencies ──
+  private readonly verificationFlow = inject(VerificationFlowService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   // ── Lifecycle ──
   private destroy$ = new Subject<void>();
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     // Check if we have authRequest from URL params (OAuth2 redirect from backend)
     this.route.queryParams.pipe(
       takeUntil(this.destroy$)
@@ -116,10 +116,51 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.verificationFlow.cancelVerification();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Handle QR regeneration
+   * 
+   * Called when user clicks "Regenerate QR" button.
+   * Restarts the OAuth2 flow to get a new authRequest from the backend.
+   */
+  public onQrRegenerate(): void {
+    console.log('[VerificationPage] Regenerating QR - restarting OAuth2 flow');
+    this.verificationFlow.cancelVerification();
+    this.initiateOAuth2Flow();
+  }
+
+  /**
+   * Handle QR copied
+   * 
+   * Called when user copies QR code.
+   * Shows validating state immediately (frontend-only).
+   */
+  public onQrCopied(): void {
+    console.log('[VerificationPage] QR copied - showing validating state');
+    // Immediately show validating popup when QR is copied
+    this.currentState.set('validating');
+  }
+
+  /**
+   * Handle retry after error
+   * 
+   * Restarts the OAuth2 flow.
+   */
+  public onRetry(): void {
+    console.log('[VerificationPage] Retrying verification - redirecting to OAuth2');
+    this.initiateOAuth2Flow();
+  }
+
+  /**
+   * Navigate back to home
+   */
+  public onGoHome(): void {
+    this.router.navigate(['/']);
   }
 
   /**
@@ -301,46 +342,5 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
     this.currentState.set('error');
     this.errorCode.set(code);
     this.errorMessage.set(message);
-  }
-
-  /**
-   * Handle QR regeneration
-   * 
-   * Called when user clicks "Regenerate QR" button.
-   * Restarts the OAuth2 flow to get a new authRequest from the backend.
-   */
-  onQrRegenerate(): void {
-    console.log('[VerificationPage] Regenerating QR - restarting OAuth2 flow');
-    this.verificationFlow.cancelVerification();
-    this.initiateOAuth2Flow();
-  }
-
-  /**
-   * Handle QR copied
-   * 
-   * Called when user copies QR code.
-   * Shows validating state immediately (frontend-only).
-   */
-  onQrCopied(): void {
-    console.log('[VerificationPage] QR copied - showing validating state');
-    // Immediately show validating popup when QR is copied
-    this.currentState.set('validating');
-  }
-
-  /**
-   * Handle retry after error
-   * 
-   * Restarts the OAuth2 flow.
-   */
-  onRetry(): void {
-    console.log('[VerificationPage] Retrying verification - redirecting to OAuth2');
-    this.initiateOAuth2Flow();
-  }
-
-  /**
-   * Navigate back to home
-   */
-  onGoHome(): void {
-    this.router.navigate(['/']);
   }
 }

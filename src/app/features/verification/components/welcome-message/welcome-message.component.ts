@@ -38,47 +38,47 @@ export class WelcomeMessageComponent implements OnInit, OnDestroy {
   /**
    * User's first name from verified credential
    */
-  firstName = input<string>('');
+  public readonly firstName = input<string>('');
 
   /**
    * User's family name from verified credential
    */
-  familyName = input<string>('');
+  public readonly familyName = input<string>('');
 
   /**
    * Countdown duration in seconds
    * Default: 10 seconds
    */
-  countdownDuration = input<number>(10);
+  public readonly countdownDuration = input<number>(10);
 
   /**
    * Whether to auto-redirect after countdown
    * Default: true
    */
-  autoRedirect = input<boolean>(true);
+  public readonly autoRedirect = input<boolean>(true);
 
   /**
    * Redirect URL after countdown completes
    * Default: '/'
    */
-  redirectUrl = input<string>('/');
+  public readonly redirectUrl = input<string>('/');
 
   /**
    * Event emitted when countdown completes
    */
-  countdownComplete = output<void>();
+  public readonly countdownComplete = output<void>();
 
   /**
    * Event emitted when Continue button is clicked
    */
-  continueClicked = output<void>();
+  public readonly continueClicked = output<void>();
 
   // ── State ──
-  readonly secondsRemaining = signal<number>(10);
-  readonly isCountingDown = signal<boolean>(false);
+  public readonly secondsRemaining = signal<number>(10);
+  public readonly isCountingDown = signal<boolean>(false);
 
   // ── Computed values ──
-  readonly fullName = computed(() => {
+  public readonly fullName = computed(() => {
     const first = this.firstName();
     const family = this.familyName();
     return `${first} ${family}`.trim() || 'User';
@@ -86,7 +86,7 @@ export class WelcomeMessageComponent implements OnInit, OnDestroy {
 
   private countdownSubscription?: Subscription;
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.secondsRemaining.set(this.countdownDuration());
     
     if (this.autoRedirect()) {
@@ -94,8 +94,20 @@ export class WelcomeMessageComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.stopCountdown();
+  }
+
+  /**
+   * Handle Continue button click
+   */
+  public onContinueClick(): void {
+    this.stopCountdown();
+    this.continueClicked.emit();
+    
+    if (this.autoRedirect()) {
+      this.redirect();
+    }
   }
 
   /**
@@ -151,17 +163,5 @@ export class WelcomeMessageComponent implements OnInit, OnDestroy {
    */
   private redirect(): void {
     window.location.href = this.redirectUrl();
-  }
-
-  /**
-   * Handle Continue button click
-   */
-  onContinueClick(): void {
-    this.stopCountdown();
-    this.continueClicked.emit();
-    
-    if (this.autoRedirect()) {
-      this.redirect();
-    }
   }
 }

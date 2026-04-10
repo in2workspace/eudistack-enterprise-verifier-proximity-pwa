@@ -40,51 +40,51 @@ export class QRDisplayComponent implements OnDestroy {
   /**
    * QR code data (authorization request URL)
    */
-  qrData = input.required<string>();
+  public readonly qrData = input.required<string>();
 
   /**
    * Total countdown duration in seconds
    * Default: 120s
    */
-  duration = input<number>(120);
+  public readonly duration = input<number>(120);
 
   /**
    * Whether to auto-regenerate on expiry
    * Default: true
    */
-  autoRegenerate = input<boolean>(true);
+  public readonly autoRegenerate = input<boolean>(true);
 
   /**
    * Event emitted when QR expires
    */
-  expired = output<void>();
+  public readonly expired = output<void>();
 
   /**
    * Event emitted when regeneration is requested
    */
-  regenerate = output<void>();
+  public readonly regenerate = output<void>();
 
   /**
    * Event emitted when QR is copied to clipboard
    */
-  copied = output<void>();
+  public readonly copied = output<void>();
 
   // ── State ──
-  readonly timeRemaining = signal<number>(120);
-  readonly isExpired = signal<boolean>(false);
-  readonly isLoading = signal<boolean>(false);
-  readonly isCopied = signal<boolean>(false);
+  public readonly timeRemaining = signal<number>(120);
+  public readonly isExpired = signal<boolean>(false);
+  public readonly isLoading = signal<boolean>(false);
+  public readonly isCopied = signal<boolean>(false);
 
   // ── Computed values ──
-  readonly progress = computed(() => {
+  public readonly progress = computed(() => {
     const total = this.duration();
     const remaining = this.timeRemaining();
     return (remaining / total) * 100;
   });
 
-  readonly isWarning = computed(() => this.timeRemaining() < 30);
+  public readonly isWarning = computed(() => this.timeRemaining() < 30);
   
-  readonly formattedTime = computed(() => {
+  public readonly formattedTime = computed(() => {
     const seconds = this.timeRemaining();
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -102,6 +102,44 @@ export class QRDisplayComponent implements OnDestroy {
         this.startCountdown();
       }
     });
+  }
+
+  /**
+   * Handle regeneration request
+   */
+  public onRegenerate(): void {
+    this.isLoading.set(true);
+    this.regenerate.emit();
+    
+    // Simulate loading state
+    setTimeout(() => {
+      this.isLoading.set(false);
+    }, 500);
+  }
+
+  /**
+   * Copy QR data to clipboard
+   */
+  public async onCopyQR(): Promise<void> {
+    try {
+      const data = this.qrData();
+      if (!data) return;
+
+      await navigator.clipboard.writeText(data);
+      this.isCopied.set(true);
+      this.copied.emit();
+
+      // Reset copied state after 2 seconds
+      setTimeout(() => {
+        this.isCopied.set(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to copy QR data:', error);
+    }
+  }
+
+  public ngOnDestroy(): void {
+    this.countdownSubscription?.unsubscribe();
   }
 
   /**
@@ -140,44 +178,6 @@ export class QRDisplayComponent implements OnDestroy {
     if (this.autoRegenerate()) {
       this.onRegenerate();
     }
-  }
-
-  /**
-   * Handle regeneration request
-   */
-  onRegenerate(): void {
-    this.isLoading.set(true);
-    this.regenerate.emit();
-    
-    // Simulate loading state
-    setTimeout(() => {
-      this.isLoading.set(false);
-    }, 500);
-  }
-
-  /**
-   * Copy QR data to clipboard
-   */
-  async onCopyQR(): Promise<void> {
-    try {
-      const data = this.qrData();
-      if (!data) return;
-
-      await navigator.clipboard.writeText(data);
-      this.isCopied.set(true);
-      this.copied.emit();
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => {
-        this.isCopied.set(false);
-      }, 2000);
-    } catch (error) {
-      console.error('Failed to copy QR data:', error);
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.countdownSubscription?.unsubscribe();
   }
 }
 

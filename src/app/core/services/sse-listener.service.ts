@@ -412,7 +412,7 @@ export class SseError extends Error {
     
     // V8-specific stack trace capture (Node.js, Chrome)
     if ('captureStackTrace' in Error) {
-      (Error as { captureStackTrace(target: object, constructor: Function): void }).captureStackTrace(this, SseError);
+      (Error as { captureStackTrace(target: object, constructor: object): void }).captureStackTrace(this, SseError);
     }
   }
 }

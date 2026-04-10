@@ -49,52 +49,52 @@ export class ValidationPopupComponent implements OnInit, OnDestroy {
   /**
    * Whether the modal is open
    */
-  isOpen = input<boolean>(false);
+  public readonly isOpen = input<boolean>(false);
 
   /**
    * Validation results for each check
    * Order: vpSignature, vcSignature, trustedIssuer, notRevoked
    */
-  validationResults = input<boolean[]>([true, true, true, true]);
+  public readonly validationResults = input<boolean[]>([true, true, true, true]);
 
   /**
    * Event emitted when OK button is clicked
    */
-  okClicked = output<void>();
+  public readonly okClicked = output<void>();
 
   /**
    * Event emitted when Retry button is clicked
    */
-  retryClicked = output<void>();
+  public readonly retryClicked = output<void>();
 
   // ── State ──
-  readonly checks = signal<ValidationCheck[]>([
+  public readonly checks = signal<ValidationCheck[]>([
     { key: 'vpSignature', label: 'verification.validation.checks.vpSignature', status: 'pending' },
     { key: 'vcSignature', label: 'verification.validation.checks.vcSignature', status: 'pending' },
     { key: 'trustedIssuer', label: 'verification.validation.checks.trustedIssuer', status: 'pending' },
     { key: 'notRevoked', label: 'verification.validation.checks.notRevoked', status: 'pending' }
   ]);
 
-  readonly allSuccess = signal<boolean>(false);
-  readonly hasError = signal<boolean>(false);
-  readonly isValidating = signal<boolean>(false);
+  public readonly allSuccess = signal<boolean>(false);
+  public readonly hasError = signal<boolean>(false);
+  public readonly isValidating = signal<boolean>(false);
 
   private animationTimeouts: number[] = [];
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     if (this.isOpen()) {
       this.startValidation();
     }
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.clearTimeouts();
   }
 
   /**
    * Start sequential validation animation
    */
-  startValidation(): void {
+  public startValidation(): void {
     this.isValidating.set(true);
     this.allSuccess.set(false);
     this.hasError.set(false);
@@ -137,6 +137,58 @@ export class ValidationPopupComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Handle OK button click
+   */
+  public onOkClick(): void {
+    this.clearTimeouts();
+    this.okClicked.emit();
+  }
+
+  /**
+   * Handle Retry button click
+   */
+  public onRetryClick(): void {
+    this.clearTimeouts();
+    this.retryClicked.emit();
+  }
+
+  /**
+   * Get icon name based on check status
+   */
+  public getIconName(status: CheckStatus): string {
+    switch (status) {
+      case 'pending':
+        return 'ellipse-outline';
+      case 'validating':
+        return 'sync-outline';
+      case 'success':
+        return 'checkmark-circle';
+      case 'error':
+        return 'close-circle';
+      default:
+        return 'ellipse-outline';
+    }
+  }
+
+  /**
+   * Get color based on check status
+   */
+  public getIconColor(status: CheckStatus): string {
+    switch (status) {
+      case 'pending':
+        return 'medium';
+      case 'validating':
+        return 'primary';
+      case 'success':
+        return 'success';
+      case 'error':
+        return 'danger';
+      default:
+        return 'medium';
+    }
+  }
+
+  /**
    * Reset all checks to pending state
    */
   private resetChecks(): void {
@@ -162,57 +214,5 @@ export class ValidationPopupComponent implements OnInit, OnDestroy {
   private clearTimeouts(): void {
     this.animationTimeouts.forEach(id => window.clearTimeout(id));
     this.animationTimeouts = [];
-  }
-
-  /**
-   * Handle OK button click
-   */
-  onOkClick(): void {
-    this.clearTimeouts();
-    this.okClicked.emit();
-  }
-
-  /**
-   * Handle Retry button click
-   */
-  onRetryClick(): void {
-    this.clearTimeouts();
-    this.retryClicked.emit();
-  }
-
-  /**
-   * Get icon name based on check status
-   */
-  getIconName(status: CheckStatus): string {
-    switch (status) {
-      case 'pending':
-        return 'ellipse-outline';
-      case 'validating':
-        return 'sync-outline';
-      case 'success':
-        return 'checkmark-circle';
-      case 'error':
-        return 'close-circle';
-      default:
-        return 'ellipse-outline';
-    }
-  }
-
-  /**
-   * Get color based on check status
-   */
-  getIconColor(status: CheckStatus): string {
-    switch (status) {
-      case 'pending':
-        return 'medium';
-      case 'validating':
-        return 'primary';
-      case 'success':
-        return 'success';
-      case 'error':
-        return 'danger';
-      default:
-        return 'medium';
-    }
   }
 }

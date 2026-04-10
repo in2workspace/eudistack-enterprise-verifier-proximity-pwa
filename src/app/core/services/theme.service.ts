@@ -129,6 +129,60 @@ export class ThemeService {
   }
 
   /**
+   * Get primary gradient CSS string
+   */
+  public getPrimaryGradient(): string {
+    const theme = this._theme();
+    if (!theme?.gradients?.primary) return 'linear-gradient(180deg, #00338D 0%, #002770 100%)';
+    
+    const { start, end, angle } = theme.gradients.primary;
+    return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
+  }
+
+  /**
+   * Get success gradient CSS string
+   */
+  public getSuccessGradient(): string {
+    const theme = this._theme();
+    if (!theme?.gradients?.success) return 'linear-gradient(135deg, #00A878 0%, #008C63 100%)';
+    
+    const { start, end, angle } = theme.gradients.success;
+    return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
+  }
+
+  /**
+   * Get error gradient CSS string
+   */
+  public getErrorGradient(): string {
+    const theme = this._theme();
+    if (!theme?.gradients?.error) return 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)';
+    
+    const { start, end, angle } = theme.gradients.error;
+    return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
+  }
+
+  /**
+   * Get footer text with year and brand name interpolated
+   */
+  public getFooterText(): string {
+    const config = this._theme();
+    if (!config?.content?.footer) {
+      return `© ${new Date().getFullYear()} ${this.brandName()}. All rights reserved.`;
+    }
+
+    return config.content.footer
+      .replace('{year}', new Date().getFullYear().toString())
+      .replace('{brandName}', config.branding.name);
+  }
+
+  /**
+   * Get legal links
+   */
+  public getLegalLinks(): Array<{ title: string; url: string }> {
+    return this._theme()?.content?.links || [];
+  }
+
+  /**
    * Apply theme configuration by setting CSS variables
    * 
    * @param config Theme configuration
@@ -215,59 +269,5 @@ export class ThemeService {
     link.rel = 'shortcut icon';
     link.href = faviconUrl;
     document.getElementsByTagName('head')[0].appendChild(link);
-  }
-
-  /**
-   * Get primary gradient CSS string
-   */
-  public getPrimaryGradient(): string {
-    const theme = this._theme();
-    if (!theme?.gradients?.primary) return 'linear-gradient(180deg, #00338D 0%, #002770 100%)';
-    
-    const { start, end, angle } = theme.gradients.primary;
-    return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
-  }
-
-  /**
-   * Get success gradient CSS string
-   */
-  public getSuccessGradient(): string {
-    const theme = this._theme();
-    if (!theme?.gradients?.success) return 'linear-gradient(135deg, #00A878 0%, #008C63 100%)';
-    
-    const { start, end, angle } = theme.gradients.success;
-    return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
-  }
-
-  /**
-   * Get error gradient CSS string
-   */
-  public getErrorGradient(): string {
-    const theme = this._theme();
-    if (!theme?.gradients?.error) return 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)';
-    
-    const { start, end, angle } = theme.gradients.error;
-    return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
-  }
-
-  /**
-   * Get footer text with year and brand name interpolated
-   */
-  public getFooterText(): string {
-    const config = this._theme();
-    if (!config?.content?.footer) {
-      return `© ${new Date().getFullYear()} ${this.brandName()}. All rights reserved.`;
-    }
-
-    return config.content.footer
-      .replace('{year}', new Date().getFullYear().toString())
-      .replace('{brandName}', config.branding.name);
-  }
-
-  /**
-   * Get legal links
-   */
-  public getLegalLinks(): Array<{ title: string; url: string }> {
-    return this._theme()?.content?.links || [];
   }
 }

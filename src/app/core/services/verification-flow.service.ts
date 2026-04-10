@@ -112,37 +112,6 @@ export class VerificationFlowService {
   }
 
   /**
-   * Process SSE event and emit state
-   * 
-   * Now handles 'validating' event from SSE (wallet activity detected)
-   * 
-   * @param event SSE login event
-   * @returns Observable of verification state
-   */
-  private processEvent(event: LoginEvent): Observable<VerificationState> {
-    console.log('[VerificationFlowService] Processing SSE event:', event.type);
-    
-    if (event.type === 'validating') {
-      // Wallet has started communicating with backend
-      return of({ status: 'validating' });
-    } else if (event.type === 'success') {
-      return of({
-        status: 'success',
-        userData: event.userData || {},
-        redirectUrl: event.redirectUrl
-      });
-    } else {
-      return of({
-        status: 'error',
-        error: {
-          code: event.errorCode || 'VERIFICATION_FAILED',
-          message: event.error || 'Error de verificación'
-        }
-      });
-    }
-  }
-
-  /**
    * Start verification from received authRequest (cross-device flow)
    * 
    * Used when PWA is invoked from backend redirect with authRequest URL.
@@ -218,6 +187,37 @@ export class VerificationFlowService {
     this.cancelVerification();
     return this.startVerification();
   }
+
+  /**
+   * Process SSE event and emit state
+   * 
+   * Now handles 'validating' event from SSE (wallet activity detected)
+   * 
+   * @param event SSE login event
+   * @returns Observable of verification state
+   */
+  private processEvent(event: LoginEvent): Observable<VerificationState> {
+    console.log('[VerificationFlowService] Processing SSE event:', event.type);
+    
+    if (event.type === 'validating') {
+      // Wallet has started communicating with backend
+      return of({ status: 'validating' });
+    } else if (event.type === 'success') {
+      return of({
+        status: 'success',
+        userData: event.userData || {},
+        redirectUrl: event.redirectUrl
+      });
+    } else {
+      return of({
+        status: 'error',
+        error: {
+          code: event.errorCode || 'VERIFICATION_FAILED',
+          message: event.error || 'Error de verificación'
+        }
+      });
+    }
+  }
 }
 
 /**
@@ -228,7 +228,7 @@ export class VerificationFlowService {
 export type VerificationState =
   | { status: 'waiting'; qrData: QrData }
   | { status: 'validating' }
-  | { status: 'success'; userData: any; redirectUrl?: string }
+  | { status: 'success'; userData: Record<string, unknown>; redirectUrl?: string }
   | { status: 'error'; error: VerificationError };
 
 /**
@@ -239,5 +239,5 @@ export type VerificationState =
 export interface VerificationError {
   code: string;
   message: string;
-  details?: any;
+  details?: Record<string, unknown>;
 }
