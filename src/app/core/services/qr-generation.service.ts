@@ -90,6 +90,19 @@ export class QrGenerationService {
   }
 
   /**
+   * Regenerate QR code
+   * 
+   * Creates a new QR with a fresh session.
+   * Used when the previous QR expires.
+   * 
+   * @returns Observable<QrData>
+   */
+  public regenerateQr(): Observable<QrData> {
+    console.log('[QrGenerationService] Regenerating QR');
+    return this.generateQr();
+  }
+
+  /**
    * Extract sessionId from authRequest URL
    * Parses the request_uri parameter to get the session ID (nonce)
    */
@@ -106,37 +119,6 @@ export class QrGenerationService {
       console.warn('[QrGenerationService] Failed to extract sessionId:', error);
     }
     return 'unknown';
-  }
-
-  /**
-   * Regenerate QR code
-   * 
-   * Creates a new QR with a fresh session.
-   * Used when the previous QR expires.
-   * 
-   * @returns Observable<QrData>
-   */
-  public regenerateQr(): Observable<QrData> {
-    console.log('[QrGenerationService] Regenerating QR');
-    return this.generateQr();
-  }
-
-  /**
-   * Generate unique session ID (nonce)
-   * 
-   * @returns UUID v4 string
-   */
-  private generateSessionId(): string {
-    return uuidv4();
-  }
-
-  /**
-   * Generate OAuth2 state parameter
-   * 
-   * @returns Random state string
-   */
-  private generateState(): string {
-    return uuidv4();
   }
 
   /**

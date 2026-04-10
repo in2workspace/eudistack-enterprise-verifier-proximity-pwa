@@ -1,9 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { VerificationPageComponent } from './verification-page.component';
-import { SessionStateService } from '../../../../core/services/session-state.service';
 import { ValidationService } from '../../../../core/services/validation.service';
-import { StorageService } from '../../../../core/services/storage.service';
 import { VerifierIdentityService } from '../../../../core/services/verifier-identity.service';
 import { CryptoService } from '../../../../core/services/crypto.service';
 import { TrustFrameworkService } from '../../../../core/services/trust-framework.service';
@@ -35,9 +33,7 @@ describe('VerificationPageComponent', () => {
       ],
       providers: [
         provideRouter([]),
-        SessionStateService,
         ValidationService,
-        StorageService,
         VerifierIdentityService,
         CryptoService,
         TrustFrameworkService,

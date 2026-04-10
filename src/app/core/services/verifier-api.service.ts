@@ -2,12 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
+import { VerificationSession } from '../models';
 
-export interface VerificationSession {
-  authRequest: string;  // openid4vp:// URL
-  state: string;        // OAuth2 state for SSE
-  sessionId: string;    // Session nonce
-}
+
 
 /**
  * Verifier API Service
