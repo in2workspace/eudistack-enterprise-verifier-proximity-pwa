@@ -60,27 +60,7 @@ export class VerificationFlowService {
         
         // Subscribe to SSE events
         const sseEvents$ = this.sseListener.subscribe(qrData.state).pipe(
-          switchMap(event => {
-            console.log('[VerificationFlowService] SSE event received:', event);
-            
-            if (event.type === 'success') {
-              const successState: VerificationState = {
-                status: 'success',
-                userData: event.userData || {},
-                redirectUrl: event.redirectUrl
-              };
-              return of(successState);
-            } else {
-              const errorState: VerificationState = {
-                status: 'error',
-                error: {
-                  code: event.errorCode || 'VERIFICATION_FAILED',
-                  message: event.error || 'Error de verificación'
-                }
-              };
-              return of(errorState);
-            }
-          }),
+          switchMap(event => this.processEvent(event)),
           catchError(error => {
             console.error('[VerificationFlowService] SSE error:', error);
             
@@ -132,6 +112,37 @@ export class VerificationFlowService {
   }
 
   /**
+   * Process SSE event and emit state
+   * 
+   * Now handles 'validating' event from SSE (wallet activity detected)
+   * 
+   * @param event SSE login event
+   * @returns Observable of verification state
+   */
+  private processEvent(event: LoginEvent): Observable<VerificationState> {
+    console.log('[VerificationFlowService] Processing SSE event:', event.type);
+    
+    if (event.type === 'validating') {
+      // Wallet has started communicating with backend
+      return of({ status: 'validating' });
+    } else if (event.type === 'success') {
+      return of({
+        status: 'success',
+        userData: event.userData || {},
+        redirectUrl: event.redirectUrl
+      });
+    } else {
+      return of({
+        status: 'error',
+        error: {
+          code: event.errorCode || 'VERIFICATION_FAILED',
+          message: event.error || 'Error de verificación'
+        }
+      });
+    }
+  }
+
+  /**
    * Start verification from received authRequest (cross-device flow)
    * 
    * Used when PWA is invoked from backend redirect with authRequest URL.
@@ -155,27 +166,7 @@ export class VerificationFlowService {
         
         // Subscribe to SSE events
         const sseEvents$ = this.sseListener.subscribe(qrData.state).pipe(
-          switchMap(event => {
-            console.log('[VerificationFlowService] SSE event received:', event);
-            
-            if (event.type === 'success') {
-              const successState: VerificationState = {
-                status: 'success',
-                userData: event.userData || {},
-                redirectUrl: event.redirectUrl
-              };
-              return of(successState);
-            } else {
-              const errorState: VerificationState = {
-                status: 'error',
-                error: {
-                  code: event.errorCode || 'VERIFICATION_FAILED',
-                  message: event.error || 'Error de verificación'
-                }
-              };
-              return of(errorState);
-            }
-          }),
+          switchMap(event => this.processEvent(event)),
           catchError(error => {
             console.error('[VerificationFlowService] SSE error:', error);
             

@@ -72,6 +72,24 @@ export class SseListenerService {
         try {
           eventSource = new EventSource(url);
           
+          // Listen for generic 'message' event (any SSE data)
+          // This fires when wallet starts communicating with backend
+          eventSource.addEventListener('message', (event: MessageEvent) => {
+            console.log('[SseListenerService] Generic message received (wallet activity detected):', event);
+            
+            // Emit 'validating' event to show spinner
+            const validatingEvent: LoginEvent = {
+              type: 'validating',
+              redirectUrl: undefined,
+              userData: undefined,
+              errorCode: undefined,
+              error: undefined
+            };
+            
+            observer.next(validatingEvent);
+            // Don't complete - wait for final 'redirect' event
+          });
+          
           // Listen specifically for 'redirect' event (same as MFE login)
           eventSource.addEventListener('redirect', (event: MessageEvent) => {
             console.log('[SseListenerService] Redirect event received:', event.data);
@@ -199,7 +217,7 @@ export class SseListenerService {
  */
 export interface LoginEvent {
   /** Event type */
-  type: 'success' | 'error';
+  type: 'validating' | 'success' | 'error';
   
   /** Redirect URL (on success) */
   redirectUrl?: string;

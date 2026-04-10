@@ -244,6 +244,18 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Handle QR copied
+   * 
+   * Called when user copies QR code.
+   * Shows validating state immediately (frontend-only).
+   */
+  onQrCopied(): void {
+    console.log('[VerificationPage] QR copied - showing validating state');
+    // Immediately show validating popup when QR is copied
+    this.currentState.set('validating');
+  }
+
+  /**
    * Handle retry after error
    * 
    * Restarts the OAuth2 flow.
