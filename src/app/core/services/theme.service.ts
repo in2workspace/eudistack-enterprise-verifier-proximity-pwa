@@ -54,12 +54,6 @@ export interface ThemeConfig {
   providedIn: 'root'
 })
 export class ThemeService {
-  private readonly http = inject(HttpClient);
-
-  // ── State (signals) ──
-  private readonly _theme = signal<ThemeConfig | null>(null);
-  private readonly _isLoading = signal<boolean>(false);
-  private readonly _error = signal<string | null>(null);
 
   // ── Public API (computed signals) ──
   
@@ -78,6 +72,13 @@ export class ThemeService {
   public readonly isLoading = computed(() => this._isLoading());
   public readonly error = computed(() => this._error());
 
+  // ── State (signals) ──
+  private readonly _theme = signal<ThemeConfig | null>(null);
+  private readonly _isLoading = signal<boolean>(false);
+  private readonly _error = signal<string | null>(null);
+
+  
+  private readonly http = inject(HttpClient);
   /**
    * Load theme configuration for specific tenant
    * 
