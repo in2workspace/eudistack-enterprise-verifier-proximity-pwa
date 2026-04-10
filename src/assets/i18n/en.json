@@ -23,9 +23,7 @@
       "step1Title": "Scan the QR code",
       "step1Description": "Align your camera with the code displayed on the left.",
       "step2Title": "Select required credential on your digital Wallet",
-      "step2Description": "Choose the verified attributes requested by the system.",
-      "step3Title": "Or copy the QR content",
-      "step3Description": "Click 'Copy QR' and paste the content directly in your wallet to continue."
+      "step2Description": "Choose the verified attributes requested by the system."
     },
     "validation": {
       "title": "Verification in Progress",

@@ -235,13 +235,12 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
    * Handle QR regeneration
    * 
    * Called when user clicks "Regenerate QR" button.
+   * Restarts the OAuth2 flow to get a new authRequest from the backend.
    */
   onQrRegenerate(): void {
-    console.log('[VerificationPage] Regenerating QR');
-    this.verificationFlow.regenerateQr().pipe(
-      tap(state => this.handleStateChange(state)),
-      takeUntil(this.destroy$)
-    ).subscribe();
+    console.log('[VerificationPage] Regenerating QR - restarting OAuth2 flow');
+    this.verificationFlow.cancelVerification();
+    this.initiateOAuth2Flow();
   }
 
   /**

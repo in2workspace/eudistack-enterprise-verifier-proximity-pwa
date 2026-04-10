@@ -23,9 +23,7 @@
       "step1Title": "Escaneja el codi QR",
       "step1Description": "Alinea la teva càmera amb el codi mostrat a l'esquerra.",
       "step2Title": "Selecciona la credencial requerida a la teva Wallet digital",
-      "step2Description": "Tria els atributs verificats sol·licitats pel sistema.",
-      "step3Title": "O copia el contingut del QR",
-      "step3Description": "Prem 'Copiar QR' i enganxa el contingut directament a la teva wallet per continuar."
+      "step2Description": "Tria els atributs verificats sol·licitats pel sistema."
     },
     "validation": {
       "title": "Verificació en Progrés",
