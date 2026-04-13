@@ -33,6 +33,14 @@
       "submessage": "Por favor, autoriza la solicitud en tu dispositivo.",
       "encrypted": "CIFRADO DE EXTREMO A EXTREMO",
       "footer": "La verificación suele tardar 10-15 segundos.",
+      "progress": {
+        "title": "Validando Credenciales",
+        "subtitle": "Realizando comprobaciones técnicas seguras",
+        "vpSignature": "Verificando firma de presentación",
+        "vcSignature": "Verificando credencial de empleado",
+        "trustedIssuer": "Comprobando emisores confiables",
+        "notRevoked": "Comprobando estado de revocación"
+      },
       "checks": {
         "vpSignature": "Firma VP válida",
         "vcSignature": "Firma VC LEARCredentialEmployee válida",

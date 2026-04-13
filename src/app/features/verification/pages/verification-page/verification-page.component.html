@@ -1,55 +1,67 @@
-<!-- STATE: WAITING / VALIDATING / SUCCESS / ERROR -->
+<!-- STATE: WAITING / VALIDATING / PROGRESS / SUCCESS / ERROR -->
 
-<!-- Waiting for Scan: Show fullscreen QR display -->
-@if (isWaiting()) {
-  <app-qr-display
-    [qrData]="qrCodeUrl()"
-    [duration]="120"
-    [autoRegenerate]="true"
-    (regenerate)="onQrRegenerate()"
-    (copied)="onQrCopied()"
-  />
-}
+@switch (currentState()) {
+  <!-- Waiting for Scan: Show fullscreen QR display -->
+  @case ('waiting') {
+    <app-qr-display
+      [qrData]="qrCodeUrl()"
+      [duration]="120"
+      [autoRegenerate]="true"
+      (regenerate)="onQrRegenerate()"
+      (copied)="onQrCopied()"
+    />
+  }
 
-<!-- Validating: Show fullscreen validation popup -->
-@if (isValidating()) {
-  <app-validation-popup
-    [isOpen]="true"
-  />
-}
+  <!-- Validating: Show fullscreen validation popup -->
+  @case ('validating') {
+    <app-validation-popup
+      [isOpen]="true"
+    />
+  }
 
-<!-- Success: Show fullscreen welcome message -->
-@if (isSuccess()) {
-  <app-welcome-message
-    [firstName]="userFirstName()"
-    [familyName]="userFamilyName()"
-    [countdownDuration]="10"
-    [autoRedirect]="true"
-    (continueClicked)="onRetry()"
-  />
-}
+  <!-- Progress: Show fullscreen validation progress -->
+  @case ('progress') {
+    <app-validation-progress
+      [isOpen]="progressModalOpen()"
+      [validationResults]="validationResults()"
+      (okClicked)="onProgressComplete()"
+      (retryClicked)="onRetry()"
+    />
+  }
 
-<!-- Error: Show fullscreen error display -->
-@if (isError()) {
-  <div class="fullscreen-state error">
-    <ion-icon name="close-circle" class="error-icon"></ion-icon>
-    <h2>{{ 'verification.error.title' | translate }}</h2>
-    <p class="error-message">{{ errorMessage() }}</p>
-    
-    @if (errorCode()) {
-      <div class="error-details">
-        <small>Código: {{ errorCode() }}</small>
-      </div>
-    }
-    
-    <ion-button expand="block" (click)="onRetry()">
-      <ion-icon name="refresh" slot="start"></ion-icon>
-      {{ 'verification.error.retry' | translate }}
-    </ion-button>
-    
-    <ion-button expand="block" fill="outline" (click)="onGoHome()">
-      <ion-icon name="home" slot="start"></ion-icon>
-      {{ 'verification.error.go_home' | translate }}
-    </ion-button>
-  </div>
+  <!-- Success: Show fullscreen welcome message -->
+  @case ('success') {
+    <app-welcome-message
+      [firstName]="userFirstName()"
+      [familyName]="userFamilyName()"
+      [countdownDuration]="10"
+      [autoRedirect]="true"
+      (continueClicked)="onRetry()"
+    />
+  }
+
+  <!-- Error: Show fullscreen error display -->
+  @case ('error') {
+    <div class="fullscreen-state error">
+      <ion-icon name="close-circle" class="error-icon"></ion-icon>
+      <h2>{{ 'verification.error.title' | translate }}</h2>
+      <p class="error-message">{{ errorMessage() }}</p>
+      
+      @if (errorCode()) {
+        <div class="error-details">
+          <small>Código: {{ errorCode() }}</small>
+        </div>
+      }
+      
+      <ion-button expand="block" (click)="onRetry()">
+        <ion-icon name="refresh" slot="start"></ion-icon>
+        {{ 'verification.error.retry' | translate }}
+      </ion-button>
+      
+      <ion-button expand="block" fill="outline" (click)="onGoHome()">
+        <ion-icon name="home" slot="start"></ion-icon>
+        {{ 'verification.error.go_home' | translate }}
+      </ion-button>
+    </div>
+  }
 }

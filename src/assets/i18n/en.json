@@ -33,6 +33,14 @@
       "submessage": "Please authorize the request on your device.",
       "encrypted": "END-TO-END ENCRYPTED",
       "footer": "Verification typically takes 10-15 seconds.",
+      "progress": {
+        "title": "Validating Credentials",
+        "subtitle": "Performing secure technical checks",
+        "vpSignature": "Verifying presentation signature",
+        "vcSignature": "Verifying employee credential",
+        "trustedIssuer": "Checking trusted issuers",
+        "notRevoked": "Checking revocation status"
+      },
       "checks": {
         "vpSignature": "VP signature valid",
         "vcSignature": "VC LEARCredentialEmployee signature valid",

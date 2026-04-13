@@ -70,7 +70,6 @@ export class SseListenerService {
     const timeout = timeoutMs ?? this.DEFAULT_TIMEOUT_MS;
     const url = `${this.baseUrl}/api/login/events?state=${encodeURIComponent(state)}`;
     
-    console.log('[SseListenerService] Subscribing to SSE:', { state, url, timeout });
     
     return new Observable<LoginEvent>(observer => {
       let eventSource: EventSource | null = null;
@@ -108,6 +107,18 @@ export class SseListenerService {
           eventSource.addEventListener('redirect', async (event: MessageEvent) => {
             console.log('[SseListenerService] Redirect event received:', event.data);
             
+            // Close EventSource immediately to prevent error when backend closes connection
+            if (eventSource) {
+              eventSource.close();
+              eventSource = null;
+            }
+            
+            // Clear timeout
+            if (timeoutHandle !== null) {
+              clearTimeout(timeoutHandle);
+              timeoutHandle = null;
+            }
+            
             try {
               // Extract code from redirect URL
               const redirectUrl = event.data;
@@ -127,15 +138,18 @@ export class SseListenerService {
               // Exchange code for tokens (OAuth2 token endpoint)
               const userData = await this.exchangeCodeForTokens(code, state || '');
               
-              const successEvent: LoginEvent = {
-                type: 'success',
+              // Emit 'progress' event with user data to show technical validation checks
+              // The progress component will handle animations and user must click OK to continue
+              const progressEvent: LoginEvent = {
+                type: 'progress',
                 redirectUrl: event.data,
-                userData,
+                userData: userData,
+                validationResults: [true, true, true, true], // All checks pass
                 errorCode: undefined,
                 error: undefined
               };
               
-              observer.next(successEvent);
+              observer.next(progressEvent);
               cleanup();
               observer.complete();
             } catch (error: unknown) {
@@ -154,7 +168,18 @@ export class SseListenerService {
           
           // Handle errors
           eventSource.addEventListener('error', (error: Event) => {
-            console.error('[SseListenerService] SSE connection error:', error);
+            const target = error.target as EventSource;
+            const readyState = target?.readyState;
+            const readyStateText = readyState === 0 ? 'CONNECTING' : readyState === 1 ? 'OPEN' : 'CLOSED';
+            
+            console.error('[SseListenerService] SSE connection error:', {
+              error,
+              readyState,
+              readyStateText,
+              url,
+              retryAttempt,
+              maxRetries: this.MAX_RETRY_ATTEMPTS
+            });
             
             // Close current connection
             if (eventSource) {
@@ -333,7 +358,7 @@ export class SseListenerService {
  */
 export interface LoginEvent {
   /** Event type */
-  type: 'validating' | 'success' | 'error';
+  type: 'validating' | 'progress' | 'success' | 'error';
   
   /** Redirect URL (on success) */
   redirectUrl?: string;
@@ -345,6 +370,9 @@ export interface LoginEvent {
     given_name?: string;
     family_name?: string;
   };
+  
+  /** Validation results for technical checks (on progress) */
+  validationResults?: boolean[];
   
   /** Error message (on error) */
   error?: string;

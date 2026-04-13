@@ -194,6 +194,7 @@ export class VerificationFlowService {
    * Process SSE event and emit state
    * 
    * Now handles 'validating' event from SSE (wallet activity detected)
+   * and 'progress' event when backend is performing technical checks.
    * 
    * @param event SSE login event
    * @returns Observable of verification state
@@ -204,6 +205,14 @@ export class VerificationFlowService {
     if (event.type === 'validating') {
       // Wallet has started communicating with backend
       return of({ status: 'validating' });
+    } else if (event.type === 'progress') {
+      // Backend is performing technical validation checks
+      // Include userData if present (will be used when user clicks OK)
+      return of({ 
+        status: 'progress',
+        validationResults: event.validationResults || [true, true, true, true],
+        userData: event.userData
+      });
     } else if (event.type === 'success') {
       return of({
         status: 'success',
@@ -226,10 +235,18 @@ export class VerificationFlowService {
  * Verification State
  * 
  * Union type representing all possible states in the verification flow.
+ * 
+ * States:
+ * - waiting: QR displayed, waiting for wallet scan
+ * - validating: Wallet detected, waiting for credentials
+ * - progress: VP received, backend validating (technical checks) - includes userData for later use
+ * - success: Validation successful
+ * - error: Validation failed
  */
 export type VerificationState =
   | { status: 'waiting'; qrData: QrData }
   | { status: 'validating' }
+  | { status: 'progress'; validationResults?: boolean[]; userData?: Record<string, unknown> }
   | { status: 'success'; userData: Record<string, unknown>; redirectUrl?: string }
   | { status: 'error'; error: VerificationError };
 

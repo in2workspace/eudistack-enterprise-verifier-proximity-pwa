@@ -33,6 +33,14 @@
       "submessage": "Si us plau, autoritza la sol·licitud al teu dispositiu.",
       "encrypted": "XIFRAT D'EXTREM A EXTREM",
       "footer": "La verificació sol trigar 10-15 segons.",
+      "progress": {
+        "title": "Validant Credencials",
+        "subtitle": "Realitzant comprovacions tècniques segures",
+        "vpSignature": "Verificant signatura de presentació",
+        "vcSignature": "Verificant credencial d'empleat",
+        "trustedIssuer": "Comprovant emissors de confiança",
+        "notRevoked": "Comprovant estat de revocació"
+      },
       "checks": {
         "vpSignature": "Signatura VP vàlida",
         "vcSignature": "Signatura VC LEARCredentialEmployee vàlida",

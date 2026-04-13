@@ -1,0 +1,385 @@
+.validation-progress-modal {
+  --width: 100%;
+  --max-width: 100%;
+  --height: 100%;
+  --border-radius: 0;
+
+  ion-modal {
+    --backdrop-opacity: 1;
+  }
+}
+
+.validation-progress {
+  width: 100%;
+  min-height: 100vh;
+  padding: 32px 24px;
+  background: var(--theme-gradient-primary, linear-gradient(180deg, #1E49E2 0%, #00338D 100%));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  
+  // Smooth scrolling on mobile
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+
+  &__content {
+    width: 100%;
+    max-width: 640px;
+    margin-top: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+    text-align: center;
+    letter-spacing: -0.02em;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    
+    @media (max-width: 968px) {
+      font-size: 2.5rem;
+    }
+    
+    @media (max-width: 480px) {
+      font-size: 2rem;
+    }
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.15em;
+    margin: 0 0 48px 0;
+    text-align: center;
+  }
+
+  &__card {
+    width: 100%;
+    max-width: 520px;
+    background: #1a2942;
+    border-radius: 16px;
+    padding: 48px 40px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  &__footer {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+    margin: 32px 0 0 0;
+    text-align: center;
+  }
+}
+
+// ── Card Styles ──
+
+.card {
+  &__shield {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+    animation: pulseShield 1.5s ease-in-out infinite;
+
+    &--done {
+      animation: none;
+    }
+
+    ion-icon {
+      font-size: clamp(36px, 10vw, 48px);
+      color: #8ab4f8;
+      filter: drop-shadow(0 4px 12px rgba(138, 180, 248, 0.3));
+
+      &.shield-icon--validating {
+        color: #8ab4f8;
+      }
+
+      &.shield-icon--success {
+        color: #22C55E;
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+
+      &.shield-icon--error {
+        color: #EF4444;
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+    }
+  }
+
+  &__progress {
+    width: 100%;
+    margin-bottom: 8px;
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+
+      &__fill {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease-in-out;
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+      }
+    }
+  }
+
+  &__checks {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  &__actions {
+    width: 100%;
+    margin-top: 8px;
+
+    ion-button {
+      --border-radius: 8px;
+      font-weight: 600;
+      height: 48px;
+    }
+  }
+}
+
+// ── Check Item Styles ──
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  opacity: 0;
+  transform: translateY(8px);
+
+  &--pending {
+    opacity: 0.4;
+  }
+
+  &--validating {
+    background: rgba(138, 180, 248, 0.1);
+    border: 1px solid rgba(138, 180, 248, 0.3);
+    animation: fadeSlideIn 0.35s ease forwards;
+  }
+
+  &--success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    animation: fadeSlideIn 0.35s ease forwards;
+  }
+
+  &--error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    animation: fadeSlideIn 0.35s ease forwards;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 28px;
+
+      &.spinning {
+        animation: spin 1s linear infinite;
+      }
+    }
+
+    .check-icon {
+      animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+
+      &--pass {
+        color: #22C55E;
+      }
+
+      &--fail {
+        color: #EF4444;
+      }
+    }
+  }
+
+  &__label {
+    flex: 1;
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 400;
+    line-height: 1.4;
+  }
+}
+
+// ── Animations ──
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulseShield {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Responsive ──
+
+@media (max-width: 768px) {
+  .validation-progress {
+    padding: 24px 16px;
+
+    &__content {
+      margin-top: 72px;
+    }
+
+    &__title {
+      font-size: 2rem;
+    }
+
+    &__card {
+      padding: 40px 32px;
+      gap: 24px;
+    }
+  }
+
+  .card {
+    &__shield {
+      ion-icon {
+        font-size: 56px;
+      }
+    }
+  }
+
+  .check-item {
+    padding: 10px 14px;
+    gap: 12px;
+
+    &__icon {
+      width: 24px;
+      height: 24px;
+
+      ion-icon {
+        font-size: 24px;
+      }
+    }
+
+    &__label {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .validation-progress {
+    padding: 16px 12px;
+
+    &__content {
+      margin-top: 64px;
+    }
+
+    &__title {
+      font-size: 1.5rem;
+    }
+
+    &__subtitle {
+      font-size: 0.75rem;
+      margin-bottom: 32px;
+    }
+
+    &__card {
+      padding: 32px 24px;
+      gap: 20px;
+    }
+  }
+
+  .card {
+    &__shield {
+      ion-icon {
+        font-size: 48px;
+      }
+    }
+
+    &__progress {
+      .progress-bar {
+        height: 6px;
+      }
+    }
+
+    &__actions {
+      ion-button {
+        height: 44px;
+      }
+    }
+  }
+
+  .check-item {
+    padding: 8px 12px;
+    gap: 10px;
+
+    &__icon {
+      width: 20px;
+      height: 20px;
+
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+
+    &__label {
+      font-size: 0.8125rem;
+    }
+  }
+}

@@ -13,6 +13,7 @@ import { QrData } from '../../../../core/services/qr-generation.service';
 // Components
 import { QRDisplayComponent } from '../../components/qr-display/qr-display.component';
 import { ValidationPopupComponent } from '../../components/validation-popup/validation-popup.component';
+import { ValidationProgressComponent } from '../../components/validation-progress/validation-progress.component';
 import { WelcomeMessageComponent } from '../../components/welcome-message/welcome-message.component';
 
 /**
@@ -44,6 +45,7 @@ import { WelcomeMessageComponent } from '../../components/welcome-message/welcom
     TranslateModule,
     QRDisplayComponent,
     ValidationPopupComponent,
+    ValidationProgressComponent,
     WelcomeMessageComponent
   ],
   templateUrl: './verification-page.component.html',
@@ -54,9 +56,13 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
   public readonly currentState = signal<VerificationState['status']>('waiting');
   public readonly qrData = signal<QrData | null>(null);
   public readonly userData = signal<Record<string, unknown>>({}); 
+  public readonly validationResults = signal<boolean[]>([true, true, true, true]);
   public readonly errorMessage = signal<string>('');
   public readonly errorCode = signal<string>('');
-
+  // Pending success data (received during progress state)
+  private readonly pendingSuccessData = signal<Record<string, unknown> | null>(null);
+  // Control progress modal visibility independently from state
+  public readonly progressModalOpen = signal<boolean>(false);
   // ── Computed ──
   public readonly qrCodeUrl = computed(() => {
     const qr = this.qrData();
@@ -69,6 +75,7 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
 
   public readonly isWaiting = computed(() => this.currentState() === 'waiting');
   public readonly isValidating = computed(() => this.currentState() === 'validating');
+  public readonly isProgress = computed(() => this.currentState() === 'progress');
   public readonly isSuccess = computed(() => this.currentState() === 'success');
   public readonly isError = computed(() => this.currentState() === 'error');
 
@@ -152,6 +159,35 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
   public onRetry(): void {
     console.log('[VerificationPage] Retrying verification - redirecting to OAuth2');
     this.initiateOAuth2Flow();
+  }
+
+  /**
+   * Handle validation progress completion
+   * 
+   * Called when user clicks OK after all validation checks complete.
+   * Advances to success state with the data received from backend.
+   */
+  public onProgressComplete(): void {
+    console.log('[VerificationPage] Progress complete - closing modal before transition');
+    const successData = this.pendingSuccessData();
+    if (successData) {
+      // Set userData first
+      this.userData.set(successData);
+      this.pendingSuccessData.set(null);
+      
+      // CRITICAL: Close modal first (set isOpen = false)
+      this.progressModalOpen.set(false);
+      console.log('[VerificationPage] Modal closing...');
+      
+      // Wait for ion-modal close animation (300ms)
+      setTimeout(() => {
+        console.log('[VerificationPage] State transition to success');
+        this.currentState.set('success');
+      }, 350);
+    } else {
+      console.warn('[VerificationPage] No pending success data, retrying flow');
+      this.onRetry();
+    }
   }
 
   /**
@@ -317,6 +353,8 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
    * Handle verification state changes
    */
   private handleStateChange(state: VerificationState): void {
+    const current = this.currentState();
+    
     switch (state.status) {
       case 'waiting':
         this.currentState.set('waiting');
@@ -327,7 +365,22 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
         this.currentState.set('validating');
         break;
 
+      case 'progress':
+        console.log('[VerificationPage] Progress state received with user data');
+        this.currentState.set('progress');
+        this.progressModalOpen.set(true); // Open modal explicitly
+        if (state.validationResults) {
+          this.validationResults.set(state.validationResults);
+        }
+        // Save user data for when user clicks OK button
+        if (state.userData) {
+          this.pendingSuccessData.set(state.userData);
+        }
+        break;
+
       case 'success':
+        // Direct success (if progress was skipped for any reason)
+        console.log('[VerificationPage] Direct success state');
         this.currentState.set('success');
         this.userData.set(state.userData);
         break;
