@@ -1,11 +1,15 @@
 <app-header [showLogo]="true" />
 
 <div class="qr-display">
-  <!-- 2-Column Layout -->
-  <div class="qr-display__container">
+  <!-- Main Wrapper: Title + Columns -->
+  <div class="qr-display__wrapper">
+    <!-- Title Section -->
+    <h1 class="qr-display__title">{{ 'verification.title' | translate }}</h1>
     
-    <!-- LEFT COLUMN: QR Code Section -->
-    <div class="qr-display__left">
+    <!-- 2-Column Layout Container -->
+    <div class="qr-display__container">    
+      <!-- LEFT COLUMN: QR Code Section -->
+      <div class="qr-display__left">
       <div class="qr-section">
         @if (isLoading()) {
           <div class="qr-section__loading">
@@ -91,16 +95,19 @@
             </div>
           </div>
 
-          <!-- Step 02 -->
-          <div class="step">
-            <div class="step__number">02</div>
-            <div class="step__content">
-              <h3 class="step__title">{{ 'verification.qr.step2Title' | translate }}</h3>
-              <p class="step__description">{{ 'verification.qr.step2Description' | translate }}</p>
-            </div>
+        <!-- Step 02 -->
+        <div class="step">
+          <div class="step__number">02</div>
+          <div class="step__content">
+            <h3 class="step__title">{{ 'verification.qr.step2Title' | translate }}</h3>
+            <p class="step__description">{{ 'verification.qr.step2Description' | translate }}</p>
           </div>
-
         </div>
+
       </div>
     </div>
+  </div>
+    </div> <!-- Close qr-display__container -->
+  </div> <!-- Close qr-display__wrapper -->
+</div> <!-- Close qr-display -->
 

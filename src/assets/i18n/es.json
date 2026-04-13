@@ -4,7 +4,7 @@
     "loading": "Cargando..."
   },
   "verification": {
-    "title": "Verificación de Credenciales",
+    "title": "Verificación Segura",
     "initializing": "Inicializando sesión de verificación...",
     "scanQr": "Escanear código QR",
     "scanInstruction": "Escanea este código QR con tu Wallet EUDI para verificar tu identidad",
