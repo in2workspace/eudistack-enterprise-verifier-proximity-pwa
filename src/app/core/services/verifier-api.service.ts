@@ -96,30 +96,16 @@ export class VerifierApiService {
   /**
    * Handle HTTP errors
    * 
-   * Wraps HttpErrorResponse in VerifierApiError with structured error codes.
-   * Messages are already enriched by ErrorInterceptor (translated).
+   * Extracts error code and message from ErrorInterceptor's enriched error.
+   * All HTTP status → code/message mapping is centralized in the interceptor.
    * 
    * @param error - HTTP error response (enriched by interceptor)
    * @returns VerifierApiError
    */
   private handleError(error: HttpErrorResponse): VerifierApiError {
-    let code = 'UNKNOWN_ERROR';
-    
-    // Map HTTP status to error code (messages come from interceptor)
-    if (error.status === 0) {
-      code = 'NETWORK_ERROR';
-    } else if (error.status === 404) {
-      code = 'SESSION_NOT_FOUND';
-    } else if (error.status === 408 || (error as unknown as { name?: string }).name === 'TimeoutError') {
-      code = 'TIMEOUT';
-    } else if (error.status >= 500) {
-      code = 'SERVER_ERROR';
-    } else if (error.status >= 400) {
-      code = 'BAD_REQUEST';
-    }
-    
-    // Use statusText from interceptor (already translated) or fallback
-    const message = error.statusText || this.translate.instant('verification.error.http.unknown');
+    // Extract code and message from interceptor's enriched error body
+    const code = error.error?.code || 'UNKNOWN_ERROR';
+    const message = error.error?.message || error.statusText || this.translate.instant('verification.error.http.unknown');
     
     return new VerifierApiError(code, message, error.status, error);
   }

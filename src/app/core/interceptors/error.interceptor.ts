@@ -62,37 +62,52 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 /**
  * Enrich error with user-friendly information
  * 
+ * Maps HTTP status codes to error codes and translated messages.
+ * Both code and message are attached to the error for downstream consumers.
+ * 
  * @param error - Original HTTP error
  * @param url - Request URL
  * @param translate - Translation service
- * @returns Enriched error response
+ * @returns Enriched error response with code and message
  */
 function enrichError(error: HttpErrorResponse, url: string, translate: TranslateService): HttpErrorResponse {
+  let code = 'UNKNOWN_ERROR';
   let message = translate.instant('verification.error.http.unknown');
   
   if (error.status === 0) {
     // Network error or CORS
+    code = 'NETWORK_ERROR';
     message = translate.instant('verification.error.http.network');
   } else if (error.status === 404) {
+    code = 'SESSION_NOT_FOUND';
     message = translate.instant('verification.error.http.notFound');
   } else if (error.status === 408 || (error as unknown as { name?: string }).name === 'TimeoutError') {
+    code = 'TIMEOUT';
     message = translate.instant('verification.error.http.timeout');
   } else if (error.status === 401) {
+    code = 'UNAUTHORIZED';
     message = translate.instant('verification.error.http.unauthorized');
   } else if (error.status === 403) {
+    code = 'FORBIDDEN';
     message = translate.instant('verification.error.http.forbidden');
   } else if (error.status >= 500) {
+    code = 'SERVER_ERROR';
     message = translate.instant('verification.error.http.serverError');
   } else if (error.status >= 400) {
+    code = 'BAD_REQUEST';
     message = error.error?.message || translate.instant('verification.error.http.invalidRequest');
   }
   
-  // Create enriched error preserving original data
+  // Create enriched error with structured error body
   const enriched = new HttpErrorResponse({
-    error: error.error,
+    error: {
+      code,
+      message,
+      originalError: error.error
+    },
     headers: error.headers,
     status: error.status,
-    statusText: error.statusText || message,
+    statusText: message,
     url: url
   });
   
