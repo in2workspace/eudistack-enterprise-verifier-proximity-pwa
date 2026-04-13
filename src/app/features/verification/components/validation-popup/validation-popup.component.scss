@@ -1,0 +1,272 @@
+.validation-popup-modal {
+  --width: 100%;
+  --max-width: 100%;
+  --height: 100%;
+  --border-radius: 0;
+
+  ion-modal {
+    --backdrop-opacity: 1;
+  }
+}
+
+.validation-popup {
+  width: 100%;
+  min-height: 100vh;
+  padding: 32px 24px;
+  background: var(--theme-gradient-primary, linear-gradient(180deg, #1E49E2 0%, #00338D 100%));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  
+  // Smooth scrolling on mobile
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+
+  &__logo {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+
+    img {
+      height: 48px;
+      width: auto;
+    }
+  }
+
+  &__content {
+    width: 100%;
+    max-width: 640px;
+    margin-top: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__title {
+    font-size: 3rem;
+    font-weight: 400;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+    text-align: center;
+    letter-spacing: -0.02em;
+  }
+
+  &__subtitle {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.15em;
+    margin: 0 0 48px 0;
+    text-align: center;
+  }
+
+  &__card {
+    width: 100%;
+    max-width: 480px;
+    background: #1a2942;
+    border-radius: 16px;
+    padding: 64px 48px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  &__footer {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+    margin: 32px 0 0 0;
+    text-align: center;
+  }
+}
+
+// ── Card Styles ──
+
+.card {
+  &__corner {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+
+    &--tl {
+      top: 16px;
+      left: 16px;
+      border-right: none;
+      border-bottom: none;
+      border-radius: 4px 0 0 0;
+    }
+
+    &--tr {
+      top: 16px;
+      right: 16px;
+      border-left: none;
+      border-bottom: none;
+      border-radius: 0 4px 0 0;
+    }
+
+    &--bl {
+      bottom: 16px;
+      left: 16px;
+      border-right: none;
+      border-top: none;
+      border-radius: 0 0 0 4px;
+    }
+
+    &--br {
+      bottom: 16px;
+      right: 16px;
+      border-left: none;
+      border-top: none;
+      border-radius: 0 0 4px 0;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  &__spinner {
+    width: 64px;
+    height: 64px;
+    --color: #8ab4f8;
+    margin-bottom: 32px;
+  }
+
+  &__message {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #8ab4f8;
+    margin: 0 0 16px 0;
+    line-height: 1.4;
+  }
+
+  &__submessage {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 32px 0;
+    line-height: 1.5;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(138, 180, 248, 0.15);
+    border: 1px solid rgba(138, 180, 248, 0.3);
+    border-radius: 24px;
+    color: #8ab4f8;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+
+    ion-icon {
+      font-size: 14px;
+    }
+  }
+}
+
+// ── Responsive ──
+
+@media (max-width: 768px) {
+  .validation-popup {
+    padding: 24px 16px;
+
+    &__logo {
+      top: 24px;
+      left: 24px;
+      
+      img {
+        height: 36px;
+      }
+    }
+
+    &__content {
+      margin-top: 72px;
+    }
+
+    &__title {
+      font-size: 2rem;
+    }
+
+    &__card {
+      padding: 48px 32px;
+    }
+  }
+
+  .card {
+    &__message {
+      font-size: 1.25rem;
+    }
+
+    &__submessage {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .validation-popup {
+    padding: 16px 12px;
+
+    &__logo {
+      top: 16px;
+      left: 16px;
+      
+      img {
+        height: 32px;
+      }
+    }
+
+    &__content {
+      margin-top: 64px;
+    }
+
+    &__title {
+      font-size: 1.5rem;
+    }
+
+    &__subtitle {
+      font-size: 0.75rem;
+      margin-bottom: 32px;
+    }
+
+    &__card {
+      padding: 32px 24px;
+    }
+  }
+
+  .card {
+    &__corner {
+      width: 24px;
+      height: 24px;
+    }
+
+    &__spinner {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 24px;
+    }
+
+    &__message {
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+
+    &__submessage {
+      font-size: 0.8125rem;
+      margin-bottom: 24px;
+    }
+
+    &__badge {
+      font-size: 0.6875rem;
+      padding: 6px 12px;
+    }
+  }
+}

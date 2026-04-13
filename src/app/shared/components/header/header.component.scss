@@ -1,0 +1,79 @@
+// ─────────────────────────────────────────────────────────────────
+// Header Component - Multi-Tenant Support
+// ─────────────────────────────────────────────────────────────────
+// Uses dynamic CSS variables set by ThemeService
+
+.app-header {
+  background: var(--theme-header-bg-gradient, var(--theme-header-bg, #ffffff));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 32px;
+  max-width: 100%;
+  height: var(--theme-header-height, 64px);
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 8px 24px;
+    height: 56px;
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 8px 16px;
+  }
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  .logo-image {
+    height: var(--theme-header-logo-height, 40px);
+    width: auto;
+    object-fit: contain;
+
+    @media (max-width: 768px) {
+      height: 36px;
+    }
+
+    @media (max-width: 480px) {
+      height: 32px;
+    }
+  }
+}
+
+.header-title {
+  color: var(--theme-header-text, #00338D);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  padding: 0;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 360px) {
+    display: none; // Hide title on very small screens
+  }
+}

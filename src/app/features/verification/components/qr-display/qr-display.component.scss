@@ -1,0 +1,539 @@
+// -----------------------------------------------------------
+// QR Display Component - Horizontal 2-Column Layout
+// -----------------------------------------------------------
+
+.qr-display {
+  width: 100%;
+  height: 100vh;
+  background: var(--theme-gradient-primary, linear-gradient(135deg, #1E49E2 0%, #00338D 100%));
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  
+  /* Smooth scrolling on mobile */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+
+  /* Main Container (2-Column Grid) */
+  &__container {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 80px 64px;
+    align-items: start;
+    min-height: min-content;
+  }
+
+  /* Left Column */
+  &__left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Right Column */
+  &__right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+// -----------------------------------------------------------
+// QR Section (Left Column)
+// -----------------------------------------------------------
+
+.qr-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 420px;
+
+  /* QR Container */
+  &__qr-container {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    ::ng-deep canvas {
+      display: block;
+      width: 100% !important;
+      height: auto !important;
+      border-radius: 8px;
+    }
+  }
+
+  /* Timer Badge */
+  &__timer {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    color: #ffffff;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+
+    ion-icon {
+      font-size: 20px;
+    }
+
+    &--warning {
+      background: rgba(255, 193, 7, 0.2);
+      border-color: rgba(255, 193, 7, 0.4);
+      color: #ffc107;
+    }
+  }
+
+  /* Action Buttons Container */
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  /* Copy QR Button */
+  &__copy-btn {
+    --background: rgba(255, 255, 255, 0.95);
+    --background-hover: rgba(255, 255, 255, 1);
+    --background-activated: rgba(255, 255, 255, 0.9);
+    --color: var(--theme-gradient-primary, #1E49E2);
+    --border-radius: 40px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --padding-start: 28px;
+    --padding-end: 28px;
+    --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --ripple-color: rgba(30, 73, 226, 0.2);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.03em;
+    transition: var(--transition);
+    cursor: pointer;
+
+    ion-icon {
+      font-size: 18px;
+      margin-right: 2px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Hover State */
+    &:hover:not([disabled]) {
+      --background: rgba(255, 255, 255, 1);
+      --box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+
+      ion-icon {
+        transform: scale(1.1);
+      }
+    }
+
+    /* Active/Pressed State */
+    &:active:not([disabled]) {
+      --background: rgba(255, 255, 255, 0.9);
+      --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transform: translateY(0px);
+    }
+
+    /* Disabled State */
+    &[disabled] {
+      --background: rgba(255, 255, 255, 0.3);
+      --color: rgba(255, 255, 255, 0.5);
+      --box-shadow: none;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Focus State (Accessibility) */
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.8);
+      outline-offset: 3px;
+    }
+  }
+
+  /* Refresh Button */
+  &__refresh-btn {
+    --background: rgba(255, 255, 255, 0.12);
+    --background-hover: rgba(255, 255, 255, 0.2);
+    --background-activated: rgba(255, 255, 255, 0.25);
+    --color: #ffffff;
+    --border-color: rgba(255, 255, 255, 0.35);
+    --border-width: 1.5px;
+    --border-radius: 40px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --padding-start: 28px;
+    --padding-end: 28px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --ripple-color: rgba(255, 255, 255, 0.3);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.03em;
+    transition: var(--transition);
+    cursor: pointer;
+
+    ion-icon {
+      font-size: 18px;
+      margin-right: 2px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Hover State */
+    &:hover:not([disabled]) {
+      --background: rgba(255, 255, 255, 0.22);
+      --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      transform: translateY(-2px);
+
+      ion-icon {
+        transform: rotate(90deg);
+      }
+    }
+
+    /* Active/Pressed State */
+    &:active:not([disabled]) {
+      --background: rgba(255, 255, 255, 0.28);
+      --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transform: translateY(0px);
+    }
+
+    /* Disabled State */
+    &[disabled] {
+      --background: rgba(255, 255, 255, 0.05);
+      --border-color: rgba(255, 255, 255, 0.15);
+      --color: rgba(255, 255, 255, 0.4);
+      --box-shadow: none;
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Focus State (Accessibility) */
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.5);
+      outline-offset: 3px;
+    }
+  }
+
+  /* Loading State */
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 80px 40px;
+  }
+
+  &__spinner {
+    width: 56px;
+    height: 56px;
+    --color: #ffffff;
+  }
+
+  &__loading-text {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+  }
+
+  /* Expired State */
+  &__expired {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 80px 40px;
+  }
+
+  &__expired-icon {
+    font-size: 56px;
+    color: #ffc107;
+  }
+
+  &__expired-title {
+    font-size: 1.125rem;
+    color: #ffffff;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+// -----------------------------------------------------------
+// Info Section (Right Column)
+// -----------------------------------------------------------
+
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+
+  /* Credential Card */
+  &__credential-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 24px 32px;
+  }
+
+  /* Steps Container */
+  &__steps {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+}
+
+/* Credential Card */
+
+.credential-card {
+  &__label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    color: #ffffff;
+    font-size: 0.9375rem;
+    font-weight: 600;
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+/* Step Component */
+
+.step {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+
+  &__number {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    letter-spacing: -0.02em;
+  }
+
+  &__content {
+    flex: 1;
+    padding-top: 4px;
+  }
+
+  &__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+
+  &__description {
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+// -----------------------------------------------------------
+// Responsive Design
+// -----------------------------------------------------------
+
+/* Tablet (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .qr-display {
+    &__container {
+      gap: 48px;
+      padding: 64px 40px;
+    }
+  }
+}
+
+/* Mobile Landscape / Small Tablet (max-width: 900px) */
+@media (max-width: 900px) {
+  .qr-display {
+    &__container {
+      grid-template-columns: 1fr;
+      gap: 56px;
+      padding: 48px 32px;
+    }
+
+    &__left {
+      order: 1;
+    }
+
+    &__right {
+      order: 2;
+    }
+  }
+
+  .info-section {
+    gap: 40px;
+  }
+}
+
+/* Mobile (max-width: 640px) */
+@media (max-width: 640px) {
+  .qr-display {
+    &__container {
+      gap: 40px;
+      padding: 32px 20px;
+    }
+  }
+
+  .qr-section {
+    max-width: 100%;
+
+    &__qr-container {
+      padding: 32px;
+      border-radius: 20px;
+    }
+
+    &__timer {
+      font-size: 0.875rem;
+      padding: 10px 20px;
+    }
+
+    &__refresh-btn {
+      --font-size: 0.875rem;
+      --padding-top: 10px;
+      --padding-bottom: 10px;
+      --padding-start: 20px;
+      --padding-end: 20px;
+    }
+  }
+
+  .info-section {
+    gap: 32px;
+
+    &__credential-card {
+      padding: 20px 24px;
+      border-radius: 12px;
+    }
+
+    &__steps {
+      gap: 32px;
+    }
+  }
+
+  .credential-card {
+    &__label {
+      font-size: 0.6875rem;
+      margin-bottom: 12px;
+    }
+
+    &__badge {
+      font-size: 0.875rem;
+      padding: 8px 16px;
+    }
+  }
+
+  .step {
+    gap: 16px;
+
+    &__number {
+      width: 48px;
+      height: 48px;
+      font-size: 1.5rem;
+    }
+
+    &__title {
+      font-size: 1.125rem;
+    }
+
+    &__description {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+/* Small Mobile (max-width: 480px) */
+@media (max-width: 480px) {
+  .qr-display {
+    &__container {
+      padding: 24px 16px;
+      gap: 32px;
+    }
+  }
+
+  .qr-section {
+    gap: 20px;
+
+    &__qr-container {
+      padding: 24px;
+    }
+  }
+
+  .info-section {
+    gap: 24px;
+
+    &__credential-card {
+      padding: 16px 20px;
+    }
+
+    &__steps {
+      gap: 24px;
+    }
+  }
+
+  .step {
+    &__number {
+      width: 40px;
+      height: 40px;
+      font-size: 1.25rem;
+    }
+
+    &__title {
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    &__description {
+      font-size: 0.8125rem;
+    }
+  }
+}

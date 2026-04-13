@@ -25,10 +25,15 @@
     "src/**/*.ts",
     "src/types/global.d.ts"
   ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/test.ts",
+    "src/**/*.spec.*.ts"
+  ],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true,
-    }
+    "strictTemplates": true
+  }
 }

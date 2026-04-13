@@ -1,6 +1,95 @@
 {
   "app": {
-    "title": "Verificador KPMG",
+    "title": "Verificador Empresarial",
     "loading": "Carregant..."
+  },
+  "verification": {
+    "title": "Verificació de Credencials",
+    "initializing": "Inicialitzant sessió de verificació...",
+    "scanQr": "Escanejar codi QR",
+    "scanInstruction": "Escaneja aquest codi QR amb la teva Wallet EUDI per verificar la teva identitat",
+    "qr": {
+      "title": "Verificació de Credencials",
+      "generating": "Generant codi QR...",
+      "scanInstruction": "Escaneja aquest codi QR amb la teva wallet",
+      "expired": "Codi QR caducat",
+      "expiresIn": "El QR expira en",
+      "regenerate": "Actualitzar QR",
+      "copy": "Copiar QR",
+      "copied": "Copiat",
+      "footer": "Escaneja el codi QR amb la teva wallet per verificar la teva identitat",
+      "credentialLabel": "SE T'DEMANARÀ QUE PRESENTIS:",
+      "credentialType": "Credencial d'Empleat",
+      "step1Title": "Escaneja el codi QR",
+      "step1Description": "Alinea la teva càmera amb el codi mostrat a l'esquerra.",
+      "step2Title": "Selecciona la credencial requerida a la teva Wallet digital",
+      "step2Description": "Tria els atributs verificats sol·licitats pel sistema."
+    },
+    "validation": {
+      "title": "Verificació en Progrés",
+      "subtitle": "AUTENTICACIÓ SEGURA ACTIVA",
+      "validating": "Validant...",
+      "message": "Esperant credencials del teu wallet...",
+      "submessage": "Si us plau, autoritza la sol·licitud al teu dispositiu.",
+      "encrypted": "XIFRAT D'EXTREM A EXTREM",
+      "footer": "La verificació sol trigar 10-15 segons.",
+      "checks": {
+        "vpSignature": "Signatura VP vàlida",
+        "vcSignature": "Signatura VC LEARCredentialEmployee vàlida",
+        "trustedIssuer": "Emissor de confiança",
+        "notRevoked": "No revocada"
+      },
+      "buttons": {
+        "ok": "Acceptar",
+        "retry": "Reintentar"
+      }
+    },
+    "welcome": {
+      "title": "Verificació Exitosa",
+      "subtitle": "IDENTITAT CONFIRMADA",
+      "welcome": "Benvingut,",
+      "message": "{{firstName}} {{familyName}}!",
+      "submessage": "Accés concedit. Has estat verificat exitosament.",
+      "verified": "CREDENCIAL VERIFICADA",
+      "accessGranted": "Accés concedit",
+      "redirecting": "Continuant en {{seconds}} segons...",
+      "button": "Continuar",
+      "footer": "Ara pots procedir a accedir als serveis sol·licitats."
+    },
+    "error": {
+      "title": "Verificació Fallida",
+      "details": "Detalls Tècnics",
+      "retry": "Intentar de Nou",
+      "go_home": "Tornar a l'inici",
+      "http": {
+        "unknown": "Error desconegut",
+        "network": "No es pot connectar amb el servidor. Verifica la teva connexió o configuració CORS.",
+        "notFound": "Recurs no trobat",
+        "timeout": "Temps d'espera esgotat",
+        "unauthorized": "No autoritzat",
+        "forbidden": "Accés denegat",
+        "serverError": "Error del servidor. Intenta-ho de nou més tard.",
+        "invalidRequest": "Sol·licitud invàlida"
+      },
+      "api": {
+        "sessionNotFound": "Sessió no trobada o caducada",
+        "networkError": "No es pot connectar amb el servidor. Verifica la teva connexió."
+      },
+      "flow": {
+        "sseError": "Error de connexió",
+        "flowError": "Error en iniciar verificació",
+        "verificationError": "Error de verificació"
+      },
+      "sse": {
+        "noCode": "No s'ha rebut codi d'autorització",
+        "userDataError": "Error en obtenir dades d'usuari",
+        "connectionFailed": "No s'ha pogut connectar amb el servidor",
+        "timeout": "Temps d'espera esgotat",
+        "initError": "Error en inicialitzar connexió SSE",
+        "pkceNotFound": "PKCE code_verifier no trobat",
+        "stateMismatch": "Estat OAuth2 no coincideix",
+        "tokenExchangeError": "Error en intercanviar codi per tokens"
+      }
+    }
   }
 }

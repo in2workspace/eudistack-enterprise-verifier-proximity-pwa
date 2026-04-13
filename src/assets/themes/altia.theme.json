@@ -1,0 +1,46 @@
+{
+  "tenantId": "altia",
+  "tenantName": "Altia",
+  "branding": {
+    "name": "Altia Verification",
+    "primaryColor": "#001E8C",
+    "primaryDark": "#001570",
+    "primaryLight": "#1a3599",
+    "secondaryColor": "#00ff94",
+    "backgroundColor": "#ffffff",
+    "textColor": "#ffffff",
+    "logoUrl": "assets/logos/altia-logo-dark.svg",
+    "logoDarkUrl": "assets/logos/altia-logo-dark.svg",
+    "faviconUrl": "assets/logos/altia-favicon.ico"
+  },
+  "gradients": {
+    "primary": {
+      "start": "#001E8C",
+      "end": "#001570",
+      "angle": 180
+    },
+    "success": {
+      "start": "#00ff94",
+      "end": "#00cc77",
+      "angle": 135
+    },
+    "error": {
+      "start": "#D32F2F",
+      "end": "#B71C1C",
+      "angle": 135
+    }
+  },
+  "components": {
+    "header": {
+      "backgroundColor": "#ffffff",
+      "textColor": "#001E8C",
+      "height": "64px",
+      "logoHeight": "40px"
+    },
+    "card": {
+      "backgroundColor": "#1a2942",
+      "borderRadius": "16px",
+      "shadow": "0 20px 60px rgba(0, 0, 0, 0.3)"
+    }
+  }
+}

@@ -1,6 +1,95 @@
 {
   "app": {
-    "title": "Verificador KPMG",
+    "title": "Verificador Empresarial",
     "loading": "Cargando..."
+  },
+  "verification": {
+    "title": "Verificación de Credenciales",
+    "initializing": "Inicializando sesión de verificación...",
+    "scanQr": "Escanear código QR",
+    "scanInstruction": "Escanea este código QR con tu Wallet EUDI para verificar tu identidad",
+    "qr": {
+      "title": "Verificación de Credenciales",
+      "generating": "Generando código QR...",
+      "scanInstruction": "Escanea este código QR con tu wallet",
+      "expired": "Código QR expirado",
+      "expiresIn": "El QR expira en",
+      "regenerate": "Actualizar QR",
+      "copy": "Copiar QR",
+      "copied": "Copiado",
+      "footer": "Escanea el código QR con tu wallet para verificar tu identidad",
+      "credentialLabel": "SE TE PEDIRÁ QUE PRESENTES:",
+      "credentialType": "Credencial de Empleado",
+      "step1Title": "Escanea el código QR",
+      "step1Description": "Alinea tu cámara con el código mostrado a la izquierda.",
+      "step2Title": "Selecciona la credencial requerida en tu Wallet digital",
+      "step2Description": "Elige los atributos verificados solicitados por el sistema."
+    },
+    "validation": {
+      "title": "Verificación en Progreso",
+      "subtitle": "AUTENTICACIÓN SEGURA ACTIVA",
+      "validating": "Validando...",
+      "message": "Esperando credenciales de tu wallet...",
+      "submessage": "Por favor, autoriza la solicitud en tu dispositivo.",
+      "encrypted": "CIFRADO DE EXTREMO A EXTREMO",
+      "footer": "La verificación suele tardar 10-15 segundos.",
+      "checks": {
+        "vpSignature": "Firma VP válida",
+        "vcSignature": "Firma VC LEARCredentialEmployee válida",
+        "trustedIssuer": "Emisor confiable",
+        "notRevoked": "No revocada"
+      },
+      "buttons": {
+        "ok": "Aceptar",
+        "retry": "Reintentar"
+      }
+    },
+    "welcome": {
+      "title": "Verificación Exitosa",
+      "subtitle": "IDENTIDAD CONFIRMADA",
+      "welcome": "Bienvenido,",
+      "message": "{{firstName}} {{familyName}}!",
+      "submessage": "Acceso concedido. Has sido verificado exitosamente.",
+      "verified": "CREDENCIAL VERIFICADA",
+      "accessGranted": "Acceso concedido",
+      "redirecting": "Continuando en {{seconds}} segundos...",
+      "button": "Continuar",
+      "footer": "Ahora puedes proceder a acceder a los servicios solicitados."
+    },
+    "error": {
+      "title": "Verificación Fallida",
+      "details": "Detalles Técnicos",
+      "retry": "Intentar de Nuevo",
+      "go_home": "Volver al inicio",
+      "http": {
+        "unknown": "Error desconocido",
+        "network": "No se puede conectar con el servidor. Verifica tu conexión o configuración CORS.",
+        "notFound": "Recurso no encontrado",
+        "timeout": "Tiempo de espera agotado",
+        "unauthorized": "No autorizado",
+        "forbidden": "Acceso denegado",
+        "serverError": "Error del servidor. Inténtalo de nuevo más tarde.",
+        "invalidRequest": "Solicitud inválida"
+      },
+      "api": {
+        "sessionNotFound": "Sesión no encontrada o expirada",
+        "networkError": "No se puede conectar con el servidor. Verifica tu conexión."
+      },
+      "flow": {
+        "sseError": "Error de conexión",
+        "flowError": "Error al iniciar verificación",
+        "verificationError": "Error de verificación"
+      },
+      "sse": {
+        "noCode": "No se recibió código de autorización",
+        "userDataError": "Error al obtener datos de usuario",
+        "connectionFailed": "No se pudo conectar con el servidor",
+        "timeout": "Tiempo de espera agotado",
+        "initError": "Error al inicializar conexión SSE",
+        "pkceNotFound": "PKCE code_verifier no encontrado",
+        "stateMismatch": "Estado OAuth2 no coincide",
+        "tokenExchangeError": "Error al intercambiar código por tokens"
+      }
+    }
   }
 }

@@ -1,27 +1,43 @@
 {
+  "tenantId": "kpmg",
   "branding": {
-    "name": "KPMG",
-    "primaryColor": "#00338D",
-    "primaryContrastColor": "#ffffff",
-    "secondaryColor": "#0091DA",
-    "secondaryContrastColor": "#ffffff",
+    "name": "KPMG Verification",
+    "primaryColor": "#1E49E2",
+    "primaryDark": "#00338D",
+    "secondaryColor": "#8ab4f8",
     "logoUrl": "assets/logos/kpmg-logo.svg",
     "logoDarkUrl": "assets/logos/kpmg-logo-dark.svg",
-    "faviconUrl": "assets/icons/kpmg-favicon.png",
-    "pwaIconUrl": "assets/icons/pwa-kpmg-512.png"
+    "faviconUrl": "assets/icons/favicon.png"
+  },
+  "gradients": {
+    "primary": {
+      "start": "#1E49E2",
+      "end": "#00338D",
+      "angle": 180
+    },
+    "success": {
+      "start": "#00A878",
+      "end": "#008C63",
+      "angle": 135
+    },
+    "error": {
+      "start": "#D32F2F",
+      "end": "#B71C1C",
+      "angle": 135
+    }
+  },
+  "components": {
+    "header": {
+      "backgroundColor": "#ffffff",
+      "backgroundGradient": "linear-gradient(90deg, #ffffff 0%, #f5f7ff 100%)",
+      "textColor": "#00338D",
+      "height": "64px",
+      "logoHeight": "40px"
+    }
   },
   "content": {
-    "links": [
-      {
-        "title": "Privacy Policy",
-        "url": "https://kpmg.com/privacy"
-      },
-      {
-        "title": "Terms of Service",
-        "url": "https://kpmg.com/terms"
-      }
-    ],
-    "footer": "© 2026 KPMG. All rights reserved."
+    "links": [],
+    "footer": "© {year} {brandName}. All rights reserved."
   },
   "i18n": {
     "defaultLang": "en",

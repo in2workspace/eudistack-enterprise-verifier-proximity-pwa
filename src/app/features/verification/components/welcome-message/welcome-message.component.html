@@ -1,0 +1,44 @@
+<app-header [showLogo]="true" />
+
+<div class="welcome-message">
+  <!-- Main Content (Centered) -->
+  <div class="welcome-message__content">
+    <!-- Success Icon -->
+    <div class="welcome-message__icon">
+      <div class="icon__circle">
+        <ion-icon name="checkmark"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <h1 class="welcome-message__title">
+      Welcome, {{ fullName() }}
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="welcome-message__subtitle">
+      Your identity has been successfully verified across all enterprise trust protocols.
+    </p>
+
+    <!-- Bottom Banner -->
+    <div class="welcome-message__banner">
+      <p>WELCOME TO THE KPMG DIGITAL IDENTITY EVENT!</p>
+    </div>
+  </div>
+
+  <!-- Countdown or Continue Button (if needed) -->
+  @if (autoRedirect() && isCountingDown()) {
+    <div class="welcome-message__countdown">
+      <p>{{ 'verification.welcome.redirecting' | translate: { seconds: secondsRemaining() } }}</p>
+    </div>
+  } @else if (!autoRedirect()) {
+    <ion-button 
+      class="welcome-message__button"
+      expand="block"
+      size="large"
+      (click)="onContinueClick()"
+    >
+      {{ 'verification.welcome.button' | translate }}
+    </ion-button>
+  }
+</div>

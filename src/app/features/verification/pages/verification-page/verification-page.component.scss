@@ -1,0 +1,131 @@
+// ═══════════════════════════════════════════════════════════════
+// VERIFICATION PAGE
+// ═══════════════════════════════════════════════════════════════
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+
+// ── FULLSCREEN STATE CONTAINERS ──
+
+.fullscreen-state {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
+  
+  // Smooth scrolling
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+// ── INITIALIZING STATE ──
+
+.initializing {
+  background: var(--theme-gradient-primary, linear-gradient(180deg, #1E49E2 0%, #00338D 100%));
+  color: white;
+  
+  ion-spinner {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1.5rem;
+    --color: white;
+  }
+
+  p {
+    font-size: 1.125rem;
+    margin: 0;
+    opacity: 0.9;
+  }
+}
+
+// ── ERROR STATE ──
+
+.error {
+  background: linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%);
+  color: white;
+  text-align: center;
+
+  .error-icon {
+    font-size: 80px;
+    margin-bottom: 1.5rem;
+    color: white;
+  }
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+  }
+
+  .error-message {
+    font-size: 1rem;
+    margin: 0 0 2rem 0;
+    opacity: 0.9;
+    max-width: 500px;
+  }
+
+  .error-details {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0 2rem 0;
+    max-width: 600px;
+    max-height: 300px;
+    overflow-y: auto;
+    
+    pre {
+      margin: 0;
+      font-size: 0.875rem;
+      color: white;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  }
+
+  ion-button {
+    --background: white;
+    --color: #D32F2F;
+    font-weight: 600;
+    min-width: 200px;
+  }
+}
+
+// ── RESPONSIVE ──
+
+@media (max-width: 768px) {
+  .fullscreen-state {
+    padding: 1rem;
+  }
+
+  .initializing p {
+    font-size: 1rem;
+  }
+
+  .error {
+    .error-icon {
+      font-size: 60px;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    .error-message {
+      font-size: 0.875rem;
+    }
+  }
+}
+

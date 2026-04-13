@@ -1,0 +1,48 @@
+<ion-modal [isOpen]="isOpen()" [backdropDismiss]="false" class="validation-popup-modal">
+  <ng-template>
+    <app-header [showLogo]="true" />
+
+    <div class="validation-popup">
+      <!-- Main Content -->
+      <div class="validation-popup__content">
+        <!-- Title -->
+        <h1 class="validation-popup__title">{{ 'verification.validation.title' | translate }}</h1>
+        <p class="validation-popup__subtitle">{{ 'verification.validation.subtitle' | translate }}</p>
+
+        <!-- Card with decorated corners -->
+        <div class="validation-popup__card">
+          <div class="card__corner card__corner--tl"></div>
+          <div class="card__corner card__corner--tr"></div>
+          <div class="card__corner card__corner--bl"></div>
+          <div class="card__corner card__corner--br"></div>
+
+          <div class="card__content">
+            <!-- Spinner -->
+            <ion-spinner name="crescent" class="card__spinner"></ion-spinner>
+
+            <!-- Main Message -->
+            <h2 class="card__message">
+              {{ 'verification.validation.message' | translate }}
+            </h2>
+
+            <!-- Sub Message -->
+            <p class="card__submessage">
+              {{ 'verification.validation.submessage' | translate }}
+            </p>
+
+            <!-- Encryption Badge -->
+            <div class="card__badge">
+              <ion-icon name="lock-closed"></ion-icon>
+              <span>{{ 'verification.validation.encrypted' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Note -->
+        <p class="validation-popup__footer">
+          {{ 'verification.validation.footer' | translate }}
+        </p>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

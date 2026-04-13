@@ -3,10 +3,10 @@
 
 /** Ionic CSS Variables **/
 :root {
-  /**  KPMG Brand Colors **/
-  --primary-color: #00338D;
+  /**  Brand Colors (configurable via theme.json) **/
+  --primary-color: #2563EB;
   --primary-contrast-color: #ffffff;
-  --secondary-color: #00A3E0;
+  --secondary-color: #10B981;
   --secondary-contrast-color: #ffffff;
 
   /** Semantic design tokens — neutral, brand-independent **/
