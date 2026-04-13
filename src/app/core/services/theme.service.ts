@@ -21,7 +21,6 @@ export class ThemeService {
   
   public readonly theme = computed(() => this._theme());
   public readonly tenantId = computed(() => this._theme()?.tenantId ?? 'altia');
-  public readonly brandName = computed(() => this._theme()?.branding.name ?? 'Altia Verification');
   public readonly logoUrl = computed(() => this._theme()?.branding.logoUrl ?? 'assets/logos/altia-logo-dark.svg');
   public readonly logoDarkUrl = computed(() => this._theme()?.branding.logoDarkUrl);
   public readonly primaryColor = computed(() => this._theme()?.branding.primaryColor ?? '#001E8C');

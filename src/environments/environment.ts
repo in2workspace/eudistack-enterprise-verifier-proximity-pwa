@@ -3,7 +3,20 @@ export const environment = {
   
   // Backend configuration (getter to support dynamic runtime overrides)
   get verifierBackendUrl(): string {
-    return window["env"]?.["verifierBackendUrl"] || 'http://localhost:8082';
+    const url = window["env"]?.["verifierBackendUrl"];
+    
+    // If explicitly set and not empty, use it
+    if (url && url !== '') {
+      return url;
+    }
+    
+    // If empty string, use same origin (nginx proxy mode)
+    if (url === '') {
+      return window.location.origin;
+    }
+    
+    // Default fallback for development
+    return 'http://localhost:8082';
   },
   
   // SSE configuration (getter to support dynamic runtime overrides)

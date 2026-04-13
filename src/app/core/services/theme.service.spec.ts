@@ -83,10 +83,6 @@ describe('ThemeService', () => {
     expect(service.brandName()).toBe('Test Brand');
   });
 
-  it('should return default brand name when config not loaded', () => {
-    expect(service.brandName()).toBe('Altia Verification');
-  });
-
   it('should return logo URL', async () => {
     const loadPromise = service.loadTheme();
 

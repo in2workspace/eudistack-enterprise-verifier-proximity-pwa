@@ -4,11 +4,10 @@
       <div class="header-logo">
         <img 
           [src]="logoUrl" 
-          [alt]="effectiveTitle"
+          [alt]="title() || 'Logo'"
           class="logo-image"
         />
       </div>
     }    
-    <h1 class="header-title">{{ effectiveTitle }}</h1>
   </div>
 </ion-header>

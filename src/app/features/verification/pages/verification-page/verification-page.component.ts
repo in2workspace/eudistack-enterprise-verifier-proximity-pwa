@@ -221,8 +221,16 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
    */
   private getBackendUrl(): string {
     const runtimeUrl = window.env?.verifierBackendUrl;
-    if (runtimeUrl) {
+    
+    // If URL is explicitly set and not empty, use it
+    if (runtimeUrl && runtimeUrl !== '') {
       return runtimeUrl;
+    }
+    
+    // If empty string or undefined, use same origin (nginx proxy)
+    // This is the case when served via nginx with relative URLs
+    if (runtimeUrl === '') {
+      return window.location.origin;
     }
     
     // Fallback for development

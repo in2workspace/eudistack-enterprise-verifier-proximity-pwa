@@ -42,14 +42,7 @@ export class HeaderComponent {
   public readonly showLogo = input<boolean>(true);
 
   // ── Computed ──
-  
-  /**
-   * Effective title (input or theme brand name)
-   */
-  public get effectiveTitle(): string {
-    return this.title() || this.themeService.brandName();
-  }
-
+ 
   /**
    * Logo URL from theme
    */
