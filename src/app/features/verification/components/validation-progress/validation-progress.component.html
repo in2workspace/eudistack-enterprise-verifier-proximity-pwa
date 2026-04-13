@@ -12,8 +12,13 @@
         <!-- Card with Shield Icon -->
         <div class="validation-progress__card">
           <!-- Shield Icon -->
-          <div class="card__shield">
-            <ion-icon name="shield-checkmark"></ion-icon>
+          <div class="card__shield" [class.card__shield--done]="!isValidating()">
+            <ion-icon 
+              name="shield-checkmark"
+              [class.shield-icon--validating]="isValidating()"
+              [class.shield-icon--success]="allSuccess() && !hasError()"
+              [class.shield-icon--error]="hasError()">
+            </ion-icon>
           </div>
 
           <!-- Progress Bar -->
@@ -40,8 +45,10 @@
               <div class="check-item__icon">
                 <ion-icon 
                   [name]="getIconName(check.status)"
-                  [color]="getIconColor(check.status)"
-                  [class.spinning]="check.status === 'validating'">
+                  [class.spinning]="check.status === 'validating'"
+                  [class.check-icon]="check.status === 'success' || check.status === 'error'"
+                  [class.check-icon--pass]="check.status === 'success'"
+                  [class.check-icon--fail]="check.status === 'error'">
                 </ion-icon>
               </div>
 

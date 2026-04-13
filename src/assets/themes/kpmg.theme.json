@@ -17,7 +17,7 @@
     "primary": {
       "start": "#1E49E2",
       "end": "#00338D",
-      "angle": 180
+      "angle": 135
     },
     "success": {
       "start": "#00A878",

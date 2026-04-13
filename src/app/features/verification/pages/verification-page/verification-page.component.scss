@@ -6,7 +6,7 @@
   display: block;
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
+  background: var(--theme-gradient-primary);
 }
 
 // ── FULLSCREEN STATE CONTAINERS ──
@@ -35,7 +35,7 @@
 // ── INITIALIZING STATE ──
 
 .initializing {
-  background: var(--theme-gradient-primary, linear-gradient(180deg, #1E49E2 0%, #00338D 100%));
+  background: var(--theme-gradient-vertical);
   color: white;
   
   ion-spinner {
@@ -55,7 +55,7 @@
 // ── ERROR STATE ──
 
 .error {
-  background: linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%);
+  background: var(--theme-gradient-error);
   color: white;
   text-align: center;
 

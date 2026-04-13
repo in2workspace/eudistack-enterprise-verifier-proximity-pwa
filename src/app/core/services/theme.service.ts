@@ -139,6 +139,8 @@ export class ThemeService {
     if (config.gradients?.primary) {
       const { start, end, angle } = config.gradients.primary;
       root.style.setProperty('--theme-gradient-primary', `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`);
+      // Also create vertical variant (180deg) for consistency
+      root.style.setProperty('--theme-gradient-vertical', `linear-gradient(180deg, ${start} 0%, ${end} 100%)`);
     }
 
     if (config.gradients?.success) {
@@ -180,7 +182,7 @@ export class ThemeService {
         logoUrl: 'assets/logos/altia-logo-dark.svg'
       },
       gradients: {
-        primary: { start: '#001E8C', end: '#001570', angle: 180 },
+        primary: { start: '#1E49E2', end: '#00338D', angle: 135 },
         success: { start: '#00ff94', end: '#00cc77', angle: 135 },
         error: { start: '#D32F2F', end: '#B71C1C', angle: 135 }
       },

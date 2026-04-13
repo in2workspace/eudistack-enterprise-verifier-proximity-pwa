@@ -15,9 +15,9 @@
   },
   "gradients": {
     "primary": {
-      "start": "#001E8C",
-      "end": "#001570",
-      "angle": 180
+      "start": "#1E49E2",
+      "end": "#00338D",
+      "angle": 135
     },
     "success": {
       "start": "#00ff94",

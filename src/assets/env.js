@@ -19,7 +19,7 @@
   // ── Multi-Tenancy Configuration ──
   // Change this value to switch themes: "kpmg" | "altia"
   // Can be overridden with URL parameter: ?tenant=altia
-  window["env"]["tenant"] = "altia";
+  window["env"]["tenant"] = "kpmg";
   
   // ── Legacy Configuration (Deprecated) ──
   window["env"]["verifier_name"] = "KPMG Verifier";

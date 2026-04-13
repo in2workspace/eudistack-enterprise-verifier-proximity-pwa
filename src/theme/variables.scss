@@ -5,9 +5,16 @@
 :root {
   /**  Brand Colors (configurable via theme.json) **/
   --primary-color: #2563EB;
+  --primary-color-dark: #1E49E2;
   --primary-contrast-color: #ffffff;
   --secondary-color: #10B981;
   --secondary-contrast-color: #ffffff;
+
+  /** Gradient backgrounds (generated from brand colors) **/
+  --theme-gradient-primary: linear-gradient(135deg, var(--primary-color-dark) 0%, #00338D 100%);
+  --theme-gradient-vertical: linear-gradient(180deg, var(--primary-color-dark) 0%, #00338D 100%);
+  --theme-gradient-success: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  --theme-gradient-error: linear-gradient(135deg, #DC2626 0%, #B71C1C 100%);
 
   /** Semantic design tokens — neutral, brand-independent **/
   --surface-page: #F5F7FA;
