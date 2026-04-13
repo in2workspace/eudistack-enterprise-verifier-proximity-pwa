@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 import { VerificationSession } from '../models';
 import { environment } from '../../../environments/environment';
 
@@ -26,6 +27,7 @@ import { environment } from '../../../environments/environment';
 })
 export class VerifierApiService {
   private readonly http = inject(HttpClient);
+  private readonly translate = inject(TranslateService);
   
   // HTTP timeout in milliseconds (30s)
   private readonly HTTP_TIMEOUT_MS = 30000;
@@ -94,32 +96,30 @@ export class VerifierApiService {
   /**
    * Handle HTTP errors
    * 
-   * Converts HttpErrorResponse to VerifierApiError with user-friendly messages.
+   * Wraps HttpErrorResponse in VerifierApiError with structured error codes.
+   * Messages are already enriched by ErrorInterceptor (translated).
    * 
-   * @param error - HTTP error response
+   * @param error - HTTP error response (enriched by interceptor)
    * @returns VerifierApiError
    */
   private handleError(error: HttpErrorResponse): VerifierApiError {
-    let message = 'Error desconocido';
     let code = 'UNKNOWN_ERROR';
     
+    // Map HTTP status to error code (messages come from interceptor)
     if (error.status === 0) {
-      // Network error or CORS issue
       code = 'NETWORK_ERROR';
-      message = 'No se puede conectar con el servidor. Verifica tu conexión.';
     } else if (error.status === 404) {
       code = 'SESSION_NOT_FOUND';
-      message = 'Sesión no encontrada o expirada';
     } else if (error.status === 408 || (error as unknown as { name?: string }).name === 'TimeoutError') {
       code = 'TIMEOUT';
-      message = 'Tiempo de espera agotado';
     } else if (error.status >= 500) {
       code = 'SERVER_ERROR';
-      message = 'Error del servidor';
     } else if (error.status >= 400) {
       code = 'BAD_REQUEST';
-      message = error.error?.message || 'Solicitud inválida';
     }
+    
+    // Use statusText from interceptor (already translated) or fallback
+    const message = error.statusText || this.translate.instant('verification.error.http.unknown');
     
     return new VerifierApiError(code, message, error.status, error);
   }

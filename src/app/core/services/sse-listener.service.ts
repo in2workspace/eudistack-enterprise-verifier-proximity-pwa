@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../environments/environment';
 
 /**
@@ -31,6 +32,7 @@ import { environment } from '../../../environments/environment';
 })
 export class SseListenerService {
   private readonly http = inject(HttpClient);
+  private readonly translate = inject(TranslateService);
   
   // Default timeout in milliseconds (120s)
   private readonly DEFAULT_TIMEOUT_MS = 120000;
@@ -64,7 +66,7 @@ export class SseListenerService {
    * @param timeoutMs - Optional timeout in milliseconds (default: 120s)
    * @returns Observable<LoginEvent> - Stream of verification events
    */
-  public subscribe(state: string, timeoutMs?: number): Observable<LoginEvent> {
+  public stream(state: string, timeoutMs?: number): Observable<LoginEvent> {
     const timeout = timeoutMs ?? this.DEFAULT_TIMEOUT_MS;
     const url = `${this.baseUrl}/api/login/events?state=${encodeURIComponent(state)}`;
     
@@ -115,7 +117,7 @@ export class SseListenerService {
               
               if (!code) {
                 console.error('[SseListenerService] No code in redirect URL');
-                observer.error(new SseError('NO_CODE', 'No se recibió código de autorización'));
+                observer.error(new SseError('NO_CODE', this.translate.instant('verification.error.sse.noCode')));
                 cleanup();
                 return;
               }
@@ -138,7 +140,7 @@ export class SseListenerService {
               observer.complete();
             } catch (error: unknown) {
               console.error('[SseListenerService] Error processing redirect:', error);
-              const errorMessage = error instanceof Error ? error.message : 'Error al obtener datos de usuario';
+              const errorMessage = error instanceof Error ? error.message : this.translate.instant('verification.error.sse.userDataError');
               observer.error(new SseError('TOKEN_EXCHANGE_FAILED', errorMessage));
               cleanup();
             }
@@ -176,7 +178,7 @@ export class SseListenerService {
             } else {
               // Max retries exceeded
               console.error('[SseListenerService] Max retry attempts exceeded');
-              observer.error(new SseError('SSE_CONNECTION_FAILED', 'No se pudo conectar con el servidor'));
+              observer.error(new SseError('SSE_CONNECTION_FAILED', this.translate.instant('verification.error.sse.connectionFailed')));
               cleanup();
             }
           });
@@ -185,14 +187,14 @@ export class SseListenerService {
           if (timeout > 0) {
             timeoutHandle = window.setTimeout(() => {
               console.warn('[SseListenerService] SSE timeout reached');
-              observer.error(new SseError('SSE_TIMEOUT', 'Tiempo de espera agotado'));
+              observer.error(new SseError('SSE_TIMEOUT', this.translate.instant('verification.error.sse.timeout')));
               cleanup();
             }, timeout);
           }
           
         } catch (error) {
           console.error('[SseListenerService] Failed to create EventSource:', error);
-          observer.error(new SseError('SSE_INIT_ERROR', 'Error al inicializar conexión SSE'));
+          observer.error(new SseError('SSE_INIT_ERROR', this.translate.instant('verification.error.sse.initError')));
           cleanup();
         }
       };
@@ -246,12 +248,12 @@ export class SseListenerService {
     
     if (!codeVerifier) {
       console.error('[SseListenerService] No code_verifier found in sessionStorage');
-      throw new Error('PKCE code_verifier no encontrado');
+      throw new Error(this.translate.instant('verification.error.sse.pkceNotFound'));
     }
     
     if (storedState !== state) {
       console.error('[SseListenerService] State mismatch:', { stored: storedState, received: state });
-      throw new Error('Estado OAuth2 no coincide');
+      throw new Error(this.translate.instant('verification.error.sse.stateMismatch'));
     }
     
     // Clean up sessionStorage
@@ -294,7 +296,7 @@ export class SseListenerService {
       return {};
     } catch (error: unknown) {
       console.error('[SseListenerService] Token exchange error:', error);
-      throw new Error('Error al intercambiar código por tokens');
+      throw new Error(this.translate.instant('verification.error.sse.tokenExchangeError'));
     }
   }
   

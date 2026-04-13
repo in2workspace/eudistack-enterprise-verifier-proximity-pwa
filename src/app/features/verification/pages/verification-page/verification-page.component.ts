@@ -4,7 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
+import { tap, takeUntil } from 'rxjs/operators';
 
 // Services (FASE 1 - API Integration)
 import { VerificationFlowService, VerificationState } from '../../../../core/services/verification-flow.service';
@@ -97,23 +97,21 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
 
   public ngOnInit(): void {
     // Check if we have authRequest from URL params (OAuth2 redirect from backend)
-    this.route.queryParams.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(params => {
-      const authRequest = params['authRequest'];
-      const state = params['state'];
-      const homeUri = params['homeUri'];
+    // Use snapshot as params are read once and won't change during component lifecycle
+    const params = this.route.snapshot.queryParams;
+    const authRequest = params['authRequest'];
+    const state = params['state'];
+    const homeUri = params['homeUri'];
 
-      if (authRequest && state) {
-        // Backend redirected with authRequest → start cross-device flow
-        console.log('[VerificationPage] OAuth2 redirect received:', { state, homeUri });
-        this.startCrossDeviceFlow(authRequest, state);
-      } else {
-        // No authRequest → initiate OAuth2 authorization request
-        console.log('[VerificationPage] No authRequest - redirecting to /oauth2/authorize');
-        this.initiateOAuth2Flow();
-      }
-    });
+    if (authRequest && state) {
+      // Backend redirected with authRequest → start cross-device flow
+      console.log('[VerificationPage] OAuth2 redirect received:', { state, homeUri });
+      this.startCrossDeviceFlow(authRequest, state);
+    } else {
+      // No authRequest → initiate OAuth2 authorization request
+      console.log('[VerificationPage] No authRequest - redirecting to /oauth2/authorize');
+      this.initiateOAuth2Flow();
+    }
   }
 
   public ngOnDestroy(): void {

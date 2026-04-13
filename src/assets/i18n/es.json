@@ -60,7 +60,36 @@
       "title": "Verificación Fallida",
       "details": "Detalles Técnicos",
       "retry": "Intentar de Nuevo",
-      "go_home": "Volver al inicio"
+      "go_home": "Volver al inicio",
+      "http": {
+        "unknown": "Error desconocido",
+        "network": "No se puede conectar con el servidor. Verifica tu conexión o configuración CORS.",
+        "notFound": "Recurso no encontrado",
+        "timeout": "Tiempo de espera agotado",
+        "unauthorized": "No autorizado",
+        "forbidden": "Acceso denegado",
+        "serverError": "Error del servidor. Inténtalo de nuevo más tarde.",
+        "invalidRequest": "Solicitud inválida"
+      },
+      "api": {
+        "sessionNotFound": "Sesión no encontrada o expirada",
+        "networkError": "No se puede conectar con el servidor. Verifica tu conexión."
+      },
+      "flow": {
+        "sseError": "Error de conexión",
+        "flowError": "Error al iniciar verificación",
+        "verificationError": "Error de verificación"
+      },
+      "sse": {
+        "noCode": "No se recibió código de autorización",
+        "userDataError": "Error al obtener datos de usuario",
+        "connectionFailed": "No se pudo conectar con el servidor",
+        "timeout": "Tiempo de espera agotado",
+        "initError": "Error al inicializar conexión SSE",
+        "pkceNotFound": "PKCE code_verifier no encontrado",
+        "stateMismatch": "Estado OAuth2 no coincide",
+        "tokenExchangeError": "Error al intercambiar código por tokens"
+      }
     }
   }
 }

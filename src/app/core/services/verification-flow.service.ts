@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, Subject, merge, of } from 'rxjs';
 import { switchMap, catchError, takeUntil, finalize } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 import { QrGenerationService, QrData } from './qr-generation.service';
 import { SseListenerService, LoginEvent } from './sse-listener.service';
 
@@ -31,6 +32,7 @@ import { SseListenerService, LoginEvent } from './sse-listener.service';
 export class VerificationFlowService {
   private readonly qrGeneration = inject(QrGenerationService);
   private readonly sseListener = inject(SseListenerService);
+  private readonly translate = inject(TranslateService);
   
   // Cancellation subject
   private readonly cancel$ = new Subject<void>();
@@ -59,7 +61,7 @@ export class VerificationFlowService {
         };
         
         // Subscribe to SSE events
-        const sseEvents$ = this.sseListener.subscribe(qrData.state).pipe(
+        const sseEvents$ = this.sseListener.stream(qrData.state).pipe(
           switchMap(event => this.processEvent(event)),
           catchError(error => {
             console.error('[VerificationFlowService] SSE error:', error);
@@ -68,7 +70,7 @@ export class VerificationFlowService {
               status: 'error',
               error: {
                 code: error.code || 'SSE_ERROR',
-                message: error.message || 'Error de conexión'
+                message: error.message || this.translate.instant('verification.error.flow.sseError')
               }
             };
             return of(errorState);
@@ -89,7 +91,7 @@ export class VerificationFlowService {
           status: 'error',
           error: {
             code: error.code || 'FLOW_ERROR',
-            message: error.message || 'Error al iniciar verificación'
+            message: error.message || this.translate.instant('verification.error.flow.flowError')
           }
         };
         return of(errorState);
@@ -134,7 +136,7 @@ export class VerificationFlowService {
         };
         
         // Subscribe to SSE events
-        const sseEvents$ = this.sseListener.subscribe(qrData.state).pipe(
+        const sseEvents$ = this.sseListener.stream(qrData.state).pipe(
           switchMap(event => this.processEvent(event)),
           catchError(error => {
             console.error('[VerificationFlowService] SSE error:', error);
@@ -143,7 +145,7 @@ export class VerificationFlowService {
               status: 'error',
               error: {
                 code: error.code || 'SSE_ERROR',
-                message: error.message || 'Error de conexión'
+                message: error.message || this.translate.instant('verification.error.flow.sseError')
               }
             };
             return of(errorState);
@@ -164,7 +166,7 @@ export class VerificationFlowService {
           status: 'error',
           error: {
             code: error.code || 'FLOW_ERROR',
-            message: error.message || 'Error al iniciar verificación'
+            message: error.message || this.translate.instant('verification.error.flow.flowError')
           }
         };
         return of(errorState);
@@ -213,7 +215,7 @@ export class VerificationFlowService {
         status: 'error',
         error: {
           code: event.errorCode || 'VERIFICATION_FAILED',
-          message: event.error || 'Error de verificación'
+          message: event.error || this.translate.instant('verification.error.flow.verificationError')
         }
       });
     }

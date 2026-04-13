@@ -60,7 +60,36 @@
       "title": "Verificació Fallida",
       "details": "Detalls Tècnics",
       "retry": "Intentar de Nou",
-      "go_home": "Tornar a l'inici"
+      "go_home": "Tornar a l'inici",
+      "http": {
+        "unknown": "Error desconegut",
+        "network": "No es pot connectar amb el servidor. Verifica la teva connexió o configuració CORS.",
+        "notFound": "Recurs no trobat",
+        "timeout": "Temps d'espera esgotat",
+        "unauthorized": "No autoritzat",
+        "forbidden": "Accés denegat",
+        "serverError": "Error del servidor. Intenta-ho de nou més tard.",
+        "invalidRequest": "Sol·licitud invàlida"
+      },
+      "api": {
+        "sessionNotFound": "Sessió no trobada o caducada",
+        "networkError": "No es pot connectar amb el servidor. Verifica la teva connexió."
+      },
+      "flow": {
+        "sseError": "Error de connexió",
+        "flowError": "Error en iniciar verificació",
+        "verificationError": "Error de verificació"
+      },
+      "sse": {
+        "noCode": "No s'ha rebut codi d'autorització",
+        "userDataError": "Error en obtenir dades d'usuari",
+        "connectionFailed": "No s'ha pogut connectar amb el servidor",
+        "timeout": "Temps d'espera esgotat",
+        "initError": "Error en inicialitzar connexió SSE",
+        "pkceNotFound": "PKCE code_verifier no trobat",
+        "stateMismatch": "Estat OAuth2 no coincideix",
+        "tokenExchangeError": "Error en intercanviar codi per tokens"
+      }
     }
   }
 }

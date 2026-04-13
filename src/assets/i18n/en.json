@@ -60,7 +60,36 @@
       "title": "Verification Failed",
       "details": "Technical Details",
       "retry": "Try Again",
-      "go_home": "Go Home"
+      "go_home": "Go Home",
+      "http": {
+        "unknown": "Unknown error",
+        "network": "Cannot connect to server. Check your connection or CORS configuration.",
+        "notFound": "Resource not found",
+        "timeout": "Request timeout",
+        "unauthorized": "Unauthorized",
+        "forbidden": "Access denied",
+        "serverError": "Server error. Please try again later.",
+        "invalidRequest": "Invalid request"
+      },
+      "api": {
+        "sessionNotFound": "Session not found or expired",
+        "networkError": "Cannot connect to server. Check your connection."
+      },
+      "flow": {
+        "sseError": "Connection error",
+        "flowError": "Failed to start verification",
+        "verificationError": "Verification error"
+      },
+      "sse": {
+        "noCode": "No authorization code received",
+        "userDataError": "Failed to get user data",
+        "connectionFailed": "Could not connect to server",
+        "timeout": "Request timeout",
+        "initError": "Failed to initialize SSE connection",
+        "pkceNotFound": "PKCE code_verifier not found",
+        "stateMismatch": "OAuth2 state mismatch",
+        "tokenExchangeError": "Failed to exchange code for tokens"
+      }
     }
   }
 }
