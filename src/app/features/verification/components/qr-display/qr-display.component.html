@@ -45,16 +45,6 @@
         
         <!-- Action Buttons -->
         <div class="qr-section__actions">
-          <!-- Copy QR Button -->
-          <ion-button 
-            (click)="onCopyQR()" 
-            fill="solid" 
-            class="qr-section__copy-btn"
-            [disabled]="isLoading() || isExpired()">
-            <ion-icon [name]="isCopied() ? 'checkmark-outline' : 'copy-outline'" slot="start"></ion-icon>
-            {{ (isCopied() ? 'verification.qr.copied' : 'verification.qr.copy') | translate }}
-          </ion-button>
-
           <!-- Refresh Button -->
           <ion-button 
             (click)="onRegenerate()" 
@@ -105,6 +95,17 @@
         </div>
 
       </div>
+
+      <!-- Copy QR Button -->
+      <ion-button 
+        (click)="onCopyQR()" 
+        fill="solid" 
+        class="info-section__copy-btn"
+        [disabled]="isLoading() || isExpired()">
+        <ion-icon [name]="isCopied() ? 'checkmark-outline' : 'copy-outline'" slot="start"></ion-icon>
+        {{ (isCopied() ? 'verification.qr.copied' : 'verification.qr.copy') | translate }}
+      </ion-button>
+
     </div>
   </div>
     </div> <!-- Close qr-display__container -->

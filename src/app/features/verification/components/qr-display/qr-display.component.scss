@@ -26,7 +26,7 @@
     max-width: 1400px;
     width: 100%;
     margin: 0 auto;
-    padding: 60px 64px;
+    padding: 60px 64px 80px;
     column-gap: 64px;
     row-gap: 40px;
     align-items: start;
@@ -34,12 +34,12 @@
     @media (max-width: 968px) {
       grid-template-columns: 1fr;
       grid-template-rows: auto auto auto;
-      padding: 40px 32px;
+      padding: 40px 32px 60px;
       gap: 32px;
     }
 
     @media (max-width: 480px) {
-      padding: 32px 20px;
+      padding: 32px 20px 48px;
       gap: 24px;
     }
   }
@@ -48,20 +48,21 @@
   &__title {
     grid-column: 1;
     grid-row: 1;
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 700;
     color: #ffffff;
-    margin: 0;
+    margin: 0 0 0 20px;
     letter-spacing: -0.02em;
     text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     animation: fadeIn 0.6s ease-in;
     
     @media (max-width: 968px) {
-      font-size: 2rem;
+      font-size: 2.5rem;
+      margin-left: 0;
     }
     
     @media (max-width: 480px) {
-      font-size: 1.75rem;
+      font-size: 2rem;
     }
   }
 
@@ -148,7 +149,8 @@
 
   /* Timer Badge */
   &__timer {
-    display: inline-flex;
+    display: flex;
+    justify-content: center;
     align-items: center;
     gap: 8px;
     padding: 12px 24px;
@@ -160,6 +162,7 @@
     font-size: 0.9375rem;
     font-weight: 600;
     letter-spacing: 0.02em;
+    width: 100%;
 
     ion-icon {
       font-size: 20px;
@@ -175,9 +178,11 @@
   /* Action Buttons Container */
   &__actions {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 12px;
     width: 100%;
+    align-items: stretch;
+    justify-content: center;
   }
 
   /* Copy QR Button */
@@ -195,6 +200,7 @@
     --ripple-color: rgba(30, 73, 226, 0.2);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
+    flex: 1;
     font-weight: 600;
     text-transform: none;
     letter-spacing: 0.03em;
@@ -243,21 +249,20 @@
 
   /* Refresh Button */
   &__refresh-btn {
-    --background: rgba(255, 255, 255, 0.12);
-    --background-hover: rgba(255, 255, 255, 0.2);
-    --background-activated: rgba(255, 255, 255, 0.25);
+    --background: #10b981;
+    --background-hover: #059669;
+    --background-activated: #047857;
     --color: #ffffff;
-    --border-color: rgba(255, 255, 255, 0.35);
-    --border-width: 1.5px;
     --border-radius: 40px;
     --padding-top: 12px;
     --padding-bottom: 12px;
     --padding-start: 28px;
     --padding-end: 28px;
-    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     --ripple-color: rgba(255, 255, 255, 0.3);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
+    flex: 0 0 auto;
     font-weight: 600;
     text-transform: none;
     letter-spacing: 0.03em;
@@ -272,8 +277,8 @@
 
     /* Hover State */
     &:hover:not([disabled]) {
-      --background: rgba(255, 255, 255, 0.22);
-      --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      --background: #059669;
+      --box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
       transform: translateY(-2px);
 
       ion-icon {
@@ -283,18 +288,17 @@
 
     /* Active/Pressed State */
     &:active:not([disabled]) {
-      --background: rgba(255, 255, 255, 0.28);
-      --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      --background: #047857;
+      --box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
       transform: translateY(0px);
     }
 
     /* Disabled State */
     &[disabled] {
-      --background: rgba(255, 255, 255, 0.05);
-      --border-color: rgba(255, 255, 255, 0.15);
-      --color: rgba(255, 255, 255, 0.4);
+      --background: rgba(16, 185, 129, 0.3);
+      --color: rgba(255, 255, 255, 0.5);
       --box-shadow: none;
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
     }
 
@@ -371,6 +375,69 @@
     display: flex;
     flex-direction: column;
     gap: 40px;
+  }
+
+  /* Copy QR Button */
+  &__copy-btn {
+    --background: rgba(255, 255, 255, 0.95);
+    --background-hover: rgba(255, 255, 255, 1);
+    --background-activated: rgba(255, 255, 255, 0.9);
+    --color: var(--theme-gradient-primary, #1E49E2);
+    --border-radius: 40px;
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    --padding-start: 32px;
+    --padding-end: 32px;
+    --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --ripple-color: rgba(30, 73, 226, 0.2);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    width: 100%;
+    margin-top: 16px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.03em;
+    transition: var(--transition);
+    cursor: pointer;
+
+    ion-icon {
+      font-size: 18px;
+      margin-right: 2px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Hover State */
+    &:hover:not([disabled]) {
+      --background: rgba(255, 255, 255, 1);
+      --box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+
+      ion-icon {
+        transform: scale(1.1);
+      }
+    }
+
+    /* Active/Pressed State */
+    &:active:not([disabled]) {
+      --background: rgba(255, 255, 255, 0.9);
+      --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transform: translateY(0px);
+    }
+
+    /* Disabled State */
+    &[disabled] {
+      --background: rgba(255, 255, 255, 0.3);
+      --color: rgba(255, 255, 255, 0.5);
+      --box-shadow: none;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Focus State (Accessibility) */
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.8);
+      outline-offset: 3px;
+    }
   }
 }
 
