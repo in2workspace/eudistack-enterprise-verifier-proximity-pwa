@@ -1,6 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { TranslateService } from '@ngx-translate/core';
 import { VerifierApiService, VerifierApiError } from './verifier-api.service';
+
+/**
+ * Mock TranslateService for testing
+ */
+class MockTranslateService {
+  public instant(key: string): string {
+    // Return the key itself for testing
+    return key;
+  }
+}
 
 /**
  * VerifierApiService Tests
@@ -19,7 +30,10 @@ describe('VerifierApiService', () => {
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [VerifierApiService]
+      providers: [
+        VerifierApiService,
+        { provide: TranslateService, useClass: MockTranslateService }
+      ]
     });
 
     service = TestBed.inject(VerifierApiService);
