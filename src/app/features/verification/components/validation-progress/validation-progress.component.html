@@ -59,8 +59,8 @@
             </div>
           </div>
 
-          <!-- Action Buttons (only for errors) -->
-          <div class="card__actions" *ngIf="hasError()">
+          <!-- Action Buttons (only for non-revocation errors) -->
+          <div class="card__actions" *ngIf="hasError() && !isRevocationError()">
             <ion-button 
               expand="block" 
               color="danger"

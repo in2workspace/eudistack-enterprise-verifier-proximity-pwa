@@ -51,8 +51,13 @@
         "ok": "Aceptar",
         "retry": "Reintentar"
       }
-    },
-    "welcome": {
+    },    "revoked": {
+      "title": "Credencial Revocada Detectada",
+      "subtitle": "Las credenciales proporcionadas no son válidas.",
+      "presentationValid": "La presentación es válida",
+      "credentialInvalid": "La credencial no es válida",
+      "tryAgain": "Reintentar"
+    },    "welcome": {
       "title": "Verificación Exitosa",
       "subtitle": "IDENTIDAD CONFIRMADA",
       "welcome": "Bienvenido,",
@@ -76,6 +81,7 @@
         "timeout": "Tiempo de espera agotado",
         "unauthorized": "No autorizado",
         "forbidden": "Acceso denegado",
+        "credentialRevoked": "La credencial ha sido revocada",
         "serverError": "Error del servidor. Inténtalo de nuevo más tarde.",
         "invalidRequest": "Solicitud inválida"
       },

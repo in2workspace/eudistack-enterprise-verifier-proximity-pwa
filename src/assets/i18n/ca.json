@@ -51,8 +51,13 @@
         "ok": "Acceptar",
         "retry": "Reintentar"
       }
-    },
-    "welcome": {
+    },    "revoked": {
+      "title": "Credencial Revocada Detectada",
+      "subtitle": "Les credencials proporcionades no són vàlides.",
+      "presentationValid": "La presentació és vàlida",
+      "credentialInvalid": "La credencial no és vàlida",
+      "tryAgain": "Tornar a intentar"
+    },    "welcome": {
       "title": "Verificació Exitosa",
       "subtitle": "IDENTITAT CONFIRMADA",
       "welcome": "Benvingut,",
@@ -76,6 +81,7 @@
         "timeout": "Temps d'espera esgotat",
         "unauthorized": "No autoritzat",
         "forbidden": "Accés denegat",
+        "credentialRevoked": "La credencial ha estat revocada",
         "serverError": "Error del servidor. Intenta-ho de nou més tard.",
         "invalidRequest": "Sol·licitud invàlida"
       },

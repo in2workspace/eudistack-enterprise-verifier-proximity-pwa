@@ -1,7 +1,7 @@
 <ion-header class="app-header">
   <div class="header-container">
     @if (showLogo()) {
-      <div class="header-logo">
+      <div class="header-logo" (click)="navigateHome()" style="cursor:pointer;">
         <img 
           [src]="logoUrl" 
           [alt]="title() || 'Logo'"

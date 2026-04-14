@@ -37,6 +37,11 @@ export class SseListenerService {
   // Default timeout in milliseconds (120s)
   private readonly DEFAULT_TIMEOUT_MS = 120000;
   
+  // Heartbeat timeout: if no events received after this time, assume failure
+  // This handles the case where wallet submits revoked credential and backend returns 403
+  // without sending SSE event (backend limitation we can't fix)
+  private readonly HEARTBEAT_TIMEOUT_MS = 15000; // 15 seconds
+  
   // Reconnect settings (exponential backoff)
   private readonly INITIAL_RETRY_DELAY_MS = 1000;
   private readonly MAX_RETRY_DELAY_MS = 32000;
@@ -74,9 +79,47 @@ export class SseListenerService {
     return new Observable<LoginEvent>(observer => {
       let eventSource: EventSource | null = null;
       let timeoutHandle: number | null = null;
+      let heartbeatHandle: number | null = null;
       let retryAttempt = 0;
       let retryTimeoutHandle: number | null = null;
       let isClosed = false;
+      let eventReceived = false;  // Track if any event was received
+      
+      // Heartbeat checker - if no events after 15s, assume validation failed
+      const startHeartbeat = () => {
+        if (heartbeatHandle !== null) {
+          clearTimeout(heartbeatHandle);
+        }
+        
+        heartbeatHandle = window.setTimeout(() => {
+          if (!eventReceived && !isClosed) {
+            console.warn('[SseListenerService] No events received after 15s - assuming validation failed (likely revoked credential)');
+            
+            // Emit progress event with revocation check failed
+            const failedEvent: LoginEvent = {
+              type: 'progress',
+              redirectUrl: undefined,
+              userData: undefined,
+              validationResults: [true, true, true, false], // Order: [vpSig, vcSig, issuer, revoked]
+              errorCode: 'LIKELY_REVOKED',
+              error: this.translate.instant('verification.error.http.credentialRevoked')
+            };
+            
+            observer.next(failedEvent);
+            cleanup();
+            observer.complete();
+          }
+        }, this.HEARTBEAT_TIMEOUT_MS);
+      };
+      
+      // Reset heartbeat on any event
+      const resetHeartbeat = () => {
+        eventReceived = true;
+        if (heartbeatHandle !== null) {
+          clearTimeout(heartbeatHandle);
+          heartbeatHandle = null;
+        }
+      };
       
       // Function to establish SSE connection
       const connect = () => {
@@ -89,6 +132,7 @@ export class SseListenerService {
           // This fires when wallet starts communicating with backend
           eventSource.addEventListener('message', (event: MessageEvent) => {
             console.log('[SseListenerService] Generic message received (wallet activity detected):', event);
+            resetHeartbeat(); // Reset heartbeat timer
             
             // Emit 'validating' event to show spinner
             const validatingEvent: LoginEvent = {
@@ -106,6 +150,7 @@ export class SseListenerService {
           // Listen specifically for 'redirect' event (same as MFE login)
           eventSource.addEventListener('redirect', async (event: MessageEvent) => {
             console.log('[SseListenerService] Redirect event received:', event.data);
+            resetHeartbeat(); // Reset heartbeat timer
             
             // Close EventSource immediately to prevent error when backend closes connection
             if (eventSource) {
@@ -160,9 +205,67 @@ export class SseListenerService {
             }
           });
           
+          // Listen for 'validation_failed' event (credential revoked, invalid, etc.)
+          eventSource.addEventListener('validation_failed', (event: MessageEvent) => {
+            resetHeartbeat(); // Reset heartbeat timer
+            console.log('[SseListenerService] Validation failed event received:', event.data);
+            
+            // Close EventSource
+            if (eventSource) {
+              eventSource.close();
+              eventSource = null;
+            }
+            
+            // Clear timeout
+            if (timeoutHandle !== null) {
+              clearTimeout(timeoutHandle);
+              timeoutHandle = null;
+            }
+            
+            try {
+              // Parse error data
+              const errorData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+              const errorCode = errorData.code || 'VALIDATION_FAILED';
+              const errorMessage = errorData.message || 'Validation failed';
+              
+              // Check which validation check failed based on error code
+              // Order MUST match ValidationProgressComponent: [vpSignature, vcSignature, trustedIssuer, notRevoked]
+              let validationResults = [true, true, true, true];
+              
+              if (errorCode === 'CREDENTIAL_REVOKED' || errorCode === 'STATUS_CHECK_FAILED') {
+                validationResults = [true, true, true, false]; // Revocation check failed (index 3)
+              } else if (errorCode === 'SIGNATURE_INVALID') {
+                validationResults = [false, true, true, true]; // VP Signature check failed (index 0)
+              } else if (errorCode === 'ISSUER_NOT_TRUSTED') {
+                validationResults = [true, true, false, true]; // Issuer check failed (index 2)
+              } else if (errorCode === 'CREDENTIAL_EXPIRED') {
+                validationResults = [false, false, false, false]; // All checks fail on expiration
+              }
+              
+              // Emit 'progress' event with failed checks
+              const progressEvent: LoginEvent = {
+                type: 'progress',
+                redirectUrl: undefined,
+                userData: undefined,
+                validationResults: validationResults,
+                errorCode: errorCode,
+                error: errorMessage
+              };
+              
+              observer.next(progressEvent);
+              cleanup();
+              observer.complete();
+            } catch (parseError) {
+              console.error('[SseListenerService] Error parsing validation_failed event:', parseError);
+              observer.error(new SseError('VALIDATION_FAILED', event.data || 'Validation failed'));
+              cleanup();
+            }
+          });
+          
           // Handle connection open
           eventSource.addEventListener('open', () => {
             console.log('[SseListenerService] SSE connection established');
+            startHeartbeat(); // Start heartbeat checker
             retryAttempt = 0; // Reset retry counter on successful connection
           });
           
@@ -236,6 +339,11 @@ export class SseListenerService {
         if (timeoutHandle !== null) {
           clearTimeout(timeoutHandle);
           timeoutHandle = null;
+        }
+        
+        if (heartbeatHandle !== null) {
+          clearTimeout(heartbeatHandle);
+          heartbeatHandle = null;
         }
         
         if (retryTimeoutHandle !== null) {

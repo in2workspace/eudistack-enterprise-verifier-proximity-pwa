@@ -86,8 +86,16 @@ function enrichError(error: HttpErrorResponse, url: string): HttpErrorResponse {
     code = 'UNAUTHORIZED';
     message = 'Authentication required';
   } else if (error.status === 403) {
+    // 403 can mean credential revoked or other forbidden access
     code = 'FORBIDDEN';
-    message = 'Access forbidden';
+    // Check if response body contains revocation info
+    if (error.error?.message?.toLowerCase().includes('revoked') || 
+        error.error?.message?.toLowerCase().includes('revocada')) {
+      code = 'CREDENTIAL_REVOKED';
+      message = 'Credential has been revoked';
+    } else {
+      message = 'Access forbidden';
+    }
   } else if (error.status >= 500) {
     code = 'SERVER_ERROR';
     message = 'Server error. Please try again later.';

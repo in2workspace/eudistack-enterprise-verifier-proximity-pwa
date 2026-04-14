@@ -6,7 +6,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { tap, takeUntil } from 'rxjs/operators';
 
-// Services (FASE 1 - API Integration)
 import { VerificationFlowService, VerificationState } from '../../../../core/services/verification-flow.service';
 import { QrData } from '../../../../core/services/qr-generation.service';
 
@@ -15,6 +14,7 @@ import { QRDisplayComponent } from '../../components/qr-display/qr-display.compo
 import { ValidationPopupComponent } from '../../components/validation-popup/validation-popup.component';
 import { ValidationProgressComponent } from '../../components/validation-progress/validation-progress.component';
 import { WelcomeMessageComponent } from '../../components/welcome-message/welcome-message.component';
+import { CredentialRevokedComponent } from '../../components/credential-revoked/credential-revoked.component';
 
 /**
  * Verification Page Component
@@ -46,23 +46,26 @@ import { WelcomeMessageComponent } from '../../components/welcome-message/welcom
     QRDisplayComponent,
     ValidationPopupComponent,
     ValidationProgressComponent,
-    WelcomeMessageComponent
+    WelcomeMessageComponent,
+    CredentialRevokedComponent
   ],
   templateUrl: './verification-page.component.html',
   styleUrls: ['./verification-page.component.scss']
 })
 export class VerificationPageComponent implements OnInit, OnDestroy {
   // ── State (reactive signals) ──
-  public readonly currentState = signal<VerificationState['status']>('waiting');
+  public readonly currentState = signal<VerificationState['status'] | 'revoked'>('waiting');
   public readonly qrData = signal<QrData | null>(null);
-  public readonly userData = signal<Record<string, unknown>>({}); 
+  public readonly userData = signal<Record<string, unknown>>({});
   public readonly validationResults = signal<boolean[]>([true, true, true, true]);
   public readonly errorMessage = signal<string>('');
   public readonly errorCode = signal<string>('');
   // Pending success data (received during progress state)
   private readonly pendingSuccessData = signal<Record<string, unknown> | null>(null);
   // Control progress modal visibility independently from state
-  public readonly progressModalOpen = signal<boolean>(false);
+public readonly progressModalOpen = signal<boolean>(false);
+  // Control revoked modal visibility
+  public readonly revokedModalOpen = signal<boolean>(false);
   // ── Computed ──
   public readonly qrCodeUrl = computed(() => {
     const qr = this.qrData();
@@ -78,6 +81,7 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
   public readonly isProgress = computed(() => this.currentState() === 'progress');
   public readonly isSuccess = computed(() => this.currentState() === 'success');
   public readonly isError = computed(() => this.currentState() === 'error');
+  public readonly isRevoked = computed(() => this.currentState() === 'revoked');
 
   public readonly userName = computed(() => {
     const user = this.userData();
@@ -151,8 +155,32 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
     this.currentState.set('validating');
   }
 
-  /**
-   * Handle retry after error
+  /**   * Handle Retry from progress modal
+   * 
+   * If credential was revoked, show revoked screen.
+   * Otherwise restart the OAuth2 flow.
+   */
+  public onProgressRetry(): void {
+    console.log('[VerificationPage] Retry clicked from progress modal');
+    const results = this.validationResults();
+    
+    // Check if credential is revoked (validation failed at index 3 = notRevoked)
+    if (!results[3]) {
+      console.log('[VerificationPage] Credential revoked detected - showing revoked screen');
+      // Close progress modal
+      this.progressModalOpen.set(false);
+      // Wait for modal close animation then show revoked screen
+      setTimeout(() => {
+        this.currentState.set('revoked');
+        this.revokedModalOpen.set(true);
+      }, 350);
+    } else {
+      // Other errors - restart flow
+      this.onRetry();
+    }
+  }
+
+  /**   * Handle retry after error
    * 
    * Restarts the OAuth2 flow.
    */
@@ -372,7 +400,7 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
         if (state.validationResults) {
           this.validationResults.set(state.validationResults);
         }
-        // Save user data for when user clicks OK button
+        // Save user data for when user clicks OK/Retry button
         if (state.userData) {
           this.pendingSuccessData.set(state.userData);
         }
@@ -398,8 +426,33 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
    * Show error state
    */
   private showError(code: string, message: string): void {
-    this.currentState.set('error');
-    this.errorCode.set(code);
-    this.errorMessage.set(message);
+    // Check if error is specifically a revoked credential
+    if (code === 'CREDENTIAL_REVOKED') {
+      console.log('[VerificationPage] Credential revoked error - showing revoked screen');
+      this.currentState.set('revoked');
+      this.revokedModalOpen.set(true);
+      this.errorCode.set(code);
+      this.errorMessage.set(message);
+    } else {
+      // Generic error
+      this.currentState.set('error');
+      this.errorCode.set(code);
+      this.errorMessage.set(message);
+    }
+  }
+
+  /**
+   * Handle try again from revoked screen
+   */
+  public onTryAgainFromRevoked(): void {
+    console.log('[VerificationPage] Trying again from revoked screen');
+    this.revokedModalOpen.set(false);
+    this.userData.set({});
+    this.errorCode.set('');
+    this.errorMessage.set('');
+    // Wait for modal close then restart flow
+    setTimeout(() => {
+      this.onRetry();
+    }, 300);
   }
 }

@@ -84,6 +84,7 @@ export class ValidationProgressComponent implements OnInit, OnDestroy {
   public readonly allSuccess = signal<boolean>(false);
   public readonly hasError = signal<boolean>(false);
   public readonly isValidating = signal<boolean>(false);
+  public readonly isRevocationError = signal<boolean>(false);
 
   // ── Computed ──
   public readonly progressPercentage = computed(() => {
@@ -111,6 +112,7 @@ export class ValidationProgressComponent implements OnInit, OnDestroy {
     this.isValidating.set(true);
     this.allSuccess.set(false);
     this.hasError.set(false);
+    this.isRevocationError.set(false);
     this.resetChecks();
 
     const results = this.validationResults();
@@ -146,9 +148,22 @@ export class ValidationProgressComponent implements OnInit, OnDestroy {
         this.updateCheckStatus(currentIndex, success ? 'success' : 'error');
 
         if (!success) {
-          // Stop on error - show retry button immediately
+          // Stop on error
           this.hasError.set(true);
           this.isValidating.set(false);
+          
+          // Check if error is at index 3 (revocation check)
+          if (currentIndex === 3) {
+            console.log('[ValidationProgress] Revocation check failed - auto-redirecting to revoked screen...');
+            this.isRevocationError.set(true);
+            // Wait 2 seconds to let user see the failed check, then auto-advance
+            const autoRedirectDelay = window.setTimeout(() => {
+              console.log('[ValidationProgress] Auto-redirecting to credential revoked screen');
+              this.retryClicked.emit();
+            }, 2000);
+            this.animationTimeouts.push(autoRedirectDelay);
+          }
+          
           return;
         }
 

@@ -1,6 +1,7 @@
 import { Component, input, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ThemeService } from '../../../core/services/theme.service';
+import { Router } from '@angular/router';
 
 /**
  * Header Component
@@ -27,6 +28,8 @@ export class HeaderComponent {
   // ── Dependencies ──
   public readonly themeService = inject(ThemeService);
 
+  private readonly router = inject(Router);
+
   // ── Inputs ──
   
   /**
@@ -48,5 +51,12 @@ export class HeaderComponent {
    */
   public get logoUrl(): string {
     return this.themeService.logoUrl();
+  }
+
+  /**
+   * Navigate to home when logo is clicked
+   */
+  navigateHome(): void {
+    this.router.navigate(['/']);
   }
 }

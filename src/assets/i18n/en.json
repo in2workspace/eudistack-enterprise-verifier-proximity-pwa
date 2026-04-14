@@ -52,6 +52,13 @@
         "retry": "Retry"
       }
     },
+    "revoked": {
+      "title": "Credential Revoked Detected",
+      "subtitle": "The credentials provided is not valid.",
+      "presentationValid": "Presentation is valid",
+      "credentialInvalid": "Credential is invalid",
+      "tryAgain": "Try Again"
+    },
     "welcome": {
       "title": "Verification Successful",
       "subtitle": "IDENTITY CONFIRMED",
@@ -76,6 +83,7 @@
         "timeout": "Request timeout",
         "unauthorized": "Unauthorized",
         "forbidden": "Access denied",
+        "credentialRevoked": "The credential has been revoked",
         "serverError": "Server error. Please try again later.",
         "invalidRequest": "Invalid request"
       },

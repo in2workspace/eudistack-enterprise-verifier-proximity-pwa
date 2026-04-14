@@ -25,7 +25,7 @@
       [isOpen]="progressModalOpen()"
       [validationResults]="validationResults()"
       (okClicked)="onProgressComplete()"
-      (retryClicked)="onRetry()"
+      (retryClicked)="onProgressRetry()"
     />
   }
 
@@ -37,6 +37,14 @@
       [countdownDuration]="10"
       [autoRedirect]="true"
       (continueClicked)="onRetry()"
+    />
+  }
+
+  <!-- Revoked: Show fullscreen credential revoked screen -->
+  @case ('revoked') {
+    <app-credential-revoked
+      [isOpen]="revokedModalOpen()"
+      (tryAgainClicked)="onTryAgainFromRevoked()"
     />
   }
 
