@@ -31,7 +31,6 @@
     padding: 80px 24px 24px 24px;
     max-width: 800px;
     width: 100%;
-    animation: contentSlideUp 0.8s ease-out 0.2s both;
   }
 
   // Success Icon
@@ -162,12 +161,8 @@
 // ── Animations ──
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes iconAppear {
@@ -180,17 +175,6 @@
   }
   100% {
     transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
-
-@keyframes contentSlideUp {
-  from {
-    transform: translateY(40px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
     opacity: 1;
   }
 }

@@ -1,6 +1,21 @@
 <app-header [showLogo]="true" />
 
 <div class="qr-display">
+
+  <!-- PWA Install Banner -->
+  @if ((canInstall$ | async) && !bannerDismissed()) {
+    <div class="install-banner">
+      <ion-icon name="download-outline" class="install-banner__icon"></ion-icon>
+      <span class="install-banner__text">{{ 'pwa.installHint' | translate }}</span>
+      <ion-button size="small" fill="solid" class="install-banner__btn" (click)="installApp()">
+        {{ 'pwa.install' | translate }}
+      </ion-button>
+      <ion-button size="small" fill="clear" class="install-banner__close" (click)="dismissBanner()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </div>
+  }
+
   <!-- Main Wrapper: Title + Columns -->
   <div class="qr-display__wrapper">
     <!-- Title Section -->

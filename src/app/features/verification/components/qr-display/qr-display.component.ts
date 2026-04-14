@@ -1,9 +1,10 @@
-import { Component, input, output, effect, signal, computed, OnDestroy } from '@angular/core';
+import { Component, input, output, effect, signal, computed, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { TranslateModule } from '@ngx-translate/core';
 import { HeaderComponent } from '../../../../shared/components/header/header.component';
+import { PwaInstallService } from '../../../../shared/services/pwa-install.service';
 import { interval, Subscription } from 'rxjs';
 import { takeWhile } from 'rxjs/operators';
 
@@ -69,6 +70,11 @@ export class QRDisplayComponent implements OnDestroy {
    */
   public readonly copied = output<void>();
 
+  // ── PWA Install ──
+  private readonly pwaInstall = inject(PwaInstallService);
+  public readonly canInstall$ = this.pwaInstall.installable$;
+  public readonly bannerDismissed = signal<boolean>(false);
+
   // ── State ──
   public readonly timeRemaining = signal<number>(120);
   public readonly isExpired = signal<boolean>(false);
@@ -102,6 +108,20 @@ export class QRDisplayComponent implements OnDestroy {
         this.startCountdown();
       }
     });
+  }
+
+  /**
+   * Trigger native PWA install prompt
+   */
+  public async installApp(): Promise<void> {
+    await this.pwaInstall.promptInstall();
+  }
+
+  /**
+   * Dismiss the install banner for this session
+   */
+  public dismissBanner(): void {
+    this.bannerDismissed.set(true);
   }
 
   /**

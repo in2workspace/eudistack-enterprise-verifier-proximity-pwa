@@ -3,6 +3,10 @@
     "title": "Enterprise Verifier",
     "loading": "Loading..."
   },
+  "pwa": {
+    "installHint": "Install this app for a better experience",
+    "install": "Install"
+  },
   "verification": {
     "title": "Secure Verification",
     "initializing": "Initializing verification session...",

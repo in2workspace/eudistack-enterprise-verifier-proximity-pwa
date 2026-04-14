@@ -3,6 +3,10 @@
     "title": "Verificador Empresarial",
     "loading": "Carregant..."
   },
+  "pwa": {
+    "installHint": "Instal·la aquesta aplicació per una millor experiència",
+    "install": "Instal·lar"
+  },
   "verification": {
     "title": "Verificació Segura",
     "initializing": "Inicialitzant sessió de verificació...",
