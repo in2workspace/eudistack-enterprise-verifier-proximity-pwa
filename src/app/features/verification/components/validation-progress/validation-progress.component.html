@@ -1,4 +1,4 @@
-<ion-modal [isOpen]="isOpen()" [backdropDismiss]="false" class="validation-progress-modal">
+<ion-modal [isOpen]="isOpen()" [backdropDismiss]="false" class="validation-progress-modal" (ionModalDidPresent)="startValidation()">
   <ng-template>
     <app-header [showLogo]="true" />
 
