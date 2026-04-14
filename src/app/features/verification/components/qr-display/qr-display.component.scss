@@ -56,7 +56,7 @@
     grid-row: 1;
     font-size: 3rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-on-dark);
     margin: 0 0 0 20px;
     letter-spacing: -0.02em;
     text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -164,7 +164,7 @@
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 40px;
-    color: #ffffff;
+    color: var(--color-on-dark);
     font-size: 0.9375rem;
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -175,9 +175,9 @@
     }
 
     &--warning {
-      background: rgba(255, 193, 7, 0.2);
-      border-color: rgba(255, 193, 7, 0.4);
-      color: #ffc107;
+      background: var(--status-warning-subtle);
+      border-color: var(--status-warning-border);
+      color: var(--status-warning-bright);
     }
   }
 
@@ -196,7 +196,7 @@
     --background: linear-gradient(135deg, var(--primary-color, #2563EB), var(--secondary-color, #10B981));
     --background-hover: linear-gradient(135deg, var(--primary-color, #2563EB), var(--secondary-color, #10B981));
     --background-activated: linear-gradient(135deg, var(--primary-color, #2563EB), var(--secondary-color, #10B981));
-    --color: #ffffff;
+    --color: var(--color-on-dark);
     --border-radius: 40px;
     --padding-top: 12px;
     --padding-bottom: 12px;
@@ -268,12 +268,12 @@
   &__spinner {
     width: 56px;
     height: 56px;
-    --color: #ffffff;
+    --color: var(--color-on-dark);
   }
 
   &__loading-text {
     font-size: 1rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--color-on-dark-secondary);
     margin: 0;
   }
 
@@ -288,12 +288,12 @@
 
   &__expired-icon {
     font-size: 56px;
-    color: #ffc107;
+    color: var(--status-warning-bright);
   }
 
   &__expired-title {
     font-size: 1.125rem;
-    color: #ffffff;
+    color: var(--color-on-dark);
     margin: 0;
     font-weight: 500;
   }
@@ -394,7 +394,7 @@
   &__label {
     font-size: 0.75rem;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--color-on-dark-tertiary);
     letter-spacing: 0.1em;
     margin-bottom: 16px;
     text-transform: uppercase;
@@ -408,7 +408,7 @@
     background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 40px;
-    color: #ffffff;
+    color: var(--color-on-dark);
     font-size: 0.9375rem;
     font-weight: 600;
 
@@ -448,7 +448,7 @@
   &__title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-on-dark);
     margin: 0 0 8px 0;
     line-height: 1.4;
     letter-spacing: -0.01em;
@@ -456,7 +456,7 @@
 
   &__description {
     font-size: 0.9375rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--color-on-dark-tertiary);
     margin: 0;
     line-height: 1.6;
   }

@@ -39,7 +39,7 @@
   &__title {
     font-size: 3rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-on-dark);
     margin: 0 0 8px 0;
     text-align: center;
     letter-spacing: -0.02em;
@@ -57,7 +57,7 @@
   &__subtitle {
     font-size: 1rem;
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--color-on-dark-secondary);
     line-height: 1.6;
     margin: 0 0 48px 0;
     text-align: center;
@@ -66,7 +66,7 @@
   &__card {
     width: 100%;
     max-width: 520px;
-    background: #1a2942;
+    background: var(--surface-card-dark);
     border-radius: 16px;
     padding: 48px 40px;
     position: relative;
@@ -77,7 +77,7 @@
   }
 
   &__footer {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--color-on-dark-secondary);
     font-size: 0.875rem;
     margin: 32px 0 0 0;
     text-align: center;
@@ -99,20 +99,20 @@
 
     ion-icon {
       font-size: clamp(36px, 10vw, 48px);
-      color: #8ab4f8;
+      color: var(--color-accent);
       filter: drop-shadow(0 4px 12px rgba(138, 180, 248, 0.3));
 
       &.shield-icon--validating {
-        color: #8ab4f8;
+        color: var(--color-accent);
       }
 
       &.shield-icon--success {
-        color: #22C55E;
+        color: var(--status-success-bright);
         animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       }
 
       &.shield-icon--error {
-        color: #EF4444;
+        color: var(--status-error-bright);
         animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       }
     }
@@ -176,20 +176,20 @@
   }
 
   &--validating {
-    background: rgba(138, 180, 248, 0.1);
-    border: 1px solid rgba(138, 180, 248, 0.3);
+    background: var(--color-accent-subtle);
+    border: 1px solid var(--color-accent-border);
     animation: fadeSlideIn 0.35s ease forwards;
   }
 
   &--success {
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: var(--status-success-subtle);
+    border: 1px solid var(--status-success-border);
     animation: fadeSlideIn 0.35s ease forwards;
   }
 
   &--error {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: var(--status-error-subtle);
+    border: 1px solid var(--status-error-border);
     animation: fadeSlideIn 0.35s ease forwards;
   }
 
@@ -206,7 +206,7 @@
 
       &.spinning {
         animation: spin 1s linear infinite;
-        color: #8ab4f8;
+        color: var(--color-accent);
       }
     }
 
@@ -214,11 +214,11 @@
       animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 
       &--pass {
-        color: #22C55E;
+        color: var(--status-success-bright);
       }
 
       &--fail {
-        color: #EF4444;
+        color: var(--status-error-bright);
       }
     }
 
@@ -231,7 +231,7 @@
   &__label {
     flex: 1;
     font-size: 0.9375rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--color-on-dark);
     font-weight: 400;
     line-height: 1.4;
   }
@@ -299,15 +299,6 @@
     &__card {
       padding: 40px 32px;
       gap: 24px;
-    }
-  }
-
-  .card {
-    &__shield {
-      ion-icon {
-        // clamp() handles responsiveness automatically
-        // No need to override
-      }
     }
   }
 

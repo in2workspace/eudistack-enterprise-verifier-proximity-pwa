@@ -53,27 +53,3 @@
     }
   }
 }
-
-.header-title {
-  color: var(--theme-header-text, #00338D);
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  padding: 0;
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  @media (max-width: 768px) {
-    font-size: 1.1rem;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 1rem;
-  }
-
-  @media (max-width: 360px) {
-    display: none; // Hide title on very small screens
-  }
-}

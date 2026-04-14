@@ -26,17 +26,6 @@
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 
-  &__logo {
-    position: absolute;
-    top: 32px;
-    left: 32px;
-
-    img {
-      height: 48px;
-      width: auto;
-    }
-  }
-
   &__content {
     width: 100%;
     max-width: 640px;
@@ -49,7 +38,7 @@
   &__title {
     font-size: 3rem;
     font-weight: 400;
-    color: #ffffff;
+    color: var(--color-on-dark);
     margin: 0 0 8px 0;
     text-align: center;
     letter-spacing: -0.02em;
@@ -58,7 +47,7 @@
   &__subtitle {
     font-size: 0.875rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--color-on-dark-tertiary);
     letter-spacing: 0.15em;
     margin: 0 0 48px 0;
     text-align: center;
@@ -67,7 +56,7 @@
   &__card {
     width: 100%;
     max-width: 480px;
-    background: #1a2942;
+    background: var(--surface-card-dark);
     border-radius: 16px;
     padding: 64px 48px;
     position: relative;
@@ -75,7 +64,7 @@
   }
 
   &__footer {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--color-on-dark-secondary);
     font-size: 0.875rem;
     margin: 32px 0 0 0;
     text-align: center;
@@ -134,21 +123,21 @@
   &__spinner {
     width: 64px;
     height: 64px;
-    --color: #8ab4f8;
+    --color: var(--color-accent);
     margin-bottom: 32px;
   }
 
   &__message {
     font-size: 1.5rem;
     font-weight: 400;
-    color: #8ab4f8;
+    color: var(--color-accent);
     margin: 0 0 16px 0;
     line-height: 1.4;
   }
 
   &__submessage {
     font-size: 1rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--color-on-dark-tertiary);
     margin: 0 0 32px 0;
     line-height: 1.5;
   }
@@ -158,10 +147,10 @@
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: rgba(138, 180, 248, 0.15);
-    border: 1px solid rgba(138, 180, 248, 0.3);
+    background: var(--color-accent-subtle-strong);
+    border: 1px solid var(--color-accent-border);
     border-radius: 24px;
-    color: #8ab4f8;
+    color: var(--color-accent);
     font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -177,15 +166,6 @@
 @media (max-width: 768px) {
   .validation-popup {
     padding: 24px 16px;
-
-    &__logo {
-      top: 24px;
-      left: 24px;
-      
-      img {
-        height: 36px;
-      }
-    }
 
     &__content {
       margin-top: 72px;
@@ -214,15 +194,6 @@
 @media (max-width: 480px) {
   .validation-popup {
     padding: 16px 12px;
-
-    &__logo {
-      top: 16px;
-      left: 16px;
-      
-      img {
-        height: 32px;
-      }
-    }
 
     &__content {
       margin-top: 64px;
