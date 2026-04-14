@@ -24,6 +24,9 @@ interface Window {
     
     /** Legacy: Verifier mode */
     verifier_mode?: string;
+
+    /** Wallet PWA URL — used to build HTTPS QR codes scannable by the phone camera */
+    walletUrl?: string;
   };
 }
 

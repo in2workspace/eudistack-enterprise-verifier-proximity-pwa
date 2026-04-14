@@ -18,16 +18,26 @@ import { ThemeConfig } from '../models/theme.model';
 export class ThemeService {
 
   // ── Public API (computed signals) ──
-  
+
   public readonly theme = computed(() => this._theme());
-  public readonly tenantId = computed(() => this._theme()?.tenantId ?? 'altia');
+  // Support both verifier schema (tenantId) and platform standard schema (tenantDomain)
+  public readonly tenantId = computed(() => {
+    const t = this._theme() as any;
+    return t?.tenantId ?? t?.tenantDomain?.toLowerCase() ?? 'altia';
+  });
   public readonly logoUrl = computed(() => this._theme()?.branding.logoUrl ?? 'assets/logos/altia-logo-dark.svg');
   public readonly logoDarkUrl = computed(() => this._theme()?.branding.logoDarkUrl);
   public readonly primaryColor = computed(() => this._theme()?.branding.primaryColor ?? '#001E8C');
-  public readonly primaryDark = computed(() => this._theme()?.branding.primaryDark ?? '#001570');
+  public readonly primaryDark = computed(() => {
+    const t = this._theme() as any;
+    return t?.branding?.primaryDark ?? t?.branding?.auth?.gradientEnd ?? '#001570';
+  });
   public readonly secondaryColor = computed(() => this._theme()?.branding.secondaryColor ?? '#00ff94');
   public readonly headerBackgroundColor = computed(() => this._theme()?.components?.header?.backgroundColor ?? '#ffffff');
-  public readonly headerTextColor = computed(() => this._theme()?.components?.header?.textColor ?? '#001E8C');
+  public readonly headerTextColor = computed(() => {
+    const t = this._theme() as any;
+    return t?.components?.header?.textColor ?? t?.branding?.primaryColor ?? '#001E8C';
+  });
   public readonly headerHeight = computed(() => this._theme()?.components?.header?.height ?? '64px');
   public readonly headerLogoHeight = computed(() => this._theme()?.components?.header?.logoHeight ?? '40px');
   public readonly isLoading = computed(() => this._isLoading());
@@ -64,10 +74,14 @@ export class ThemeService {
         config = await firstValueFrom(this.http.get<ThemeConfig>(themeUrl));
       } catch {
         console.warn(`[ThemeService] Theme not found for ${tenantId}, using fallback theme.json`);
-        // Fallback to default theme.json if tenant theme doesn't exist
+        // Fallback to default theme.json (nginx aliases it to the tenant directory)
         themeUrl = 'assets/theme.json';
         config = await firstValueFrom(this.http.get<ThemeConfig>(themeUrl));
-        config.tenantId = tenantId;
+      }
+
+      // Ensure tenantId is always set (standard schema uses tenantDomain instead)
+      if (!config.tenantId) {
+        config.tenantId = (config as any).tenantDomain?.toLowerCase() ?? tenantId;
       }
 
       this._theme.set(config);
@@ -90,14 +104,19 @@ export class ThemeService {
   }
 
   /**
-   * Get primary gradient CSS string
+   * Get primary gradient CSS string.
+   * Supports both verifier schema (gradients.primary) and standard schema (branding.auth).
    */
   public getPrimaryGradient(): string {
-    const theme = this._theme();
-    if (!theme?.gradients?.primary) return 'linear-gradient(180deg, #00338D 0%, #002770 100%)';
-    
-    const { start, end, angle } = theme.gradients.primary;
-    return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
+    const theme = this._theme() as any;
+    if (theme?.gradients?.primary) {
+      const { start, end, angle } = theme.gradients.primary;
+      return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
+    }
+    if (theme?.branding?.auth?.background && theme?.branding?.auth?.gradientEnd) {
+      return `linear-gradient(135deg, ${theme.branding.auth.background} 0%, ${theme.branding.auth.gradientEnd} 100%)`;
+    }
+    return 'linear-gradient(180deg, #00338D 0%, #002770 100%)';
   }
 
   /**
@@ -123,24 +142,36 @@ export class ThemeService {
   }
 
   /**
-   * Apply theme configuration by setting CSS variables
-   * 
+   * Apply theme configuration by setting CSS variables.
+   * Supports both the verifier-specific schema (gradients, components.header)
+   * and the standard platform schema (branding.auth, branding.primaryContrastColor).
+   *
    * @param config Theme configuration
    */
   private applyTheme(config: ThemeConfig): void {
     const root = document.documentElement;
+    // Raw cast to access fields from the standard platform schema (tenantDomain, auth, etc.)
+    const raw = config as any;
 
     // ── Brand Colors ──
+    // primaryDark: verifier schema → branding.primaryDark | standard schema → branding.auth.gradientEnd
+    const primaryDark = config.branding.primaryDark ?? raw.branding?.auth?.gradientEnd ?? config.branding.primaryColor;
     root.style.setProperty('--theme-primary', config.branding.primaryColor);
-    root.style.setProperty('--theme-primary-dark', config.branding.primaryDark || config.branding.primaryColor);
+    root.style.setProperty('--theme-primary-dark', primaryDark);
     root.style.setProperty('--theme-secondary', config.branding.secondaryColor);
 
     // ── Gradients ──
+    // Priority: explicit gradients block (verifier schema) → branding.auth colors (standard schema)
+    const authBg: string | undefined = raw.branding?.auth?.background;
+    const authEnd: string | undefined = raw.branding?.auth?.gradientEnd;
+
     if (config.gradients?.primary) {
       const { start, end, angle } = config.gradients.primary;
       root.style.setProperty('--theme-gradient-primary', `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`);
-      // Also create vertical variant (180deg) for consistency
       root.style.setProperty('--theme-gradient-vertical', `linear-gradient(180deg, ${start} 0%, ${end} 100%)`);
+    } else if (authBg && authEnd) {
+      root.style.setProperty('--theme-gradient-primary', `linear-gradient(135deg, ${authBg} 0%, ${authEnd} 100%)`);
+      root.style.setProperty('--theme-gradient-vertical', `linear-gradient(180deg, ${authBg} 0%, ${authEnd} 100%)`);
     }
 
     if (config.gradients?.success) {
@@ -154,11 +185,22 @@ export class ThemeService {
     }
 
     // ── Header ──
+    // Priority: explicit components.header block (verifier schema) → derive from branding (standard schema)
     if (config.components?.header) {
       root.style.setProperty('--theme-header-bg', config.components.header.backgroundColor);
       root.style.setProperty('--theme-header-text', config.components.header.textColor);
       root.style.setProperty('--theme-header-height', config.components.header.height);
       root.style.setProperty('--theme-header-logo-height', config.components.header.logoHeight);
+      // Use explicit gradient if provided, otherwise derive a subtle one
+      const gradient = config.components.header.backgroundGradient
+        ?? this.buildHeaderGradient(config.components.header.backgroundColor, config.branding.primaryColor);
+      root.style.setProperty('--theme-header-bg-gradient', gradient);
+    } else {
+      root.style.setProperty('--theme-header-bg', '#ffffff');
+      root.style.setProperty('--theme-header-text', config.branding.primaryColor);
+      root.style.setProperty('--theme-header-height', '64px');
+      root.style.setProperty('--theme-header-logo-height', '40px');
+      root.style.setProperty('--theme-header-bg-gradient', this.buildHeaderGradient('#ffffff', config.branding.primaryColor));
     }
 
     // ── Page Title & Favicon ──
@@ -166,6 +208,9 @@ export class ThemeService {
     if (config.branding.faviconUrl) {
       this.updateFavicon(config.branding.faviconUrl);
     }
+
+    // ── Theme Color (browser chrome) ──
+    this.updateThemeColor(primaryDark);
   }
 
   /**
@@ -201,15 +246,61 @@ export class ThemeService {
   }
 
   /**
-   * Update favicon dynamically
-   * 
+   * Build a subtle header gradient: base color → primary tint at ~6% opacity.
+   * Works with any 6-digit hex primary color.
+   *
+   * @param base   Header background (e.g. '#ffffff')
+   * @param primary Brand primary hex color (e.g. '#00338D')
+   */
+  private buildHeaderGradient(base: string, primary: string): string {
+    // Append 0f (≈ 6% opacity) to the primary hex to create a faint tint
+    const tint = primary.startsWith('#') && primary.length === 7
+      ? `${primary}0f`
+      : primary;
+    return `linear-gradient(90deg, ${base} 0%, ${tint} 100%)`;
+  }
+
+  /**
+   * Update favicon dynamically (both standard and Apple touch icon)
+   *
    * @param faviconUrl Favicon URL
    */
   private updateFavicon(faviconUrl: string): void {
-    const link: HTMLLinkElement = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    const head = document.getElementsByTagName('head')[0];
+
+    // Standard favicon
+    let link: HTMLLinkElement | null = document.querySelector("link[rel='icon']");
+    if (!link) {
+      link = document.createElement('link');
+      head.appendChild(link);
+    }
+    link.rel = 'icon';
     link.type = 'image/x-icon';
-    link.rel = 'shortcut icon';
     link.href = faviconUrl;
-    document.getElementsByTagName('head')[0].appendChild(link);
+
+    // Apple touch icon
+    let appleLink: HTMLLinkElement | null = document.querySelector("link[rel='apple-touch-icon']");
+    if (!appleLink) {
+      appleLink = document.createElement('link');
+      head.appendChild(appleLink);
+    }
+    appleLink.rel = 'apple-touch-icon';
+    appleLink.href = faviconUrl;
+  }
+
+  /**
+   * Update the <meta name="theme-color"> tag dynamically
+   * Affects browser chrome color on mobile and PWA title bar
+   *
+   * @param color CSS color value
+   */
+  private updateThemeColor(color: string): void {
+    let meta: HTMLMetaElement | null = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      document.head.appendChild(meta);
+    }
+    meta.content = color;
   }
 }

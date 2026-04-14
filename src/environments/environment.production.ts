@@ -38,6 +38,24 @@ export const environment = {
   get verifier_mode(): string {
     return window["env"]?.["verifier_mode"] || 'browser';
   },
+
+  get walletUrl(): string {
+    const url = window["env"]?.["walletUrl"];
+    
+    // If explicitly set and not empty, use it
+    if (url && url !== '') {
+      return url;
+    }
+    
+    // If empty string, use same origin (nginx proxy mode)
+    // This allows the PWA to use relative URLs when served by nginx
+    if (url === '') {
+      return window.location.origin;
+    }
+    
+    // Default fallback (empty for production - should be set via env.js)
+    return '';
+  },
   
   appVersion: '1.0.0',
 };

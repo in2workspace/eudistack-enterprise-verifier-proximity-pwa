@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { VerifierApiService } from './verifier-api.service';
+import { environment } from '../../../environments/environment';
 
 /**
  * QR Generation Service
@@ -49,7 +50,7 @@ export class QrGenerationService {
         });
         
         return {
-          uri: session.authRequest,
+          uri: this.toWalletUrl(session.authRequest),
           sessionId: session.sessionId,
           state: session.state,
           expiresAt,
@@ -80,7 +81,7 @@ export class QrGenerationService {
     });
     
     return of({
-      uri: authRequest,
+      uri: this.toWalletUrl(authRequest),
       sessionId: this.extractSessionIdFromAuthRequest(authRequest),
       state,
       expiresAt,
@@ -99,6 +100,51 @@ export class QrGenerationService {
   public regenerateQr(): Observable<QrData> {
     console.log('[QrGenerationService] Regenerating QR');
     return this.generateQr();
+  }
+
+  /**
+   * Transform an openid4vp:// URI into a wallet HTTPS URL.
+   *
+   * When walletUrl is configured, the phone camera can scan the QR and open
+   * the wallet directly without requiring the openid4vp:// scheme to be
+   * registered at OS level.
+   *
+   * Input:  openid4vp://?client_id=xxx&request_uri=https://verifier/oid4vp/abc
+   * Output: https://wallet.domain/?client_id=xxx&request_uri=https://verifier/oid4vp/abc
+   *
+   * Falls back to the original URI when:
+   * - walletUrl is not configured
+   * - The authRequest is already an HTTPS URL
+   * - Parsing fails
+   */
+  private toWalletUrl(authRequest: string): string {
+    const walletBase = environment.walletUrl;
+
+    if (!walletBase || !authRequest.startsWith('openid4vp://')) {
+      return authRequest;
+    }
+
+    try {
+      // `new URL()` rejects custom schemes on some runtimes; parse query manually
+      const queryIndex = authRequest.indexOf('?');
+      if (queryIndex === -1) return authRequest;
+
+      const params = new URLSearchParams(authRequest.slice(queryIndex + 1));
+      const requestUri = params.get('request_uri');
+      const clientId   = params.get('client_id');
+
+      if (!requestUri) return authRequest;
+
+      const target = new URL(walletBase);
+      target.searchParams.set('request_uri', requestUri);
+      if (clientId) target.searchParams.set('client_id', clientId);
+
+      console.log('[QrGenerationService] QR transformed to wallet URL:', target.toString());
+      return target.toString();
+    } catch (err) {
+      console.warn('[QrGenerationService] Failed to transform to wallet URL, using original:', err);
+      return authRequest;
+    }
   }
 
   /**

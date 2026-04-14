@@ -20,6 +20,10 @@
   // ── Multi-Tenancy Configuration ──
   // Tenant is injected by nginx entrypoint from TENANT env var
   window["env"]["tenant"] = "${TENANT_DEFAULT}";
+
+  // ── Wallet URL ──
+  // Used to build scannable HTTPS QR codes (camera-friendly) instead of openid4vp://
+  window["env"]["walletUrl"] = "${WALLET_URL}";
   
   // ── Legacy Configuration (Deprecated) ──
   window["env"]["logs_enabled"] = "${LOGS_ENABLED}";
