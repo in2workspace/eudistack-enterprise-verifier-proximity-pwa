@@ -49,7 +49,7 @@
 
       @if (errorCode()) {
         <div class="error-details">
-          <small>Código: {{ errorCode() }}</small>
+          <small>{{ 'verification.error.codeLabel' | translate }} {{ errorCode() }}</small>
         </div>
       }
 

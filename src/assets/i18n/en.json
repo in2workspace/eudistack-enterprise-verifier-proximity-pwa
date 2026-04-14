@@ -69,11 +69,14 @@
       "accessGranted": "Access granted",
       "redirecting": "Continuing in {{seconds}} seconds...",
       "button": "Continue",
-      "footer": "You may now proceed to access requested services."
+      "footer": "You may now proceed to access requested services.",
+      "customSubtitle": "Your identity has been successfully verified across all enterprise trust protocols.",
+      "eventBanner": "WELCOME TO THE SPRING MEETING 2026!"
     },
     "error": {
       "title": "Verification Failed",
       "details": "Technical Details",
+      "codeLabel": "Code:",
       "retry": "Try Again",
       "go_home": "Go Home",
       "http": {

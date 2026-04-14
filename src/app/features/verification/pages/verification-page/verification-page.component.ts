@@ -414,10 +414,11 @@ public readonly progressModalOpen = signal<boolean>(false);
         break;
 
       case 'error':
-        this.showError(
-          state.error.code,
-          state.error.message
-        );
+        if (state.error.code === 'SSE_TIMEOUT') {
+          this.initiateOAuth2Flow();
+        } else {
+          this.showError(state.error.code, state.error.message);
+        }
         break;
     }
   }

@@ -21,6 +21,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   
   // Smooth scrolling on mobile
   -webkit-overflow-scrolling: touch;
@@ -54,10 +55,10 @@
   }
 
   &__subtitle {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
-    letter-spacing: 0.15em;
+    font-size: 1rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
     margin: 0 0 48px 0;
     text-align: center;
   }
@@ -342,7 +343,7 @@
     }
 
     &__subtitle {
-      font-size: 0.75rem;
+      font-size: 0.875rem;
       margin-bottom: 32px;
     }
 

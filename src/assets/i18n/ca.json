@@ -67,11 +67,14 @@
       "accessGranted": "Accés concedit",
       "redirecting": "Continuant en {{seconds}} segons...",
       "button": "Continuar",
-      "footer": "Ara pots procedir a accedir als serveis sol·licitats."
+      "footer": "Ara pots procedir a accedir als serveis sol·licitats.",
+      "customSubtitle": "La teva identitat ha estat verificada correctament en tots els protocols de confiança empresarial.",
+      "eventBanner": "BENVINGUT AL SPRING MEETING 2026!"
     },
     "error": {
       "title": "Verificació Fallida",
       "details": "Detalls Tècnics",
+      "codeLabel": "Codi:",
       "retry": "Intentar de Nou",
       "go_home": "Tornar a l'inici",
       "http": {

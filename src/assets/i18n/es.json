@@ -67,11 +67,14 @@
       "accessGranted": "Acceso concedido",
       "redirecting": "Continuando en {{seconds}} segundos...",
       "button": "Continuar",
-      "footer": "Ahora puedes proceder a acceder a los servicios solicitados."
+      "footer": "Ahora puedes proceder a acceder a los servicios solicitados.",
+      "customSubtitle": "Tu identidad ha sido verificada correctamente en todos los protocolos de confianza empresarial.",
+      "eventBanner": "BIENVENIDO AL SPRING MEETING 2026!"
     },
     "error": {
       "title": "Verificación Fallida",
       "details": "Detalles Técnicos",
+      "codeLabel": "Código:",
       "retry": "Intentar de Nuevo",
       "go_home": "Volver al inicio",
       "http": {
