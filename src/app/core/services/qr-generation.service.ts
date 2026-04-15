@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { VerifierApiService } from './verifier-api.service';
+import { environment } from '../../../environments/environment';
 
 /**
  * QR Generation Service
@@ -49,7 +50,7 @@ export class QrGenerationService {
         });
         
         return {
-          uri: session.authRequest,
+          uri: this.toWalletUrl(session.authRequest),
           sessionId: session.sessionId,
           state: session.state,
           expiresAt,
@@ -80,7 +81,7 @@ export class QrGenerationService {
     });
     
     return of({
-      uri: authRequest,
+      uri: this.toWalletUrl(authRequest),
       sessionId: this.extractSessionIdFromAuthRequest(authRequest),
       state,
       expiresAt,
@@ -99,6 +100,30 @@ export class QrGenerationService {
   public regenerateQr(): Observable<QrData> {
     console.log('[QrGenerationService] Regenerating QR');
     return this.generateQr();
+  }
+
+  /**
+   * Transform an openid4vp:// URI into a wallet HTTPS callback URL.
+   *
+   * Mirrors the same-device flow used by `eudistack-mfe-login` so the wallet
+   * has a single entry point (`/protocol/callback?authorization_request=...`)
+   * for both cross-device (QR scan) and same-device (button) flows.
+   *
+   * Input:  openid4vp://?client_id=xxx&request_uri=https://verifier/oid4vp/abc
+   * Output: https://wallet.domain/protocol/callback?authorization_request=<URL-encoded openid4vp://...>
+   */
+  private toWalletUrl(authRequest: string): string {
+    const walletBase = environment.walletUrl;
+
+    if (!walletBase || !authRequest.startsWith('openid4vp://')) {
+      return authRequest;
+    }
+
+    const base = walletBase.replace(/\/+$/, '');
+    const target = `${base}/protocol/callback?authorization_request=${encodeURIComponent(authRequest)}`;
+
+    console.log('[QrGenerationService] QR transformed to wallet callback URL:', target);
+    return target;
   }
 
   /**
