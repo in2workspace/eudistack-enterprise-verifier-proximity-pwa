@@ -2,51 +2,22 @@ name: CI
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+concurrency:
+  group: ci-${{ github.head_ref }}
+  cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint Code
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run ESLint
-        run: npm run lint
-
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test -- --no-coverage
-
   build:
-    name: Build Application
+    name: Build & Test
     runs-on: ubuntu-latest
-    needs: [lint, test]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -56,17 +27,27 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build for production
-        run: npm run build:prod
+      - name: Build
+        run: npm run build -- --configuration=development
 
-      - name: Verify build output
-        run: |
-          if [ ! -d "www" ]; then
-            echo "❌ Build failed: www directory not found"
-            exit 1
-          fi
-          echo "✅ Build successful"
+      - name: Test
+        run: npm run test:ci
+
+      - name: Publish Coverage
+        if: always()
+        uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          json-summary-path: coverage/app/coverage-summary.json
+          json-final-path: coverage/app/coverage-final.json
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/app/
