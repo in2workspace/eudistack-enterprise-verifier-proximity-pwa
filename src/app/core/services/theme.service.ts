@@ -218,7 +218,7 @@ export class ThemeService {
     const fallbackTheme: ThemeConfig = {
       tenantId: 'altia',
       branding: {
-        name: 'Altia Verification',
+        name: 'Verifier Proximity',
         primaryColor: '#001E8C',
         primaryDark: '#001570',
         secondaryColor: '#00ff94',
