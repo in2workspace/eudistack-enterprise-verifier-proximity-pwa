@@ -22,20 +22,20 @@ export class ThemeService {
   public readonly theme = computed(() => this._theme());
   // Support both verifier schema (tenantId) and platform standard schema (tenantDomain)
   public readonly tenantId = computed(() => {
-    const t = this._theme() as any;
+    const t = this._theme();
     return t?.tenantId ?? t?.tenantDomain?.toLowerCase() ?? 'altia';
   });
   public readonly logoUrl = computed(() => this._theme()?.branding.logoUrl ?? 'assets/logos/altia-logo-dark.svg');
   public readonly logoDarkUrl = computed(() => this._theme()?.branding.logoDarkUrl);
   public readonly primaryColor = computed(() => this._theme()?.branding.primaryColor ?? '#001E8C');
   public readonly primaryDark = computed(() => {
-    const t = this._theme() as any;
+    const t = this._theme();
     return t?.branding?.primaryDark ?? t?.branding?.auth?.gradientEnd ?? '#001570';
   });
   public readonly secondaryColor = computed(() => this._theme()?.branding.secondaryColor ?? '#00ff94');
   public readonly headerBackgroundColor = computed(() => this._theme()?.components?.header?.backgroundColor ?? '#ffffff');
   public readonly headerTextColor = computed(() => {
-    const t = this._theme() as any;
+    const t = this._theme();
     return t?.components?.header?.textColor ?? t?.branding?.primaryColor ?? '#001E8C';
   });
   public readonly headerHeight = computed(() => this._theme()?.components?.header?.height ?? '64px');
@@ -81,7 +81,7 @@ export class ThemeService {
 
       // Ensure tenantId is always set (standard schema uses tenantDomain instead)
       if (!config.tenantId) {
-        config.tenantId = (config as any).tenantDomain?.toLowerCase() ?? tenantId;
+        config.tenantId = config.tenantDomain?.toLowerCase() ?? tenantId;
       }
 
       this._theme.set(config);
@@ -108,7 +108,7 @@ export class ThemeService {
    * Supports both verifier schema (gradients.primary) and standard schema (branding.auth).
    */
   public getPrimaryGradient(): string {
-    const theme = this._theme() as any;
+    const theme = this._theme();
     if (theme?.gradients?.primary) {
       const { start, end, angle } = theme.gradients.primary;
       return `linear-gradient(${angle}deg, ${start} 0%, ${end} 100%)`;
@@ -150,20 +150,18 @@ export class ThemeService {
    */
   private applyTheme(config: ThemeConfig): void {
     const root = document.documentElement;
-    // Raw cast to access fields from the standard platform schema (tenantDomain, auth, etc.)
-    const raw = config as any;
 
     // ── Brand Colors ──
     // primaryDark: verifier schema → branding.primaryDark | standard schema → branding.auth.gradientEnd
-    const primaryDark = config.branding.primaryDark ?? raw.branding?.auth?.gradientEnd ?? config.branding.primaryColor;
+    const primaryDark = config.branding.primaryDark ?? config.branding.auth?.gradientEnd ?? config.branding.primaryColor;
     root.style.setProperty('--theme-primary', config.branding.primaryColor);
     root.style.setProperty('--theme-primary-dark', primaryDark);
     root.style.setProperty('--theme-secondary', config.branding.secondaryColor);
 
     // ── Gradients ──
     // Priority: explicit gradients block (verifier schema) → branding.auth colors (standard schema)
-    const authBg: string | undefined = raw.branding?.auth?.background;
-    const authEnd: string | undefined = raw.branding?.auth?.gradientEnd;
+    const authBg = config.branding.auth?.background;
+    const authEnd = config.branding.auth?.gradientEnd;
 
     if (config.gradients?.primary) {
       const { start, end, angle } = config.gradients.primary;

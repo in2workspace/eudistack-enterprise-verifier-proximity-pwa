@@ -6,7 +6,8 @@
  */
 
 export interface ThemeConfig {
-  tenantId: string;
+  tenantId?: string;       // verifier schema; optional — standard schema uses tenantDomain
+  tenantDomain?: string;   // standard platform schema
   branding: BrandingConfig;
   gradients?: GradientsConfig;
   components?: ComponentsConfig;
@@ -25,6 +26,8 @@ export interface BrandingConfig {
   logoUrl: string;
   logoDarkUrl?: string;
   faviconUrl?: string;
+  /** Standard platform schema — auth gradient colors */
+  auth?: { background?: string; gradientEnd?: string };
 }
 
 export interface GradientsConfig {

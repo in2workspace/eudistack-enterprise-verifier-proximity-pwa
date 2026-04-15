@@ -381,8 +381,6 @@ public readonly progressModalOpen = signal<boolean>(false);
    * Handle verification state changes
    */
   private handleStateChange(state: VerificationState): void {
-    const current = this.currentState();
-    
     switch (state.status) {
       case 'waiting':
         this.currentState.set('waiting');

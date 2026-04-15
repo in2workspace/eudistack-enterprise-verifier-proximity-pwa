@@ -80,7 +80,7 @@ describe('ThemeService', () => {
 
     await loadPromise;
 
-    expect(service.brandName()).toBe('Test Brand');
+    expect(service.theme()?.branding.name).toBe('Test Brand');
   });
 
   it('should return logo URL', async () => {
