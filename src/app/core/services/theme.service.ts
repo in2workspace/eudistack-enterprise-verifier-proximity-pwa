@@ -251,11 +251,11 @@ export class ThemeService {
    * @param primary Brand primary hex color (e.g. '#00338D')
    */
   private buildHeaderGradient(base: string, primary: string): string {
-    // Append 0f (≈ 6% opacity) to the primary hex to create a faint tint
+    // Append 05 (≈ 2% opacity) to the primary hex to create an almost-invisible tint
     const tint = primary.startsWith('#') && primary.length === 7
-      ? `${primary}0f`
+      ? `${primary}05`
       : primary;
-    return `linear-gradient(90deg, ${base} 0%, ${tint} 100%)`;
+    return `linear-gradient(180deg, ${tint} 0%, ${base} 50%, ${base} 100%)`;
   }
 
   /**

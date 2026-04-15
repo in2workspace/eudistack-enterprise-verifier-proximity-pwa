@@ -17,7 +17,7 @@
 
   // ── Wallet URL ──
   // Used to build scannable HTTPS QR codes (camera-friendly) instead of openid4vp://
-  window["env"]["walletUrl"] = ""; // Set per environment via WALLET_URL in .env / env.template.js
+  window["env"]["walletUrl"] = "https://wallet-stg.altia.eudistack.net"; // Set per environment via WALLET_URL in .env / env.template.js
 
   // ── Logging ──
   window["env"]["logs_enabled"] = "false";

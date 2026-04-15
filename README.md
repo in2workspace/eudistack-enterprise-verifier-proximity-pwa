@@ -136,58 +136,6 @@ See `src/environments/environment.ts` for local configuration.
 - Coverage threshold: 80%
 - Test files: `*.spec.ts` (co-located with source)
 
-## Deployment (Static Hosting)
-
-**Architecture**: PWA = Static files only (HTML/JS/CSS) → Deploy to CDN
-
-### Option 1: AWS S3 + CloudFront
-
-```bash
-# Build production
-make build-prod
-
-# Deploy to S3 bucket
-aws s3 sync dist/eudistack-verifier-pwa-kpmg/browser/ s3://kpmg-verifier-pwa/
-
-# Invalidate CloudFront cache
-aws cloudfront create-invalidation --distribution-id EXXX --paths "/*"
-```
-
-### Option 2: Netlify
-
-```bash
-# Build production
-make build-prod
-
-# Deploy
-npx netlify deploy --prod --dir=dist/eudistack-verifier-pwa-kpmg/browser
-```
-
-### Option 3: Vercel
-
-```bash
-# Build production
-make build-prod
-
-# Deploy
-npx vercel --prod
-```
-
-### Option 4: GitHub Pages
-
-```bash
-# Build production with base href
-ng build --configuration production --base-href=/eudistack-verifier-pwa-kpmg/
-
-# Deploy to gh-pages branch
-npx angular-cli-ghpages --dir=dist/eudistack-verifier-pwa-kpmg/browser
-```
-
-**Requirements**: 
-- HTTPS mandatory (Service Worker requirement)
-- SPA redirect: all routes → index.html
-- CORS headers for Status List fetching
-
 ## Security
 
 - **100% Client-Side**: All validation happens in browser (Web Crypto API)
@@ -197,34 +145,6 @@ npx angular-cli-ghpages --dir=dist/eudistack-verifier-pwa-kpmg/browser
 - **Trust Framework**: Embedded in PWA (assets/trust-framework/trusted-issuers.json)
 - **HTTPS Only**: Enforced via CSP
 - **Audit Trail**: 90-day retention in local IndexedDB (configurable)
-
-## Compliance
-
-- ✅ OID4VP 1.0 (Authorization Request + VP Token validation)
-- ✅ DCQL (Declarative Credential Query Language)
-- ✅ HAIP 1.0 Basic Profile (no DPoP/PAR for PWA)
-- ✅ eIDAS 2.0 (ARF 1.5.0 credential types)
-- ⚠️ **Not eIDAS-qualified**: For demonstration/pilot use only
-
-## Architecture
-
-This PWA is an **OAuth2/OIDC client** of the eudistack-core-verifier backend.
-
-**Flow:**
-1. PWA requests new verification session from backend (`/api/proximity/initiate`)
-2. Backend returns QR data (authorization request URL with `state` parameter)
-3. PWA subscribes to SSE endpoint (`/api/login/events?state={state}`) to listen for verification completion
-4. Wallet scans QR → submits VP to backend → backend validates → emits SSE event
-5. PWA receives SSE redirect event → exchanges authorization code for tokens → extracts user data
-
-**Backend dependency:** Requires eudistack-core-verifier running on `localhost:8082` (or configured via `window.env.verifierBackendUrl`)
-
-## Documentation
-
-- [ROADMAP](docs/EUDI-024-verifier-pwa-kpmg/ROADMAP.md) - 10-sprint development plan
-- [TASKS](docs/EUDI-024-verifier-pwa-kpmg/TASKS.md) - Detailed task breakdown
-- [STACK](docs/EUDI-024-verifier-pwa-kpmg/STACK.md) - Technology stack alignment
-- [IMPLEMENTATION_GUIDE](docs/EUDI-024-verifier-pwa-kpmg/IMPLEMENTATION_GUIDE.md) - Developer guide
 
 ## Contributing
 
@@ -241,6 +161,6 @@ This project is licensed under the **Apache License 2.0**. See [LICENSE](LICENSE
 
 ## Version
 
-**0.1.0** (Sprint 1 - Project Setup)
+**0.1.0**
 
 ---
