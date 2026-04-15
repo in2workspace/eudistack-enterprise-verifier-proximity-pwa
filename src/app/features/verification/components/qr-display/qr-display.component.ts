@@ -153,7 +153,7 @@ export class QRDisplayComponent implements OnDestroy {
       const data = this.qrData();
       if (!data) return;
 
-      await navigator.clipboard.writeText(data);
+      await navigator.clipboard.writeText(this.extractAuthRequest(data));
       this.isCopied.set(true);
       this.copied.emit();
 
@@ -163,6 +163,26 @@ export class QRDisplayComponent implements OnDestroy {
       }, 2000);
     } catch (error) {
       console.error('Failed to copy QR data:', error);
+    }
+  }
+
+  /**
+   * Extract the raw `openid4vp://...` authRequest from the QR payload.
+   *
+   * The QR may be wrapped as a wallet redirect URL
+   * (`https://wallet/.../protocol/callback?authorization_request=<openid4vp%3A%2F%2F...>`).
+   * This unwraps it so the clipboard only contains the authRequest itself.
+   */
+  private extractAuthRequest(qrPayload: string): string {
+    if (qrPayload.startsWith('openid4vp://')) {
+      return qrPayload;
+    }
+    try {
+      const url = new URL(qrPayload);
+      const wrapped = url.searchParams.get('authorization_request');
+      return wrapped ?? qrPayload;
+    } catch {
+      return qrPayload;
     }
   }
 

@@ -91,17 +91,79 @@
   &__shield {
     display: flex;
     justify-content: center;
+    align-items: center;
     margin-bottom: 8px;
     animation: pulseShield 1.5s ease-in-out infinite;
+    position: relative;
+    width: clamp(110px, 26vw, 140px);
+    height: clamp(110px, 26vw, 140px);
+    margin-left: auto;
+    margin-right: auto;
+
+    // Face-ID style scanning ring (12 dashes). Rotates during validation,
+    // morphs into a solid ring on success, broken red arcs on error.
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      background: conic-gradient(
+        from 0deg,
+        var(--color-accent) 0deg 14deg, transparent 14deg 30deg,
+        var(--color-accent) 30deg 44deg, transparent 44deg 60deg,
+        var(--color-accent) 60deg 74deg, transparent 74deg 90deg,
+        var(--color-accent) 90deg 104deg, transparent 104deg 120deg,
+        var(--color-accent) 120deg 134deg, transparent 134deg 150deg,
+        var(--color-accent) 150deg 164deg, transparent 164deg 180deg,
+        var(--color-accent) 180deg 194deg, transparent 194deg 210deg,
+        var(--color-accent) 210deg 224deg, transparent 224deg 240deg,
+        var(--color-accent) 240deg 254deg, transparent 254deg 270deg,
+        var(--color-accent) 270deg 284deg, transparent 284deg 300deg,
+        var(--color-accent) 300deg 314deg, transparent 314deg 330deg,
+        var(--color-accent) 330deg 344deg, transparent 344deg 360deg
+      );
+      // Mask to keep only the ring band (between 44% and 50% radius).
+      -webkit-mask: radial-gradient(circle, transparent 0 43%, #000 44% 50%, transparent 51% 100%);
+              mask: radial-gradient(circle, transparent 0 43%, #000 44% 50%, transparent 51% 100%);
+      animation: shieldScan 2.8s linear infinite;
+      opacity: 0.9;
+      transition: opacity 0.3s ease;
+    }
+
+    // Success burst ring (expanding + fading) — triggers on success.
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 60%;
+      height: 60%;
+      border-radius: 50%;
+      border: 2px solid var(--status-success-bright, #10b981);
+      transform: translate(-50%, -50%) scale(0.8);
+      opacity: 0;
+      pointer-events: none;
+    }
 
     &--done {
       animation: none;
+
+      &::before {
+        // Ring settles into a solid full-circle green ring.
+        animation: shieldRingSettle 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+
+      &::after {
+        animation: successRing 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
     }
 
     ion-icon {
       font-size: clamp(36px, 10vw, 48px);
       color: var(--color-accent);
       filter: drop-shadow(0 4px 12px rgba(138, 180, 248, 0.3));
+      transition: color 0.35s ease, filter 0.35s ease;
 
       &.shield-icon--validating {
         color: var(--color-accent);
@@ -109,13 +171,109 @@
 
       &.shield-icon--success {
         color: var(--status-success-bright);
-        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        filter: drop-shadow(0 6px 18px rgba(16, 185, 129, 0.55));
+        // Initial pop, then a continuous heartbeat pulse to reinforce the success state.
+        animation:
+          shieldSuccess 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+          shieldHeartbeat 1.4s ease-in-out 0.8s infinite;
       }
 
       &.shield-icon--error {
         color: var(--status-error-bright);
         animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       }
+    }
+  }
+
+  // Face-ID style rotating scan (dashed ring spinning around the shield).
+  @keyframes shieldScan {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  // Ring settles into a solid full-color green ring on success.
+  @keyframes shieldRingSettle {
+    0% {
+      background: conic-gradient(
+        from 0deg,
+        var(--status-success-bright, #10b981) 0deg 14deg, transparent 14deg 30deg,
+        var(--status-success-bright, #10b981) 30deg 44deg, transparent 44deg 60deg,
+        var(--status-success-bright, #10b981) 60deg 74deg, transparent 74deg 90deg,
+        var(--status-success-bright, #10b981) 90deg 104deg, transparent 104deg 120deg,
+        var(--status-success-bright, #10b981) 120deg 134deg, transparent 134deg 150deg,
+        var(--status-success-bright, #10b981) 150deg 164deg, transparent 164deg 180deg,
+        var(--status-success-bright, #10b981) 180deg 194deg, transparent 194deg 210deg,
+        var(--status-success-bright, #10b981) 210deg 224deg, transparent 224deg 240deg,
+        var(--status-success-bright, #10b981) 240deg 254deg, transparent 254deg 270deg,
+        var(--status-success-bright, #10b981) 270deg 284deg, transparent 284deg 300deg,
+        var(--status-success-bright, #10b981) 300deg 314deg, transparent 314deg 330deg,
+        var(--status-success-bright, #10b981) 330deg 344deg, transparent 344deg 360deg
+      );
+      transform: rotate(0deg) scale(1);
+      opacity: 0.9;
+    }
+    100% {
+      background: conic-gradient(var(--status-success-bright, #10b981) 0 360deg);
+      transform: rotate(180deg) scale(1.04);
+      opacity: 1;
+    }
+  }
+
+  // Success burst ring (expanding + fading)
+  @keyframes successRing {
+    0% {
+      transform: translate(-50%, -50%) scale(0.6);
+      opacity: 0.9;
+      border-width: 3px;
+    }
+    60% {
+      opacity: 0.6;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(2.2);
+      opacity: 0;
+      border-width: 1px;
+    }
+  }
+
+  // Shield scales up + slight rotation for emphasis on success
+  @keyframes shieldSuccess {
+    0% {
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(1.25) rotate(-4deg);
+    }
+    70% {
+      transform: scale(1.1) rotate(3deg);
+    }
+    100% {
+      transform: scale(1.15) rotate(0deg);
+    }
+  }
+
+  // Two-beat heartbeat around the resting success scale (1.15), with a soft glow pulse
+  // to mimic the rhythm of a heartbeat ("lub-dub").
+  @keyframes shieldHeartbeat {
+    0%, 100% {
+      transform: scale(1.15);
+      filter: drop-shadow(0 6px 18px rgba(16, 185, 129, 0.55));
+    }
+    14% {
+      transform: scale(1.28);
+      filter: drop-shadow(0 8px 22px rgba(16, 185, 129, 0.8));
+    }
+    28% {
+      transform: scale(1.15);
+      filter: drop-shadow(0 6px 18px rgba(16, 185, 129, 0.55));
+    }
+    42% {
+      transform: scale(1.22);
+      filter: drop-shadow(0 7px 20px rgba(16, 185, 129, 0.7));
+    }
+    56% {
+      transform: scale(1.15);
+      filter: drop-shadow(0 6px 18px rgba(16, 185, 129, 0.55));
     }
   }
 
@@ -135,7 +293,7 @@
         height: 100%;
         background: var(--theme-gradient-success);
         border-radius: 4px;
-        transition: width 0.3s ease-in-out;
+        transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1);
         box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
       }
     }
