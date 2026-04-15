@@ -3,8 +3,12 @@
     "title": "Verificador Empresarial",
     "loading": "Carregant..."
   },
+  "pwa": {
+    "installHint": "Instal·la aquesta aplicació per una millor experiència",
+    "install": "Instal·lar"
+  },
   "verification": {
-    "title": "Verificació de Credencials",
+    "title": "Verificació Segura",
     "initializing": "Inicialitzant sessió de verificació...",
     "scanQr": "Escanejar codi QR",
     "scanInstruction": "Escaneja aquest codi QR amb la teva Wallet EUDI per verificar la teva identitat",
@@ -33,6 +37,14 @@
       "submessage": "Si us plau, autoritza la sol·licitud al teu dispositiu.",
       "encrypted": "XIFRAT D'EXTREM A EXTREM",
       "footer": "La verificació sol trigar 10-15 segons.",
+      "progress": {
+        "title": "Validant Credencials",
+        "subtitle": "Realitzant comprovacions tècniques segures",
+        "vpSignature": "Verificant signatura de presentació",
+        "vcSignature": "Verificant credencial d'empleat",
+        "trustedIssuer": "Comprovant emissors de confiança",
+        "notRevoked": "Comprovant estat de revocació"
+      },
       "checks": {
         "vpSignature": "Signatura VP vàlida",
         "vcSignature": "Signatura VC LEARCredentialEmployee vàlida",
@@ -43,8 +55,13 @@
         "ok": "Acceptar",
         "retry": "Reintentar"
       }
-    },
-    "welcome": {
+    },    "revoked": {
+      "title": "Credencial Revocada Detectada",
+      "subtitle": "Les credencials proporcionades no són vàlides.",
+      "presentationValid": "La presentació és vàlida",
+      "credentialInvalid": "La credencial no és vàlida",
+      "tryAgain": "Tornar a intentar"
+    },    "welcome": {
       "title": "Verificació Exitosa",
       "subtitle": "IDENTITAT CONFIRMADA",
       "welcome": "Benvingut,",
@@ -54,11 +71,14 @@
       "accessGranted": "Accés concedit",
       "redirecting": "Continuant en {{seconds}} segons...",
       "button": "Continuar",
-      "footer": "Ara pots procedir a accedir als serveis sol·licitats."
+      "footer": "Ara pots procedir a accedir als serveis sol·licitats.",
+      "customSubtitle": "La teva identitat ha estat verificada correctament en tots els protocols de confiança empresarial.",
+      "eventBanner": "BENVINGUT AL SPRING MEETING 2026!"
     },
     "error": {
       "title": "Verificació Fallida",
       "details": "Detalls Tècnics",
+      "codeLabel": "Codi:",
       "retry": "Intentar de Nou",
       "go_home": "Tornar a l'inici",
       "http": {
@@ -68,6 +88,7 @@
         "timeout": "Temps d'espera esgotat",
         "unauthorized": "No autoritzat",
         "forbidden": "Accés denegat",
+        "credentialRevoked": "La credencial ha estat revocada",
         "serverError": "Error del servidor. Intenta-ho de nou més tard.",
         "invalidRequest": "Sol·licitud invàlida"
       },

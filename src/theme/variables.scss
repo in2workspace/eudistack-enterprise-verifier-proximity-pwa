@@ -5,9 +5,16 @@
 :root {
   /**  Brand Colors (configurable via theme.json) **/
   --primary-color: #2563EB;
+  --primary-color-dark: #1E49E2;
   --primary-contrast-color: #ffffff;
   --secondary-color: #10B981;
   --secondary-contrast-color: #ffffff;
+
+  /** Gradient backgrounds (generated from brand colors) **/
+  --theme-gradient-primary: linear-gradient(135deg, var(--primary-color-dark) 0%, #00338D 100%);
+  --theme-gradient-vertical: linear-gradient(180deg, var(--primary-color-dark) 0%, #00338D 100%);
+  --theme-gradient-success: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  --theme-gradient-error: linear-gradient(135deg, #DC2626 0%, #B71C1C 100%);
 
   /** Semantic design tokens — neutral, brand-independent **/
   --surface-page: #F5F7FA;
@@ -133,6 +140,38 @@
   --ion-color-light-contrast-rgb: 26, 26, 46;
   --ion-color-light-shade: var(--border-default);
   --ion-color-light-tint: #F5F6F9;
+
+  // On-dark & component colors
+
+  // On-dark surface colors (for gradient backgrounds)
+  --color-on-dark: #ffffff;
+  --color-on-dark-secondary: rgba(255, 255, 255, 0.8);
+  --color-on-dark-tertiary: rgba(255, 255, 255, 0.7);
+
+  // Dark card and overlay backgrounds
+  --surface-card-dark: rgba(29, 51, 99, 0.7);
+  --surface-overlay-dark: rgba(15, 23, 42, 0.6);
+
+  // Accent blue (focus/highlight on dark backgrounds)
+  --color-accent: #8ab4f8;
+  --color-accent-subtle: rgba(138, 180, 248, 0.1);
+  --color-accent-subtle-strong: rgba(138, 180, 248, 0.15);
+  --color-accent-border: rgba(138, 180, 248, 0.3);
+
+  // Status variants for dark backgrounds
+  --status-success-bright: #22C55E;
+  --status-success-subtle: rgba(16, 185, 129, 0.1);
+  --status-success-border: rgba(16, 185, 129, 0.3);
+  --status-error-bright: #EF4444;
+  --status-error-subtle: rgba(239, 68, 68, 0.1);
+  --status-error-subtle-strong: rgba(239, 68, 68, 0.15);
+  --status-error-border: rgba(239, 68, 68, 0.3);
+  --status-warning-bright: #ffc107;
+  --status-warning-subtle: rgba(255, 193, 7, 0.2);
+  --status-warning-border: rgba(255, 193, 7, 0.4);
+
+  // Text on light backgrounds
+  --color-on-light-emphasis: #1a365d;
 }
 
 // ── Dark theme ──────────────────────────────────────

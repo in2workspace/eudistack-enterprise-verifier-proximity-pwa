@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HeaderComponent } from './header.component';
 import { IonicModule } from '@ionic/angular';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { ThemeService } from '../../../core/services/theme.service';
 import { signal } from '@angular/core';
 
@@ -12,13 +14,15 @@ describe('HeaderComponent', () => {
 
   beforeEach(async () => {
     themeServiceMock = {
-      brandName: signal('Test Brand'),
       logoUrl: signal('assets/test-logo.svg')
     };
 
     await TestBed.configureTestingModule({
-      imports: [HeaderComponent, IonicModule.forRoot(), HttpClientTestingModule],
+      imports: [HeaderComponent, IonicModule.forRoot()],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
         { provide: ThemeService, useValue: themeServiceMock }
       ]
     }).compileComponents();
@@ -32,10 +36,8 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have default title from theme service', () => {
-    // Default title comes from ThemeService.brandName() when no input title is set
+  it('should have no title input by default', () => {
     expect(component.title()).toBeNull();
-    expect(component.effectiveTitle).toBe('Test Brand');
   });
 
   it('should show logo by default', () => {
@@ -67,13 +69,13 @@ describe('HeaderComponent', () => {
     expect(logo).toBeFalsy();
   });
 
-  it('should render custom title', () => {
+  it('should use title as logo alt text', () => {
     const customTitle = 'Custom Title';
     fixture.componentRef.setInput('title', customTitle);
     fixture.detectChanges();
-    
+
     const compiled = fixture.nativeElement;
-    const title = compiled.querySelector('.header-title');
-    expect(title?.textContent?.trim()).toBe(customTitle);
+    const logo = compiled.querySelector('.header-logo img');
+    expect(logo?.getAttribute('alt')).toBe(customTitle);
   });
 });

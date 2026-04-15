@@ -1,3 +1,10 @@
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--theme-gradient-primary);
+}
+
 .welcome-message {
   position: relative;
   display: flex;
@@ -6,7 +13,6 @@
   justify-content: center;
   min-height: calc(100vh - var(--theme-header-height, 64px)); // Account for sticky header
   padding: 0;
-  background: linear-gradient(135deg, #1a365d 0%, #2563eb 100%);
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
@@ -25,7 +31,6 @@
     padding: 80px 24px 24px 24px;
     max-width: 800px;
     width: 100%;
-    animation: contentSlideUp 0.8s ease-out 0.2s both;
   }
 
   // Success Icon
@@ -49,7 +54,7 @@
 
       ion-icon {
         font-size: 64px;
-        color: #ffffff;
+        color: var(--color-on-dark);
         filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
       }
     }
@@ -60,10 +65,18 @@
     margin: 0 0 24px 0;
     font-size: 3rem;
     font-weight: 700;
-    color: #ffffff;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    color: var(--color-on-dark);
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     letter-spacing: -0.02em;
     line-height: 1.2;
+    
+    @media (max-width: 968px) {
+      font-size: 2.5rem;
+    }
+    
+    @media (max-width: 480px) {
+      font-size: 2rem;
+    }
   }
 
   // Subtitle
@@ -71,7 +84,7 @@
     margin: 0 0 56px 0;
     font-size: 1.125rem;
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--color-on-dark-secondary);
     line-height: 1.6;
     max-width: 600px;
   }
@@ -81,7 +94,7 @@
     width: 100%;
     max-width: 700px;
     padding: 24px 32px;
-    background: rgba(15, 23, 42, 0.6);
+    background: var(--surface-overlay-dark);
     border-radius: 16px;
     backdrop-filter: blur(12px);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -91,7 +104,7 @@
       margin: 0;
       font-size: 1rem;
       font-weight: 600;
-      color: #ffffff;
+      color: var(--color-on-dark);
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
@@ -112,7 +125,7 @@
     p {
       margin: 0;
       font-size: 0.875rem;
-      color: rgba(255, 255, 255, 0.9);
+      color: var(--color-on-dark);
     }
   }
 
@@ -126,7 +139,7 @@
     --background: rgba(255, 255, 255, 0.95);
     --background-hover: rgba(255, 255, 255, 1);
     --background-activated: rgba(255, 255, 255, 0.9);
-    --color: #1a365d;
+    --color: var(--color-on-light-emphasis);
     --border-radius: 12px;
     --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     font-weight: 600;
@@ -148,12 +161,8 @@
 // ── Animations ──
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes iconAppear {
@@ -166,17 +175,6 @@
   }
   100% {
     transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
-
-@keyframes contentSlideUp {
-  from {
-    transform: translateY(40px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
     opacity: 1;
   }
 }
@@ -196,11 +194,6 @@
 
 @media (max-width: 768px) {
   .welcome-message {
-    &__header {
-      top: 16px;
-      left: 16px;
-    }
-
     &__content {
       padding: 60px 20px 20px 20px;
     }
@@ -240,11 +233,6 @@
 
 @media (max-width: 480px) {
   .welcome-message {
-    &__header {
-      top: 12px;
-      left: 12px;
-    }
-
     &__content {
       padding: 50px 16px 16px 16px;
     }

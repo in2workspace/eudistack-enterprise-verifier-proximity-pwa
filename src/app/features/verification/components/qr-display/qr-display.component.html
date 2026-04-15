@@ -1,11 +1,30 @@
 <app-header [showLogo]="true" />
 
 <div class="qr-display">
-  <!-- 2-Column Layout -->
-  <div class="qr-display__container">
+
+  <!-- PWA Install Banner -->
+  @if ((canInstall$ | async) && !bannerDismissed()) {
+    <div class="install-banner">
+      <ion-icon name="download-outline" class="install-banner__icon"></ion-icon>
+      <span class="install-banner__text">{{ 'pwa.installHint' | translate }}</span>
+      <ion-button size="small" fill="solid" class="install-banner__btn" (click)="installApp()">
+        {{ 'pwa.install' | translate }}
+      </ion-button>
+      <ion-button size="small" fill="clear" class="install-banner__close" (click)="dismissBanner()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </div>
+  }
+
+  <!-- Main Wrapper: Title + Columns -->
+  <div class="qr-display__wrapper">
+    <!-- Title Section -->
+    <h1 class="qr-display__title">{{ 'verification.title' | translate }}</h1>
     
-    <!-- LEFT COLUMN: QR Code Section -->
-    <div class="qr-display__left">
+    <!-- 2-Column Layout Container -->
+    <div class="qr-display__container">    
+      <!-- LEFT COLUMN: QR Code Section -->
+      <div class="qr-display__left">
       <div class="qr-section">
         @if (isLoading()) {
           <div class="qr-section__loading">
@@ -41,16 +60,6 @@
         
         <!-- Action Buttons -->
         <div class="qr-section__actions">
-          <!-- Copy QR Button -->
-          <ion-button 
-            (click)="onCopyQR()" 
-            fill="solid" 
-            class="qr-section__copy-btn"
-            [disabled]="isLoading() || isExpired()">
-            <ion-icon [name]="isCopied() ? 'checkmark-outline' : 'copy-outline'" slot="start"></ion-icon>
-            {{ (isCopied() ? 'verification.qr.copied' : 'verification.qr.copy') | translate }}
-          </ion-button>
-
           <!-- Refresh Button -->
           <ion-button 
             (click)="onRegenerate()" 
@@ -91,16 +100,31 @@
             </div>
           </div>
 
-          <!-- Step 02 -->
-          <div class="step">
-            <div class="step__number">02</div>
-            <div class="step__content">
-              <h3 class="step__title">{{ 'verification.qr.step2Title' | translate }}</h3>
-              <p class="step__description">{{ 'verification.qr.step2Description' | translate }}</p>
-            </div>
+        <!-- Step 02 -->
+        <div class="step">
+          <div class="step__number">02</div>
+          <div class="step__content">
+            <h3 class="step__title">{{ 'verification.qr.step2Title' | translate }}</h3>
+            <p class="step__description">{{ 'verification.qr.step2Description' | translate }}</p>
           </div>
-
         </div>
+
       </div>
+
+      <!-- Copy QR Button (only in local dev) -->
+      <ion-button
+        *ngIf="isLocalEnv"
+        (click)="onCopyQR()"
+        fill="solid"
+        class="info-section__copy-btn"
+        [disabled]="isLoading() || isExpired()">
+        <ion-icon [name]="isCopied() ? 'checkmark-outline' : 'copy-outline'" slot="start"></ion-icon>
+        {{ (isCopied() ? 'verification.qr.copied' : 'verification.qr.copy') | translate }}
+      </ion-button>
+
     </div>
+  </div>
+    </div> <!-- Close qr-display__container -->
+  </div> <!-- Close qr-display__wrapper -->
+</div> <!-- Close qr-display -->
 

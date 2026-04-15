@@ -3,8 +3,12 @@
     "title": "Verificador Empresarial",
     "loading": "Cargando..."
   },
+  "pwa": {
+    "installHint": "Instala esta aplicación para una mejor experiencia",
+    "install": "Instalar"
+  },
   "verification": {
-    "title": "Verificación de Credenciales",
+    "title": "Verificación Segura",
     "initializing": "Inicializando sesión de verificación...",
     "scanQr": "Escanear código QR",
     "scanInstruction": "Escanea este código QR con tu Wallet EUDI para verificar tu identidad",
@@ -33,6 +37,14 @@
       "submessage": "Por favor, autoriza la solicitud en tu dispositivo.",
       "encrypted": "CIFRADO DE EXTREMO A EXTREMO",
       "footer": "La verificación suele tardar 10-15 segundos.",
+      "progress": {
+        "title": "Validando Credenciales",
+        "subtitle": "Realizando comprobaciones técnicas seguras",
+        "vpSignature": "Verificando firma de presentación",
+        "vcSignature": "Verificando credencial de empleado",
+        "trustedIssuer": "Comprobando emisores confiables",
+        "notRevoked": "Comprobando estado de revocación"
+      },
       "checks": {
         "vpSignature": "Firma VP válida",
         "vcSignature": "Firma VC LEARCredentialEmployee válida",
@@ -43,8 +55,13 @@
         "ok": "Aceptar",
         "retry": "Reintentar"
       }
-    },
-    "welcome": {
+    },    "revoked": {
+      "title": "Credencial Revocada Detectada",
+      "subtitle": "Las credenciales proporcionadas no son válidas.",
+      "presentationValid": "La presentación es válida",
+      "credentialInvalid": "La credencial no es válida",
+      "tryAgain": "Reintentar"
+    },    "welcome": {
       "title": "Verificación Exitosa",
       "subtitle": "IDENTIDAD CONFIRMADA",
       "welcome": "Bienvenido,",
@@ -54,11 +71,14 @@
       "accessGranted": "Acceso concedido",
       "redirecting": "Continuando en {{seconds}} segundos...",
       "button": "Continuar",
-      "footer": "Ahora puedes proceder a acceder a los servicios solicitados."
+      "footer": "Ahora puedes proceder a acceder a los servicios solicitados.",
+      "customSubtitle": "Tu identidad ha sido verificada correctamente en todos los protocolos de confianza empresarial.",
+      "eventBanner": "BIENVENIDO AL SPRING MEETING 2026!"
     },
     "error": {
       "title": "Verificación Fallida",
       "details": "Detalles Técnicos",
+      "codeLabel": "Código:",
       "retry": "Intentar de Nuevo",
       "go_home": "Volver al inicio",
       "http": {
@@ -68,6 +88,7 @@
         "timeout": "Tiempo de espera agotado",
         "unauthorized": "No autorizado",
         "forbidden": "Acceso denegado",
+        "credentialRevoked": "La credencial ha sido revocada",
         "serverError": "Error del servidor. Inténtalo de nuevo más tarde.",
         "invalidRequest": "Solicitud inválida"
       },

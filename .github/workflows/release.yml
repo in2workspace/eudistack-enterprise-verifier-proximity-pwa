@@ -3,11 +3,10 @@ name: Release
 on:
   push:
     branches: [main]
-    paths:
-      - 'package.json'
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   release:
@@ -16,14 +15,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
 
       - name: Get Version
         run: echo "VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
@@ -38,38 +29,20 @@ jobs:
             echo "SKIP_RELEASE=true" >> $GITHUB_ENV
           fi
 
-      - name: Install dependencies
-        if: env.SKIP_RELEASE != 'true'
-        run: npm ci
-
-      - name: Run tests
-        if: env.SKIP_RELEASE != 'true'
-        run: npm test -- --no-coverage
-
-      - name: Build
-        if: env.SKIP_RELEASE != 'true'
-        run: npm run build:prod
-
-      - name: Extract Changelog
-        if: env.SKIP_RELEASE != 'true'
-        run: |
-          if [ -f "CHANGELOG.md" ]; then
-            # Extract version section from CHANGELOG
-            awk "/## \[${VERSION}\]/,/## \[/" CHANGELOG.md | head -n -1 | tail -n +2 > release-notes.md
-            if [ ! -s release-notes.md ]; then
-              echo "Release of version v${VERSION}" > release-notes.md
-            fi
-          else
-            echo "Release of version v${VERSION}" > release-notes.md
-          fi
-
       - name: Create GitHub Release
         if: env.SKIP_RELEASE != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create "v${{ env.VERSION }}" \
-            --title "Enterprise Verifier PWA v${{ env.VERSION }}" \
-            --notes-file release-notes.md \
-            --target main \
-            www/
+            --title "v${{ env.VERSION }}" \
+            --notes "Release of version v${{ env.VERSION }}" \
+            --target main
+
+      - name: Trigger deploy to STG
+        if: env.SKIP_RELEASE != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run deploy.yml -f environment=stg
+          echo "### Deploy triggered" >> $GITHUB_STEP_SUMMARY

@@ -5,7 +5,12 @@
 :host {
   display: block;
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  background: var(--theme-gradient-primary);
 }
 
 // ── FULLSCREEN STATE CONTAINERS ──
@@ -31,37 +36,17 @@
   scroll-behavior: smooth;
 }
 
-// ── INITIALIZING STATE ──
-
-.initializing {
-  background: var(--theme-gradient-primary, linear-gradient(180deg, #1E49E2 0%, #00338D 100%));
-  color: white;
-  
-  ion-spinner {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 1.5rem;
-    --color: white;
-  }
-
-  p {
-    font-size: 1.125rem;
-    margin: 0;
-    opacity: 0.9;
-  }
-}
-
 // ── ERROR STATE ──
 
 .error {
-  background: linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%);
-  color: white;
+  background: var(--theme-gradient-error);
+  color: var(--color-on-dark);
   text-align: center;
 
   .error-icon {
     font-size: 80px;
     margin-bottom: 1.5rem;
-    color: white;
+    color: var(--color-on-dark);
   }
 
   h2 {
@@ -89,15 +74,15 @@
     pre {
       margin: 0;
       font-size: 0.875rem;
-      color: white;
+      color: var(--color-on-dark);
       white-space: pre-wrap;
       word-wrap: break-word;
     }
   }
 
   ion-button {
-    --background: white;
-    --color: #D32F2F;
+    --background: var(--color-on-dark);
+    --color: var(--status-error);
     font-weight: 600;
     min-width: 200px;
   }
@@ -108,10 +93,6 @@
 @media (max-width: 768px) {
   .fullscreen-state {
     padding: 1rem;
-  }
-
-  .initializing p {
-    font-size: 1rem;
   }
 
   .error {
