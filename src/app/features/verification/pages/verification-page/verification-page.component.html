@@ -43,25 +43,28 @@
   <!-- Error: Show fullscreen error display -->
   @case ('error') {
     <div class="fullscreen-state error">
-      <ion-icon name="close-circle" class="error-icon"></ion-icon>
-      <h2>{{ 'verification.error.title' | translate }}</h2>
-      <p class="error-message">{{ errorMessage() }}</p>
+      <div class="error-card">
+        <ion-icon name="close-circle" class="error-card__icon"></ion-icon>
+        <h2 class="error-card__title">{{ 'verification.error.title' | translate }}</h2>
+        <p class="error-card__message">{{ errorMessage() }}</p>
 
-      @if (errorCode()) {
-        <div class="error-details">
-          <small>{{ 'verification.error.codeLabel' | translate }} {{ errorCode() }}</small>
+        @if (errorCode()) {
+          <div class="error-card__details">
+            <small>{{ 'verification.error.codeLabel' | translate }} {{ errorCode() }}</small>
+          </div>
+        }
+
+        <div class="error-card__actions">
+          <ion-button
+            expand="block"
+            shape="round"
+            class="error-card__button"
+            (click)="onRetry()">
+            <ion-icon name="refresh" slot="start"></ion-icon>
+            {{ 'verification.error.retry' | translate }}
+          </ion-button>
         </div>
-      }
-
-      <ion-button expand="block" (click)="onRetry()">
-        <ion-icon name="refresh" slot="start"></ion-icon>
-        {{ 'verification.error.retry' | translate }}
-      </ion-button>
-
-      <ion-button expand="block" fill="outline" (click)="onGoHome()">
-        <ion-icon name="home" slot="start"></ion-icon>
-        {{ 'verification.error.go_home' | translate }}
-      </ion-button>
+      </div>
     </div>
   }
 }

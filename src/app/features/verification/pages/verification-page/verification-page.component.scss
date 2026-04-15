@@ -39,52 +39,119 @@
 // ── ERROR STATE ──
 
 .error {
-  background: var(--theme-gradient-error);
+  // Inherit app's theme gradient from :host; no red override.
+  background: transparent;
   color: var(--color-on-dark);
-  text-align: center;
+}
 
-  .error-icon {
-    font-size: 80px;
-    margin-bottom: 1.5rem;
+.error-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface-card-dark, #1a2942);
+  border-radius: 16px;
+  padding: 48px 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+
+  &__icon {
+    font-size: 72px;
+    color: var(--status-error, #D32F2F);
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
     color: var(--color-on-dark);
   }
 
-  h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0 0 1rem 0;
-  }
-
-  .error-message {
+  &__message {
     font-size: 1rem;
-    margin: 0 0 2rem 0;
-    opacity: 0.9;
-    max-width: 500px;
+    margin: 0;
+    opacity: 0.85;
+    color: var(--color-on-dark);
   }
 
-  .error-details {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 1rem;
+  &__details {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 12px 16px;
     border-radius: 8px;
-    margin: 1rem 0 2rem 0;
-    max-width: 600px;
-    max-height: 300px;
-    overflow-y: auto;
-    
-    pre {
-      margin: 0;
-      font-size: 0.875rem;
-      color: var(--color-on-dark);
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
+    color: var(--color-on-dark);
+    opacity: 0.8;
   }
 
-  ion-button {
-    --background: var(--color-on-dark);
-    --color: var(--status-error);
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  &__button {
+    --background: var(--theme-gradient-primary);
+    --background-hover: var(--theme-gradient-primary);
+    --background-activated: var(--theme-gradient-primary);
+    --color: var(--color-on-dark);
+    --border-radius: 40px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    --ripple-color: rgba(255, 255, 255, 0.3);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    width: auto;
+    min-width: 160px;
+    max-width: 220px;
     font-weight: 600;
-    min-width: 200px;
+    text-transform: none;
+    letter-spacing: 0.03em;
+    transition: var(--transition);
+    cursor: pointer;
+    filter: brightness(1);
+
+    ion-icon {
+      font-size: 18px;
+      margin-right: 4px;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover:not([disabled]) {
+      --box-shadow: 0 6px 28px rgba(0, 0, 0, 0.35);
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+
+      ion-icon {
+        transform: rotate(90deg);
+      }
+    }
+
+    &:active:not([disabled]) {
+      --box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+      transform: translateY(0px);
+      filter: brightness(0.95);
+    }
+
+    &[disabled] {
+      --background: rgba(158, 158, 158, 0.3);
+      --color: rgba(255, 255, 255, 0.5);
+      --box-shadow: none;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.6);
+      outline-offset: 2px;
+    }
   }
 }
 
@@ -95,16 +162,18 @@
     padding: 1rem;
   }
 
-  .error {
-    .error-icon {
-      font-size: 60px;
+  .error-card {
+    padding: 32px 24px;
+
+    &__icon {
+      font-size: 56px;
     }
 
-    h2 {
+    &__title {
       font-size: 1.5rem;
     }
 
-    .error-message {
+    &__message {
       font-size: 0.875rem;
     }
   }

@@ -103,19 +103,14 @@ export class QrGenerationService {
   }
 
   /**
-   * Transform an openid4vp:// URI into a wallet HTTPS URL.
+   * Transform an openid4vp:// URI into a wallet HTTPS callback URL.
    *
-   * When walletUrl is configured, the phone camera can scan the QR and open
-   * the wallet directly without requiring the openid4vp:// scheme to be
-   * registered at OS level.
+   * Mirrors the same-device flow used by `eudistack-mfe-login` so the wallet
+   * has a single entry point (`/protocol/callback?authorization_request=...`)
+   * for both cross-device (QR scan) and same-device (button) flows.
    *
    * Input:  openid4vp://?client_id=xxx&request_uri=https://verifier/oid4vp/abc
-   * Output: https://wallet.domain/?client_id=xxx&request_uri=https://verifier/oid4vp/abc
-   *
-   * Falls back to the original URI when:
-   * - walletUrl is not configured
-   * - The authRequest is already an HTTPS URL
-   * - Parsing fails
+   * Output: https://wallet.domain/protocol/callback?authorization_request=<URL-encoded openid4vp://...>
    */
   private toWalletUrl(authRequest: string): string {
     const walletBase = environment.walletUrl;
@@ -124,27 +119,11 @@ export class QrGenerationService {
       return authRequest;
     }
 
-    try {
-      // `new URL()` rejects custom schemes on some runtimes; parse query manually
-      const queryIndex = authRequest.indexOf('?');
-      if (queryIndex === -1) return authRequest;
+    const base = walletBase.replace(/\/+$/, '');
+    const target = `${base}/protocol/callback?authorization_request=${encodeURIComponent(authRequest)}`;
 
-      const params = new URLSearchParams(authRequest.slice(queryIndex + 1));
-      const requestUri = params.get('request_uri');
-      const clientId   = params.get('client_id');
-
-      if (!requestUri) return authRequest;
-
-      const target = new URL(walletBase);
-      target.searchParams.set('request_uri', requestUri);
-      if (clientId) target.searchParams.set('client_id', clientId);
-
-      console.log('[QrGenerationService] QR transformed to wallet URL:', target.toString());
-      return target.toString();
-    } catch (err) {
-      console.warn('[QrGenerationService] Failed to transform to wallet URL, using original:', err);
-      return authRequest;
-    }
+    console.log('[QrGenerationService] QR transformed to wallet callback URL:', target);
+    return target;
   }
 
   /**
