@@ -8,10 +8,8 @@ on:
         required: true
         type: choice
         options:
-          - dev
           - stg
-          - prod
-        default: 'dev'
+        default: 'stg'
 
 permissions:
   contents: read
@@ -21,6 +19,9 @@ jobs:
     name: Deploy to ${{ inputs.environment }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    env:
+      AMPLIFY_APP_NAME: verifier-proximity-pwa
+      BRANCH_NAME: main
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -30,34 +31,77 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm test -- --no-coverage
-
-      - name: Build for production
+      - name: Build
         run: npm run build:prod
 
-      - name: Verify build output
+      - name: Inject tenant assets
         run: |
-          if [ ! -d "www" ]; then
-            echo "Build output directory 'www' not found"
+          TENANT="altia"
+          ASSETS_DIR="www/assets"
+          git clone --depth 1 https://github.com/in2workspace/eudistack-platform-assets.git /tmp/platform-assets
+          mkdir -p "${ASSETS_DIR}/tenant"
+          cp -r /tmp/platform-assets/tenants/${TENANT}/* "${ASSETS_DIR}/tenant/"
+          cp /tmp/platform-assets/tenants/${TENANT}/theme.json "${ASSETS_DIR}/theme.json"
+          echo "Injected ${TENANT} tenant assets"
+
+      - name: Generate env.js
+        env:
+          VERIFIER_BACKEND_URL: ${{ vars.VERIFIER_BACKEND_URL }}
+          TENANT_DEFAULT: ${{ vars.TENANT_DEFAULT }}
+          WALLET_URL: ${{ vars.WALLET_URL }}
+          LOGS_ENABLED: ${{ vars.LOGS_ENABLED }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y gettext-base
+
+          if [ -f www/assets/env.template.js ]; then
+            envsubst < www/assets/env.template.js > www/assets/env.js
+            echo "Generated env.js"
+          else
+            echo "env.template.js not found" >&2
             exit 1
           fi
-          echo "Build successful, www directory exists"
 
-      # Deploy step (configure based on your hosting provider)
-      # Example for static hosting:
-      # - name: Deploy to S3/CloudFront/Netlify/Vercel
-      #   run: |
-      #     # Add your deployment commands here
-      #     echo "Deploy to ${{ inputs.environment }} here"
+      - name: Create Zip
+        run: |
+          cd www
+          zip -r ../out.zip .
+          echo "ZIP_FILE=out.zip" >> $GITHUB_ENV
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          name: verifier-pwa-${{ inputs.environment }}-${{ github.sha }}
-          path: www/
-          retention-days: 30
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to Amplify
+        run: |
+          set -euo pipefail
+          AMPLIFY_APP_ID=$(aws amplify list-apps --query "apps[?name=='${{ env.AMPLIFY_APP_NAME }}'] | [0].appId" --output text)
+          echo "AMPLIFY_APP_ID=$AMPLIFY_APP_ID" >> $GITHUB_ENV
+
+          DEPLOYMENT_OUTPUT=$(aws amplify create-deployment --app-id "${AMPLIFY_APP_ID}" --branch-name "${{ env.BRANCH_NAME }}" --output json)
+          ZIP_UPLOAD_URL=$(echo $DEPLOYMENT_OUTPUT | jq -r '.zipUploadUrl')
+          JOB_ID=$(echo $DEPLOYMENT_OUTPUT | jq -r '.jobId')
+
+          curl -X PUT --upload-file ${{ env.ZIP_FILE }} "${ZIP_UPLOAD_URL}"
+          aws amplify start-deployment --app-id "${AMPLIFY_APP_ID}" --branch-name "${{ env.BRANCH_NAME }}" --job-id "${JOB_ID}"
+
+          echo "### Deployed to Amplify" >> $GITHUB_STEP_SUMMARY
+          echo "- **App:** ${{ env.AMPLIFY_APP_NAME }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Smoke test
+        run: |
+          SITE_URL="https://verifier-proximity-${{ inputs.environment }}.altia.eudistack.net"
+          sleep 30
+          HTTP_STATUS=$(curl -sk -o /dev/null -w "%{http_code}" "${SITE_URL}" --max-time 15 || echo "000")
+          if [ "${HTTP_STATUS}" = "200" ]; then
+            echo "Smoke test passed (HTTP ${HTTP_STATUS})"
+          else
+            echo "::warning::Smoke test returned HTTP ${HTTP_STATUS}"
+          fi

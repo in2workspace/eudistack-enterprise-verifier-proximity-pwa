@@ -1,0 +1,80 @@
+<ion-modal [isOpen]="isOpen()" [backdropDismiss]="false" class="validation-progress-modal" (ionModalDidPresent)="startValidation()">
+  <ng-template>
+    <app-header [showLogo]="true" />
+
+    <div class="validation-progress">
+      <!-- Main Content -->
+      <div class="validation-progress__content">
+        <!-- Title -->
+        <h1 class="validation-progress__title">{{ 'verification.validation.progress.title' | translate }}</h1>
+        <p class="validation-progress__subtitle">{{ 'verification.validation.progress.subtitle' | translate }}</p>
+
+        <!-- Card with Shield Icon -->
+        <div class="validation-progress__card">
+          <!-- Shield Icon -->
+          <div class="card__shield" [class.card__shield--done]="!isValidating()">
+            <ion-icon 
+              name="shield-checkmark"
+              [class.shield-icon--validating]="isValidating()"
+              [class.shield-icon--success]="allSuccess() && !hasError()"
+              [class.shield-icon--error]="hasError()">
+            </ion-icon>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="card__progress">
+            <div class="progress-bar">
+              <div 
+                class="progress-bar__fill" 
+                [style.width.%]="progressPercentage()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Validation Checks List -->
+          <div class="card__checks">
+            <div 
+              *ngFor="let check of checks()" 
+              class="check-item"
+              [class.check-item--pending]="check.status === 'pending'"
+              [class.check-item--validating]="check.status === 'validating'"
+              [class.check-item--success]="check.status === 'success'"
+              [class.check-item--error]="check.status === 'error'">
+              
+              <!-- Check Icon -->
+              <div class="check-item__icon">
+                <ion-icon 
+                  [name]="getIconName(check.status)"
+                  [class.spinning]="check.status === 'validating'"
+                  [class.check-icon]="check.status === 'success' || check.status === 'error'"
+                  [class.check-icon--pass]="check.status === 'success'"
+                  [class.check-icon--fail]="check.status === 'error'">
+                </ion-icon>
+              </div>
+
+              <!-- Check Label -->
+              <div class="check-item__label">
+                {{ check.label | translate }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons (only for non-revocation errors) -->
+          <div class="card__actions" *ngIf="hasError() && !isRevocationError()">
+            <ion-button 
+              expand="block" 
+              color="danger"
+              (click)="onRetryClick()">
+              {{ 'verification.validation.buttons.retry' | translate }}
+            </ion-button>
+          </div>
+        </div>
+
+        <!-- Footer Note -->
+        <p class="validation-progress__footer">
+          {{ 'verification.validation.footer' | translate }}
+        </p>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

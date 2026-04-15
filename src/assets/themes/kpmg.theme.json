@@ -2,7 +2,7 @@
   "tenantId": "kpmg",
   "tenantName": "KPMG",
   "branding": {
-    "name": "KPMG Verification",
+    "name": "Verifier Proximity",
     "primaryColor": "#1E49E2",
     "primaryDark": "#00338D",
     "primaryLight": "#4A6FE8",
@@ -17,7 +17,7 @@
     "primary": {
       "start": "#1E49E2",
       "end": "#00338D",
-      "angle": 180
+      "angle": 135
     },
     "success": {
       "start": "#00A878",
@@ -33,7 +33,6 @@
   "components": {
     "header": {
       "backgroundColor": "#ffffff",
-      "backgroundGradient": "linear-gradient(90deg, #ffffff 0%, #f5f7ff 100%)",
       "textColor": "#00338D",
       "height": "64px",
       "logoHeight": "40px"

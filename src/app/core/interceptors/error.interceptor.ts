@@ -1,6 +1,4 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
 import { throwError, timer, retry } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -24,8 +22,6 @@ import { catchError } from 'rxjs/operators';
  * @functional interceptor (Angular 19)
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const translate = inject(TranslateService);
-  
   return next(req).pipe(
     retry({
       count: 3,
@@ -45,7 +41,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
     }),
     catchError((error: HttpErrorResponse) => {
-      const enrichedError = enrichError(error, req.url, translate);
+      const enrichedError = enrichError(error, req.url);
       
       console.error('[ErrorInterceptor] HTTP request failed:', {
         url: req.url,
@@ -62,40 +58,50 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 /**
  * Enrich error with user-friendly information
  * 
- * Maps HTTP status codes to error codes and translated messages.
+ * Maps HTTP status codes to error codes and English messages.
  * Both code and message are attached to the error for downstream consumers.
+ * 
+ * NOTE: Uses hardcoded English messages to avoid circular dependency with TranslateService.
+ * Components can translate error codes themselves if needed.
  * 
  * @param error - Original HTTP error
  * @param url - Request URL
- * @param translate - Translation service
  * @returns Enriched error response with code and message
  */
-function enrichError(error: HttpErrorResponse, url: string, translate: TranslateService): HttpErrorResponse {
+function enrichError(error: HttpErrorResponse, url: string): HttpErrorResponse {
   let code = 'UNKNOWN_ERROR';
-  let message = translate.instant('verification.error.http.unknown');
+  let message = 'An unexpected error occurred';
   
   if (error.status === 0) {
     // Network error or CORS
     code = 'NETWORK_ERROR';
-    message = translate.instant('verification.error.http.network');
+    message = 'Network error. Please check your connection.';
   } else if (error.status === 404) {
     code = 'SESSION_NOT_FOUND';
-    message = translate.instant('verification.error.http.notFound');
+    message = 'Session not found';
   } else if (error.status === 408 || (error as unknown as { name?: string }).name === 'TimeoutError') {
     code = 'TIMEOUT';
-    message = translate.instant('verification.error.http.timeout');
+    message = 'Request timeout';
   } else if (error.status === 401) {
     code = 'UNAUTHORIZED';
-    message = translate.instant('verification.error.http.unauthorized');
+    message = 'Authentication required';
   } else if (error.status === 403) {
+    // 403 can mean credential revoked or other forbidden access
     code = 'FORBIDDEN';
-    message = translate.instant('verification.error.http.forbidden');
+    // Check if response body contains revocation info
+    if (error.error?.message?.toLowerCase().includes('revoked') || 
+        error.error?.message?.toLowerCase().includes('revocada')) {
+      code = 'CREDENTIAL_REVOKED';
+      message = 'Credential has been revoked';
+    } else {
+      message = 'Access forbidden';
+    }
   } else if (error.status >= 500) {
     code = 'SERVER_ERROR';
-    message = translate.instant('verification.error.http.serverError');
+    message = 'Server error. Please try again later.';
   } else if (error.status >= 400) {
     code = 'BAD_REQUEST';
-    message = error.error?.message || translate.instant('verification.error.http.invalidRequest');
+    message = error.error?.message || 'Invalid request';
   }
   
   // Create enriched error with structured error body

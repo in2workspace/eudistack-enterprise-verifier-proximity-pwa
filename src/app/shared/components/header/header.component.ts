@@ -1,6 +1,7 @@
 import { Component, input, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ThemeService } from '../../../core/services/theme.service';
+import { Router } from '@angular/router';
 
 /**
  * Header Component
@@ -27,6 +28,8 @@ export class HeaderComponent {
   // ── Dependencies ──
   public readonly themeService = inject(ThemeService);
 
+  private readonly router = inject(Router);
+
   // ── Inputs ──
   
   /**
@@ -42,18 +45,18 @@ export class HeaderComponent {
   public readonly showLogo = input<boolean>(true);
 
   // ── Computed ──
-  
-  /**
-   * Effective title (input or theme brand name)
-   */
-  public get effectiveTitle(): string {
-    return this.title() || this.themeService.brandName();
-  }
-
+ 
   /**
    * Logo URL from theme
    */
   public get logoUrl(): string {
     return this.themeService.logoUrl();
+  }
+
+  /**
+   * Navigate to home when logo is clicked
+   */
+  navigateHome(): void {
+    this.router.navigate(['/']);
   }
 }

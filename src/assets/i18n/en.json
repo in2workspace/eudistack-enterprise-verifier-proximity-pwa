@@ -3,8 +3,12 @@
     "title": "Enterprise Verifier",
     "loading": "Loading..."
   },
+  "pwa": {
+    "installHint": "Install this app for a better experience",
+    "install": "Install"
+  },
   "verification": {
-    "title": "Credential Verification",
+    "title": "Secure Verification",
     "initializing": "Initializing verification session...",
     "scanQr": "Scan QR Code",
     "scanInstruction": "Scan this QR code with your EUDI Wallet to verify your identity",
@@ -33,6 +37,14 @@
       "submessage": "Please authorize the request on your device.",
       "encrypted": "END-TO-END ENCRYPTED",
       "footer": "Verification typically takes 10-15 seconds.",
+      "progress": {
+        "title": "Validating Credentials",
+        "subtitle": "Performing secure technical checks",
+        "vpSignature": "Verifying presentation signature",
+        "vcSignature": "Verifying employee credential",
+        "trustedIssuer": "Checking trusted issuers",
+        "notRevoked": "Checking revocation status"
+      },
       "checks": {
         "vpSignature": "VP signature valid",
         "vcSignature": "VC LEARCredentialEmployee signature valid",
@@ -44,6 +56,13 @@
         "retry": "Retry"
       }
     },
+    "revoked": {
+      "title": "Credential Revoked Detected",
+      "subtitle": "The credentials provided is not valid.",
+      "presentationValid": "Presentation is valid",
+      "credentialInvalid": "Credential is invalid",
+      "tryAgain": "Try Again"
+    },
     "welcome": {
       "title": "Verification Successful",
       "subtitle": "IDENTITY CONFIRMED",
@@ -54,11 +73,14 @@
       "accessGranted": "Access granted",
       "redirecting": "Continuing in {{seconds}} seconds...",
       "button": "Continue",
-      "footer": "You may now proceed to access requested services."
+      "footer": "You may now proceed to access requested services.",
+      "customSubtitle": "Your identity has been successfully verified across all enterprise trust protocols.",
+      "eventBanner": "WELCOME TO THE SPRING MEETING 2026!"
     },
     "error": {
       "title": "Verification Failed",
       "details": "Technical Details",
+      "codeLabel": "Code:",
       "retry": "Try Again",
       "go_home": "Go Home",
       "http": {
@@ -68,6 +90,7 @@
         "timeout": "Request timeout",
         "unauthorized": "Unauthorized",
         "forbidden": "Access denied",
+        "credentialRevoked": "The credential has been revoked",
         "serverError": "Server error. Please try again later.",
         "invalidRequest": "Invalid request"
       },
