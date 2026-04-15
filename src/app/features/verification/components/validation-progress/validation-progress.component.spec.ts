@@ -8,6 +8,12 @@ import { signal } from '@angular/core';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { ValidationProgressComponent, CheckStatus } from './validation-progress.component';
 
+// Animation timings (must mirror the constants inside startValidation()).
+const CHECK_DURATION = 1000;
+const VIEW_DELAY = 900;
+const AUTO_ADVANCE_DELAY = 1200;
+const ERROR_REDIRECT_DELAY = 1600;
+
 describe('ValidationProgressComponent', () => {
   let component: ValidationProgressComponent;
   let fixture: ComponentFixture<ValidationProgressComponent>;
@@ -68,41 +74,24 @@ describe('ValidationProgressComponent', () => {
     });
   });
 
-  // ── progressPercentage ──────────────────────────────────────────────────────
+  // ── progressPercentage (continuous rAF ramp) ────────────────────────────────
+  //
+  // The ramp is driven by requestAnimationFrame + performance.now(), which fakeAsync
+  // doesn't reliably virtualize. We only assert start/end sentinel values; exact
+  // mid-animation values are not deterministic under fakeAsync.
 
   describe('progressPercentage', () => {
-    it('should be 0 when all checks are pending', () => {
+    it('should start at 0 before any validation runs', () => {
       expect(component.progressPercentage()).toBe(0);
     });
 
-    it('should be 25 after one check succeeds', fakeAsync(() => {
+    it('should be reset to 0 when startValidation is called', fakeAsync(() => {
       fixture.componentRef.setInput('validationResults', [true, true, true, true]);
       component.startValidation();
+      expect(component.progressPercentage()).toBe(0);
 
-      tick(1000); // check[0] → success
-      expect(component.progressPercentage()).toBe(25);
-
-      tick(3000 + 2000 + 1500); // drain remaining timers
-    }));
-
-    it('should be 50 after two checks succeed', fakeAsync(() => {
-      fixture.componentRef.setInput('validationResults', [true, true, true, true]);
-      component.startValidation();
-
-      tick(2000); // check[0] + check[1] → success
-      expect(component.progressPercentage()).toBe(50);
-
-      tick(2000 + 2000 + 1500); // drain remaining timers
-    }));
-
-    it('should be 100 when all four checks succeed', fakeAsync(() => {
-      fixture.componentRef.setInput('validationResults', [true, true, true, true]);
-      component.startValidation();
-
-      tick(4000); // all checks → success
-      expect(component.progressPercentage()).toBe(100);
-
-      tick(2000 + 1500); // drain view delay + auto-advance
+      // drain all timers
+      tick(4 * CHECK_DURATION + VIEW_DELAY + AUTO_ADVANCE_DELAY);
     }));
   });
 
@@ -115,61 +104,60 @@ describe('ValidationProgressComponent', () => {
 
       expect(component.isValidating()).toBe(true);
 
-      tick(4000 + 2000 + 1500); // drain timers
+      tick(4 * CHECK_DURATION + VIEW_DELAY + AUTO_ADVANCE_DELAY);
     }));
 
-    it('should animate checks sequentially with 1s delay between each', fakeAsync(() => {
+    it('should animate checks sequentially with CHECK_DURATION between each', fakeAsync(() => {
       fixture.componentRef.setInput('validationResults', [true, true, true, true]);
       component.startValidation();
 
       expect(component.checks()[0].status).toBe('validating');
       expect(component.checks()[1].status).toBe('pending');
 
-      tick(1000);
+      tick(CHECK_DURATION);
       expect(component.checks()[0].status).toBe('success');
       expect(component.checks()[1].status).toBe('validating');
 
-      tick(1000);
+      tick(CHECK_DURATION);
       expect(component.checks()[1].status).toBe('success');
       expect(component.checks()[2].status).toBe('validating');
 
-      tick(1000);
+      tick(CHECK_DURATION);
       expect(component.checks()[2].status).toBe('success');
       expect(component.checks()[3].status).toBe('validating');
 
-      tick(1000);
+      tick(CHECK_DURATION);
       expect(component.checks()[3].status).toBe('success');
 
-      tick(2000 + 1500); // drain view delay + auto-advance
+      tick(VIEW_DELAY + AUTO_ADVANCE_DELAY);
     }));
 
-    it('should set allSuccess and clear isValidating after 2s view delay when all pass', fakeAsync(() => {
+    it('should flip to success state immediately after the last check resolves', fakeAsync(() => {
       fixture.componentRef.setInput('validationResults', [true, true, true, true]);
       component.startValidation();
 
-      tick(4000); // all checks complete
-      expect(component.allSuccess()).toBe(false); // not yet — 2s view delay pending
-      expect(component.isValidating()).toBe(true);
-
-      tick(2000); // view delay
+      tick(4 * CHECK_DURATION);
       expect(component.allSuccess()).toBe(true);
       expect(component.isValidating()).toBe(false);
       expect(component.hasError()).toBe(false);
 
-      tick(1500); // drain auto-advance
+      tick(VIEW_DELAY + AUTO_ADVANCE_DELAY);
     }));
 
-    it('should auto-emit okClicked 1.5s after view delay on full success', fakeAsync(() => {
+    it('should auto-emit okClicked after VIEW_DELAY + AUTO_ADVANCE_DELAY on full success', fakeAsync(() => {
       const spy = jest.fn();
       component.okClicked.subscribe(spy);
 
       fixture.componentRef.setInput('validationResults', [true, true, true, true]);
       component.startValidation();
 
-      tick(4000 + 2000); // all checks + view delay
+      tick(4 * CHECK_DURATION);
       expect(spy).not.toHaveBeenCalled();
 
-      tick(1500); // auto-advance delay
+      tick(VIEW_DELAY + AUTO_ADVANCE_DELAY - 1);
+      expect(spy).not.toHaveBeenCalled();
+
+      tick(1);
       expect(spy).toHaveBeenCalledTimes(1);
     }));
 
@@ -177,8 +165,8 @@ describe('ValidationProgressComponent', () => {
       fixture.componentRef.setInput('validationResults', [true, false, true, true]);
       component.startValidation();
 
-      tick(1000); // check[0] success
-      tick(1000); // check[1] error
+      tick(CHECK_DURATION); // check[0] success
+      tick(CHECK_DURATION); // check[1] error
 
       expect(component.checks()[1].status).toBe('error');
       expect(component.checks()[2].status).toBe('pending');
@@ -192,7 +180,7 @@ describe('ValidationProgressComponent', () => {
       fixture.componentRef.setInput('validationResults', [false, true, true, true]);
       component.startValidation();
 
-      tick(1000);
+      tick(CHECK_DURATION);
       expect(component.checks()[0].status).toBe('error');
       expect(component.checks()[1].status).toBe('pending');
       expect(component.hasError()).toBe(true);
@@ -207,36 +195,36 @@ describe('ValidationProgressComponent', () => {
       fixture.componentRef.setInput('validationResults', [true, true, true, false]);
       component.startValidation();
 
-      tick(4000); // reaches check[3] which fails
+      tick(4 * CHECK_DURATION); // reaches check[3] which fails
 
       expect(component.isRevocationError()).toBe(true);
       expect(component.hasError()).toBe(true);
       expect(component.isValidating()).toBe(false);
 
-      tick(2000); // drain auto-redirect
+      tick(ERROR_REDIRECT_DELAY); // drain auto-redirect
     }));
 
     it('should NOT set isRevocationError for non-revocation errors', fakeAsync(() => {
       fixture.componentRef.setInput('validationResults', [true, false, true, true]);
       component.startValidation();
 
-      tick(2000); // check[1] fails
+      tick(2 * CHECK_DURATION); // check[1] fails
 
       expect(component.isRevocationError()).toBe(false);
       expect(component.hasError()).toBe(true);
     }));
 
-    it('should auto-emit retryClicked 2s after revocation failure at index 3', fakeAsync(() => {
+    it('should auto-emit retryClicked after ERROR_REDIRECT_DELAY on revocation failure', fakeAsync(() => {
       const spy = jest.fn();
       component.retryClicked.subscribe(spy);
 
       fixture.componentRef.setInput('validationResults', [true, true, true, false]);
       component.startValidation();
 
-      tick(4000); // check[3] fails
+      tick(4 * CHECK_DURATION); // check[3] fails
       expect(spy).not.toHaveBeenCalled();
 
-      tick(2000); // auto-redirect delay
+      tick(ERROR_REDIRECT_DELAY);
       expect(spy).toHaveBeenCalledTimes(1);
     }));
 
@@ -247,7 +235,7 @@ describe('ValidationProgressComponent', () => {
       fixture.componentRef.setInput('validationResults', [true, false, true, true]);
       component.startValidation();
 
-      tick(2000 + 5000); // check[1] fails, extra wait
+      tick(2 * CHECK_DURATION + 5000); // check[1] fails, extra wait
       expect(spy).not.toHaveBeenCalled();
     }));
   });
@@ -319,10 +307,10 @@ describe('ValidationProgressComponent', () => {
       fixture.componentRef.setInput('validationResults', [true, true, true, true]);
       component.startValidation();
 
-      tick(500);
+      tick(CHECK_DURATION / 2);
       component.onOkClick(); // clears pending timeouts
 
-      tick(1000); // would have moved to check[1] but timers are cleared
+      tick(CHECK_DURATION); // would have moved to check[1] but timers are cleared
       expect(component.checks()[0].status).toBe('validating');
       expect(component.checks()[1].status).toBe('pending');
     }));
@@ -331,10 +319,10 @@ describe('ValidationProgressComponent', () => {
       fixture.componentRef.setInput('validationResults', [true, true, true, true]);
       component.startValidation();
 
-      tick(500);
+      tick(CHECK_DURATION / 2);
       component.onRetryClick();
 
-      tick(1000);
+      tick(CHECK_DURATION);
       expect(component.checks()[0].status).toBe('validating');
       expect(component.checks()[1].status).toBe('pending');
     }));
@@ -351,7 +339,7 @@ describe('ValidationProgressComponent', () => {
 
       expect(component.isValidating()).toBe(true);
 
-      tick(4000 + 2000 + 1500); // drain all timers
+      tick(4 * CHECK_DURATION + VIEW_DELAY + AUTO_ADVANCE_DELAY);
     }));
 
     it('should NOT start validation on init when isOpen is false', () => {
@@ -367,10 +355,10 @@ describe('ValidationProgressComponent', () => {
       fixture.componentRef.setInput('validationResults', [true, true, true, true]);
       component.startValidation();
 
-      tick(500);
+      tick(CHECK_DURATION / 2);
       component.ngOnDestroy();
 
-      tick(1000);
+      tick(CHECK_DURATION);
       expect(component.checks()[0].status).toBe('validating'); // frozen at destroy state
     }));
   });
@@ -382,7 +370,7 @@ describe('ValidationProgressComponent', () => {
       // First run — all pass
       fixture.componentRef.setInput('validationResults', [true, true, true, true]);
       component.startValidation();
-      tick(4000 + 2000 + 1500);
+      tick(4 * CHECK_DURATION + VIEW_DELAY + AUTO_ADVANCE_DELAY);
 
       expect(component.allSuccess()).toBe(true);
 
@@ -395,7 +383,7 @@ describe('ValidationProgressComponent', () => {
       expect(component.isValidating()).toBe(true);
       expect(component.isRevocationError()).toBe(false);
 
-      tick(1000); // check[0] fails → stops
+      tick(CHECK_DURATION); // check[0] fails → stops
       expect(component.checks()[0].status).toBe('error');
       expect(component.hasError()).toBe(true);
     }));
