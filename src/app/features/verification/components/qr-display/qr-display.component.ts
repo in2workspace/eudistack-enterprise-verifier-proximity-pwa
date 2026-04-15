@@ -81,6 +81,14 @@ export class QRDisplayComponent implements OnDestroy {
   public readonly isLoading = signal<boolean>(false);
   public readonly isCopied = signal<boolean>(false);
 
+  public readonly isLocalEnv = (() => {
+    const host = window.location.hostname;
+    return host === 'localhost'
+      || host === '127.0.0.1'
+      || host.endsWith('.nip.io')
+      || host.endsWith('.localhost');
+  })();
+
   // ── Computed values ──
   public readonly progress = computed(() => {
     const total = this.duration();

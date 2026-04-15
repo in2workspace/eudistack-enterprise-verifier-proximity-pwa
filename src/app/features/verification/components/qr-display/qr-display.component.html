@@ -111,10 +111,11 @@
 
       </div>
 
-      <!-- Copy QR Button -->
-      <ion-button 
-        (click)="onCopyQR()" 
-        fill="solid" 
+      <!-- Copy QR Button (only in local dev) -->
+      <ion-button
+        *ngIf="isLocalEnv"
+        (click)="onCopyQR()"
+        fill="solid"
         class="info-section__copy-btn"
         [disabled]="isLoading() || isExpired()">
         <ion-icon [name]="isCopied() ? 'checkmark-outline' : 'copy-outline'" slot="start"></ion-icon>
