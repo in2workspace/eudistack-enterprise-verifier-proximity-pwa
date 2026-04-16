@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, input, output, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
@@ -86,14 +86,12 @@ export class ValidationProgressComponent implements OnInit, OnDestroy {
   public readonly isValidating = signal<boolean>(false);
   public readonly isRevocationError = signal<boolean>(false);
 
-  // ── Computed ──
-  public readonly progressPercentage = computed(() => {
-    const successCount = this.checks().filter(c => c.status === 'success').length;
-    const totalCount = this.checks().length;
-    return totalCount > 0 ? (successCount / totalCount) * 100 : 0;
-  });
+  // Continuous progress percentage driven by a requestAnimationFrame ramp, so the bar
+  // advances fluidly instead of jumping between discrete 25% steps.
+  public readonly progressPercentage = signal<number>(0);
 
   private animationTimeouts: number[] = [];
+  private progressRafId: number | null = null;
 
   public ngOnInit(): void {
     if (this.isOpen()) {
@@ -114,63 +112,71 @@ export class ValidationProgressComponent implements OnInit, OnDestroy {
     this.hasError.set(false);
     this.isRevocationError.set(false);
     this.resetChecks();
+    this.stopProgressRamp();
+    this.progressPercentage.set(0);
 
     const results = this.validationResults();
     let currentIndex = 0;
 
+    // Animation timings (ms)
+    const CHECK_DURATION = 1000;      // time each check stays in 'validating' before resolving
+    const VIEW_DELAY = 900;           // dwell time after all checks succeed, for the success burst
+    const AUTO_ADVANCE_DELAY = 1200;  // extra time before advancing to welcome screen
+    const ERROR_REDIRECT_DELAY = 1600;
+
+    // Kick off a continuous progress ramp over the expected happy-path duration.
+    // If a check fails later, stopProgressRamp() freezes the bar at the failure point.
+    const totalChecks = this.checks().length;
+    const rampEndPercent = (results.every(Boolean)
+      ? totalChecks
+      : results.findIndex(r => !r) + 1) / totalChecks * 100;
+    const rampDurationMs = (rampEndPercent / 100) * totalChecks * CHECK_DURATION;
+    this.startProgressRamp(rampEndPercent, rampDurationMs);
+
     const animateNext = () => {
       if (currentIndex >= this.checks().length) {
-        // All checks completed successfully
-        // Wait 2 seconds to let user see all green checks
-        const viewDelay = window.setTimeout(() => {
-          this.isValidating.set(false);
-          this.allSuccess.set(!this.hasError());
-          
-          // After 1.5s more, auto-advance to close modal and show success
-          if (!this.hasError()) {
-            const autoAdvanceDelay = window.setTimeout(() => {
-              console.log('[ValidationProgress] Auto-advancing to success...');
-              this.okClicked.emit();
-            }, 1500);
-            this.animationTimeouts.push(autoAdvanceDelay);
-          }
-        }, 2000);
-        this.animationTimeouts.push(viewDelay);
+        // All checks completed successfully — trigger success state immediately so the
+        // shield animation starts alongside the final green check, then auto-advance.
+        this.isValidating.set(false);
+        this.allSuccess.set(!this.hasError());
+
+        if (!this.hasError()) {
+          const autoAdvanceDelay = window.setTimeout(() => {
+            console.log('[ValidationProgress] Auto-advancing to success...');
+            this.okClicked.emit();
+          }, VIEW_DELAY + AUTO_ADVANCE_DELAY);
+          this.animationTimeouts.push(autoAdvanceDelay);
+        }
         return;
       }
 
       // Set current check to validating
       this.updateCheckStatus(currentIndex, 'validating');
 
-      // After 1s, set result
       const timeoutId = window.setTimeout(() => {
         const success = results[currentIndex];
         this.updateCheckStatus(currentIndex, success ? 'success' : 'error');
 
         if (!success) {
-          // Stop on error
           this.hasError.set(true);
           this.isValidating.set(false);
-          
-          // Check if error is at index 3 (revocation check)
+
           if (currentIndex === 3) {
             console.log('[ValidationProgress] Revocation check failed - auto-redirecting to revoked screen...');
             this.isRevocationError.set(true);
-            // Wait 2 seconds to let user see the failed check, then auto-advance
             const autoRedirectDelay = window.setTimeout(() => {
               console.log('[ValidationProgress] Auto-redirecting to credential revoked screen');
               this.retryClicked.emit();
-            }, 2000);
+            }, ERROR_REDIRECT_DELAY);
             this.animationTimeouts.push(autoRedirectDelay);
           }
-          
+
           return;
         }
 
-        // Continue to next
         currentIndex++;
         animateNext();
-      }, 1000);
+      }, CHECK_DURATION);
 
       this.animationTimeouts.push(timeoutId);
     };
@@ -256,5 +262,48 @@ export class ValidationProgressComponent implements OnInit, OnDestroy {
   private clearTimeouts(): void {
     this.animationTimeouts.forEach(id => window.clearTimeout(id));
     this.animationTimeouts = [];
+    this.stopProgressRamp();
+  }
+
+  /**
+   * Drive `progressPercentage` continuously from its current value up to `targetPercent`
+   * over `durationMs`, using requestAnimationFrame for smooth 60fps motion.
+   */
+  private startProgressRamp(targetPercent: number, durationMs: number): void {
+    this.stopProgressRamp();
+    if (durationMs <= 0 || targetPercent <= this.progressPercentage()) {
+      this.progressPercentage.set(targetPercent);
+      return;
+    }
+
+    const startPercent = this.progressPercentage();
+    const delta = targetPercent - startPercent;
+    const startTime = performance.now();
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / durationMs, 1);
+      // Ease-out for a natural settle at the end.
+      const eased = 1 - Math.pow(1 - t, 3);
+      this.progressPercentage.set(startPercent + delta * eased);
+
+      if (t < 1) {
+        this.progressRafId = requestAnimationFrame(step);
+      } else {
+        this.progressRafId = null;
+      }
+    };
+
+    this.progressRafId = requestAnimationFrame(step);
+  }
+
+  /**
+   * Freeze the progress ramp at its current value (used on error or teardown).
+   */
+  private stopProgressRamp(): void {
+    if (this.progressRafId !== null) {
+      cancelAnimationFrame(this.progressRafId);
+      this.progressRafId = null;
+    }
   }
 }
