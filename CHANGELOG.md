@@ -17,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependencies: jose 6.1.x, @noble/curves 2.0.x, ngx-indexed-db 19.x
 - Path aliases: @core, @app, @services, @helpers, @shared
 
+### Removed
+Removed unused dependencies to reduce install size and maintenance surface:
+	- `ng-mocks`
+	- `ts-node`
+	- `@angular/forms`
+	- `dayjs`
+	- `fflate`
+	- `uuid`
+
 ## [1.0.0] - 2026-04-02
 
 ### Added
