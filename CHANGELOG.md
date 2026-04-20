@@ -5,7 +5,7 @@ All notable changes to the Enterprise Proximity Verifier PWA project will be doc
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2026-04-20
 
 ### Added
 - Initial project setup with Ionic 8.2.x + Angular 19.2.x

@@ -72,7 +72,7 @@ export class QRDisplayComponent implements OnDestroy {
 
   // ── PWA Install ──
   private readonly pwaInstall = inject(PwaInstallService);
-  public readonly canInstall$ = this.pwaInstall.installable$;
+  public readonly canInstall$ = this.pwaInstall.installDecision$;
   public readonly bannerDismissed = signal<boolean>(false);
 
   // ── State ──
