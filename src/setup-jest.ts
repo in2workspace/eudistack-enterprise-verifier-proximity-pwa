@@ -30,19 +30,24 @@ Object.defineProperty(global, 'crypto', {
   }
 });
 
-// Polyfill for window.matchMedia (not implemented in jsdom)
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: (query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: () => {},
-    removeListener: () => {},
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    dispatchEvent: () => false,
-  }),
-});
+// Polyfill for window.matchMedia (not implemented in jsdom).
+// Only define when missing and mark configurable:true so individual tests can
+// override it with jest.spyOn / Object.defineProperty without throwing.
+if (typeof window.matchMedia !== 'function') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    configurable: true,
+    value: (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  });
+}
 
 setupZoneTestEnv();

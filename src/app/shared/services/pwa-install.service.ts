@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { NEVER, Observable, Subject, from, fromEvent, merge, of, race, timer } from 'rxjs';
+import { NEVER, Observable, Subject, from, fromEvent, merge, of, timer } from 'rxjs';
 import { map, shareReplay, switchMap, take } from 'rxjs/operators';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -20,7 +20,11 @@ export class PwaInstallService {
       return;
     }
 
-    if (/iphone|ipad|ipod|macintosh/i.test(navigator.userAgent)) {
+    // Narrow to iOS/iPadOS only — macOS Chrome/Edge also contain "Macintosh" in
+    // their UA but do support beforeinstallprompt, so we must not block them.
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+      (/macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+    if (isIos) {
       this.installDecision$ = of(false);
       return;
     }
@@ -54,7 +58,8 @@ export class PwaInstallService {
     );
 
     this.installDecision$ = merge(
-      race(promptDecision$, swFallback$),
+      swFallback$,
+      promptDecision$,
       fromEvent(window, 'appinstalled').pipe(
         map(() => {
           this.deferredPrompt = null;
