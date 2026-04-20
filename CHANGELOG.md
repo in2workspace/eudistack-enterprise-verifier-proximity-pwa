@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dependencies: jose 6.1.x, @noble/curves 2.0.x, ngx-indexed-db 19.x
 - Path aliases: @core, @app, @services, @helpers, @shared
 
+### Fixed
+- PWA install banner not appearing in STG due to Service Worker activation race condition.
+- Banner flickering caused by fallback timer overwriting a real install prompt.
+- iOS/iPadOS detection incorrectly blocking macOS Chrome and Edge browsers.
+
 ### Removed
 Removed unused dependencies to reduce install size and maintenance surface:
 	- `ng-mocks`
