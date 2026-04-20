@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-04-20
+
 ### Added
 - Initial project setup with Ionic 8.2.x + Angular 19.2.x
 - Core project structure: `core/`, `features/`, `shared/` directories
@@ -16,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation: README.md, CONTRIBUTING.md, Makefile
 - Dependencies: jose 6.1.x, @noble/curves 2.0.x, ngx-indexed-db 19.x
 - Path aliases: @core, @app, @services, @helpers, @shared
+
+### Changed
+- Aligned with SaaS multi-tenant platform release v3.1.0; no breaking changes.
 
 ## [1.0.0] - 2026-04-02
 
