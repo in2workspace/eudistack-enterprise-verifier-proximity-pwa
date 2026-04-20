@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, NEVER, from, fromEvent } from 'rxjs';
-import { distinctUntilChanged, filter, map, switchMap, take } from 'rxjs/operators';
-import { timer } from 'rxjs';
+import { BehaviorSubject, NEVER, from, fromEvent, timer } from 'rxjs';
+import { distinctUntilChanged, filter, switchMap, take } from 'rxjs/operators';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -19,7 +18,7 @@ export class PwaInstallService {
     distinctUntilChanged()
   );
 
-    constructor() {
+  constructor() {
     if (this.isStandalone) {
       this.state$.next(false);
       return;
@@ -43,6 +42,7 @@ export class PwaInstallService {
     fromEvent<BeforeInstallPromptEvent>(window, 'beforeinstallprompt').subscribe(e => {
       e.preventDefault();
       this.deferredPrompt = e;
+      (window as any).__pwaInstallPrompt = null;
       this.state$.next(true);
     });
 
