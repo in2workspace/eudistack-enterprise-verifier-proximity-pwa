@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { NEVER, Observable, Subject, from, fromEvent, merge, of, race, timer } from 'rxjs';
+import { map, shareReplay, switchMap, take } from 'rxjs/operators';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -9,28 +10,60 @@ interface BeforeInstallPromptEvent extends Event {
 @Injectable({ providedIn: 'root' })
 export class PwaInstallService {
   private deferredPrompt: BeforeInstallPromptEvent | null = null;
-  private readonly canInstall$ = new BehaviorSubject<boolean>(false);
-  readonly installable$ = this.canInstall$.asObservable();
+  private readonly reset$ = new Subject<false>();
+
+  readonly installDecision$: Observable<boolean>;
 
   constructor() {
-    // Pick up early-captured prompt (fires before Angular bootstraps when SW cache is active)
-    const earlyPrompt = (window as any).__pwaInstallPrompt as BeforeInstallPromptEvent | null;
-    if (earlyPrompt) {
-      this.deferredPrompt = earlyPrompt;
-      this.canInstall$.next(true);
-      (window as any).__pwaInstallPrompt = null;
+    if (this.isStandalone) {
+      this.installDecision$ = of(false);
+      return;
     }
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      this.deferredPrompt = e as BeforeInstallPromptEvent;
-      this.canInstall$.next(true);
-    });
+    if (/iphone|ipad|ipod|macintosh/i.test(navigator.userAgent)) {
+      this.installDecision$ = of(false);
+      return;
+    }
+    const earlyPrompt = (window as any).__pwaInstallPrompt as BeforeInstallPromptEvent | null;
 
-    window.addEventListener('appinstalled', () => {
-      this.canInstall$.next(false);
-      this.deferredPrompt = null;
-    });
+    let promptDecision$: Observable<boolean>;
+    if (earlyPrompt) {
+      this.deferredPrompt = earlyPrompt;
+      (window as any).__pwaInstallPrompt = null;
+      promptDecision$ = of(true as const);
+    } else {
+      promptDecision$ = fromEvent<BeforeInstallPromptEvent>(window, 'beforeinstallprompt').pipe(
+        take(1),
+        map(e => {
+          e.preventDefault();
+          this.deferredPrompt = e;
+          return true as const;
+        })
+      );
+    }
+
+    // 500 ms grace window after the Service Worker takes control
+    const swReady$ = typeof navigator.serviceWorker !== 'undefined'
+      ? from(navigator.serviceWorker.ready)
+      : NEVER;
+
+    const swFallback$ = swReady$.pipe(
+      switchMap(() => timer(500)),
+      map(() => false as const),
+      take(1)
+    );
+
+    this.installDecision$ = merge(
+      race(promptDecision$, swFallback$),
+      fromEvent(window, 'appinstalled').pipe(
+        map(() => {
+          this.deferredPrompt = null;
+          return false as const;
+        })
+      ),
+      this.reset$
+    ).pipe(shareReplay(1));
+    this.installDecision$.subscribe();
   }
 
   async promptInstall(): Promise<boolean> {
@@ -38,12 +71,14 @@ export class PwaInstallService {
     this.deferredPrompt.prompt();
     const { outcome } = await this.deferredPrompt.userChoice;
     this.deferredPrompt = null;
-    this.canInstall$.next(false);
+    this.reset$.next(false);
     return outcome === 'accepted';
   }
 
   get isStandalone(): boolean {
-    return window.matchMedia('(display-mode: standalone)').matches
-      || (navigator as any).standalone === true;
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (navigator as any).standalone === true
+    );
   }
 }
