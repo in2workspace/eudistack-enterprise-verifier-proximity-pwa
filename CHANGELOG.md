@@ -5,7 +5,7 @@ All notable changes to the Enterprise Proximity Verifier PWA project will be doc
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2026-04-20
+## [1.1.0] - 2026-04-20
 
 ### Added
 - Initial project setup with Ionic 8.2.x + Angular 19.2.x
@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation: README.md, CONTRIBUTING.md, Makefile
 - Dependencies: jose 6.1.x, @noble/curves 2.0.x, ngx-indexed-db 19.x
 - Path aliases: @core, @app, @services, @helpers, @shared
+
+### Changed
+- Aligned with SaaS multi-tenant platform release v3.1.0; no breaking changes.
 
 ### Fixed
 - PWA install banner not appearing in STG due to Service Worker activation race condition.
