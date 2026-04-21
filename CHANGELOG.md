@@ -5,8 +5,6 @@ All notable changes to the Enterprise Proximity Verifier PWA project will be doc
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
 ## [1.1.0] - 2026-04-20
 
 ### Added
@@ -21,6 +19,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Aligned with SaaS multi-tenant platform release v3.1.0; no breaking changes.
+
+### Fixed
+- PWA install banner not appearing in STG due to Service Worker activation race condition.
+- Banner flickering caused by fallback timer overwriting a real install prompt.
+- iOS/iPadOS detection incorrectly blocking macOS Chrome and Edge browsers.
+
+### Removed
+Removed unused dependencies to reduce install size and maintenance surface:
+	- `ng-mocks`
+	- `ts-node`
+	- `@angular/forms`
+	- `dayjs`
+	- `fflate`
+	- `uuid`
 
 ## [1.0.0] - 2026-04-02
 
