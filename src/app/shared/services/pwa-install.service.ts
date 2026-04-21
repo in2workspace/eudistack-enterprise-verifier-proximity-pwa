@@ -1,74 +1,68 @@
 import { Injectable } from '@angular/core';
-import { NEVER, Observable, Subject, from, fromEvent, merge, of, timer } from 'rxjs';
-import { map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { BehaviorSubject, NEVER, from, fromEvent, timer } from 'rxjs';
+import { distinctUntilChanged, filter, switchMap, take } from 'rxjs/operators';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
+const SW_GRACE_MS = 2000;
 
 @Injectable({ providedIn: 'root' })
 export class PwaInstallService {
   private deferredPrompt: BeforeInstallPromptEvent | null = null;
-  private readonly reset$ = new Subject<false>();
+  private readonly state$ = new BehaviorSubject<boolean | null>(null);
 
-  readonly installDecision$: Observable<boolean>;
+  readonly installDecision$ = this.state$.pipe(
+    filter((v): v is boolean => v !== null),
+    distinctUntilChanged()
+  );
 
   constructor() {
     if (this.isStandalone) {
-      this.installDecision$ = of(false);
+      this.state$.next(false);
       return;
     }
 
-    // Narrow to iOS/iPadOS only — macOS Chrome/Edge also contain "Macintosh" in
-    // their UA but do support beforeinstallprompt, so we must not block them.
-    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    const isIos =
+      /iphone|ipad|ipod/i.test(navigator.userAgent) ||
       (/macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
     if (isIos) {
-      this.installDecision$ = of(false);
+      this.state$.next(false);
       return;
     }
-    const earlyPrompt = (window as any).__pwaInstallPrompt as BeforeInstallPromptEvent | null;
 
-    let promptDecision$: Observable<boolean>;
+    const earlyPrompt = (window as any).__pwaInstallPrompt as BeforeInstallPromptEvent | null;
     if (earlyPrompt) {
       this.deferredPrompt = earlyPrompt;
       (window as any).__pwaInstallPrompt = null;
-      promptDecision$ = of(true as const);
-    } else {
-      promptDecision$ = fromEvent<BeforeInstallPromptEvent>(window, 'beforeinstallprompt').pipe(
-        take(1),
-        map(e => {
-          e.preventDefault();
-          this.deferredPrompt = e;
-          return true as const;
-        })
-      );
+      this.state$.next(true);
     }
 
-    // 500 ms grace window after the Service Worker takes control
+    fromEvent<BeforeInstallPromptEvent>(window, 'beforeinstallprompt').subscribe(e => {
+      e.preventDefault();
+      this.deferredPrompt = e;
+      (window as any).__pwaInstallPrompt = null;
+      this.state$.next(true);
+    });
+
     const swReady$ = typeof navigator.serviceWorker !== 'undefined'
       ? from(navigator.serviceWorker.ready)
       : NEVER;
 
-    const swFallback$ = swReady$.pipe(
-      switchMap(() => timer(500)),
-      map(() => false as const),
-      take(1)
-    );
+    swReady$.pipe(
+      take(1),
+      switchMap(() => timer(SW_GRACE_MS)),
+    ).subscribe(() => {
+      if (this.state$.getValue() === null) {
+        this.state$.next(false);
+      }
+    });
 
-    this.installDecision$ = merge(
-      swFallback$,
-      promptDecision$,
-      fromEvent(window, 'appinstalled').pipe(
-        map(() => {
-          this.deferredPrompt = null;
-          return false as const;
-        })
-      ),
-      this.reset$
-    ).pipe(shareReplay(1));
-    this.installDecision$.subscribe();
+    fromEvent(window, 'appinstalled').subscribe(() => {
+      this.deferredPrompt = null;
+      this.state$.next(false);
+    });
   }
 
   async promptInstall(): Promise<boolean> {
@@ -76,7 +70,7 @@ export class PwaInstallService {
     this.deferredPrompt.prompt();
     const { outcome } = await this.deferredPrompt.userChoice;
     this.deferredPrompt = null;
-    this.reset$.next(false);
+    this.state$.next(false);
     return outcome === 'accepted';
   }
 
