@@ -51,7 +51,7 @@ describe('ThemeService', () => {
   it('should load theme configuration', async () => {
     const loadPromise = service.loadTheme('test-tenant');
 
-    const req = httpMock.expectOne('assets/themes/test-tenant.theme.json');
+    const req = httpMock.expectOne('/assets/tenants/test-tenant/theme.json');
     expect(req.request.method).toBe('GET');
     req.flush(mockThemeConfig);
 
@@ -62,7 +62,7 @@ describe('ThemeService', () => {
   it('should apply CSS variables when theme is loaded', async () => {
     const loadPromise = service.loadTheme();
 
-    const req = httpMock.expectOne('assets/themes/altia.theme.json');
+    const req = httpMock.expectOne('/assets/tenants/altia/theme.json');
     req.flush(mockThemeConfig);
 
     await loadPromise;
@@ -75,7 +75,7 @@ describe('ThemeService', () => {
   it('should return brand name', async () => {
     const loadPromise = service.loadTheme();
 
-    const req = httpMock.expectOne('assets/themes/altia.theme.json');
+    const req = httpMock.expectOne('/assets/tenants/altia/theme.json');
     req.flush(mockThemeConfig);
 
     await loadPromise;
@@ -86,7 +86,7 @@ describe('ThemeService', () => {
   it('should return logo URL', async () => {
     const loadPromise = service.loadTheme();
 
-    const req = httpMock.expectOne('assets/themes/altia.theme.json');
+    const req = httpMock.expectOne('/assets/tenants/altia/theme.json');
     req.flush(mockThemeConfig);
 
     await loadPromise;
@@ -96,17 +96,17 @@ describe('ThemeService', () => {
 
 
   it('should handle theme loading error and use fallback', async () => {
-    const loadPromise = service.loadTheme();
+    const loadPromise = service.loadTheme('unknown');
 
     // First request fails (tenant-specific theme)
-    const req1 = httpMock.expectOne('assets/themes/altia.theme.json');
+    const req1 = httpMock.expectOne('/assets/tenants/unknown/theme.json');
     req1.error(new ProgressEvent('error'));
 
     // Wait for async catch block to execute and make second request
     await new Promise(resolve => setTimeout(resolve, 0));
 
-    // Second request succeeds (fallback theme.json)
-    const req2 = httpMock.expectOne('assets/theme.json');
+    // Second request succeeds (fallback altia theme)
+    const req2 = httpMock.expectOne('/assets/tenants/altia/theme.json');
     req2.flush(mockThemeConfig);
 
     await loadPromise;

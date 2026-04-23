@@ -63,25 +63,32 @@ export class ThemeService {
     this._isLoading.set(true);
     this._error.set(null);
 
+    const resolvedTenant = this.stripEnvSuffix(tenantId);
+    const tryTenants = resolvedTenant === 'altia' ? [resolvedTenant] : [resolvedTenant, 'altia'];
+
     try {
-      console.log(`[ThemeService] Loading theme for tenant: ${tenantId}`);
+      let config: ThemeConfig | null = null;
+      let loadedFrom: string | null = null;
 
-      // Try tenant-specific theme first
-      let themeUrl = `assets/themes/${tenantId}.theme.json`;
-      let config: ThemeConfig;
-
-      try {
-        config = await firstValueFrom(this.http.get<ThemeConfig>(themeUrl));
-      } catch {
-        console.warn(`[ThemeService] Theme not found for ${tenantId}, using fallback theme.json`);
-        // Fallback to default theme.json (nginx aliases it to the tenant directory)
-        themeUrl = 'assets/theme.json';
-        config = await firstValueFrom(this.http.get<ThemeConfig>(themeUrl));
+      for (const candidate of tryTenants) {
+        const themeUrl = `/assets/tenants/${candidate}/theme.json`;
+        try {
+          console.log(`[ThemeService] Loading theme for tenant: ${candidate}`);
+          config = await firstValueFrom(this.http.get<ThemeConfig>(themeUrl));
+          loadedFrom = candidate;
+          this.rewriteAssetPaths(config, `/assets/tenants/${candidate}`);
+          break;
+        } catch {
+          console.warn(`[ThemeService] Theme not found at ${themeUrl}, falling back`);
+        }
       }
 
-      // Ensure tenantId is always set (standard schema uses tenantDomain instead)
+      if (!config) {
+        throw new Error(`Theme not found for tenant ${resolvedTenant}`);
+      }
+
       if (!config.tenantId) {
-        config.tenantId = config.tenantDomain?.toLowerCase() ?? tenantId;
+        config.tenantId = config.tenantDomain?.toLowerCase() ?? loadedFrom ?? resolvedTenant;
       }
 
       this._theme.set(config);
@@ -89,17 +96,49 @@ export class ThemeService {
 
       console.log('[ThemeService] Theme loaded successfully:', config.branding.name);
     } catch (error) {
-      const errorMessage = `Failed to load theme for tenant: ${tenantId}`;
+      const errorMessage = `Failed to load theme for tenant: ${resolvedTenant}`;
       console.error('[ThemeService]', errorMessage, error);
       this._error.set(errorMessage);
-      
+
       // Last resort: apply hardcoded Altia theme
-      if (tenantId !== 'altia') {
+      if (resolvedTenant !== 'altia') {
         console.warn('[ThemeService] Falling back to hardcoded Altia theme');
         this.applyHardcodedAltiaTheme();
       }
     } finally {
       this._isLoading.set(false);
+    }
+  }
+
+  /**
+   * Strip environment suffix (-stg/-dev/-pre) from a tenant identifier coming from
+   * hostname split, so "sandbox-stg" resolves to "sandbox".
+   */
+  private stripEnvSuffix(tenant: string): string {
+    const suffixes = ['-stg', '-dev', '-pre'];
+    const lower = tenant.toLowerCase();
+    const match = suffixes.find((s) => lower.endsWith(s));
+    return match ? lower.slice(0, -match.length) : lower;
+  }
+
+  /**
+   * Rewrite legacy per-tenant paths (assets/tenant/x or /assets/tenant/x) to the
+   * shared-bucket layout (/assets/tenants/<tenant>/x).
+   */
+  private rewriteAssetPaths(config: ThemeConfig, assetsBase: string): void {
+    const rewrite = (path: string | null | undefined): string | null | undefined => {
+      if (!path) return path;
+      if (path.startsWith('/assets/tenants/')) return path;
+      const normalized = path.startsWith('/') ? path.slice(1) : path;
+      if (normalized.startsWith('assets/tenant/')) {
+        return `${assetsBase}/${normalized.slice('assets/tenant/'.length)}`;
+      }
+      return path;
+    };
+    if (config.branding) {
+      config.branding.logoUrl = rewrite(config.branding.logoUrl) ?? config.branding.logoUrl;
+      config.branding.logoDarkUrl = rewrite(config.branding.logoDarkUrl) ?? config.branding.logoDarkUrl;
+      config.branding.faviconUrl = rewrite(config.branding.faviconUrl) ?? config.branding.faviconUrl;
     }
   }
 

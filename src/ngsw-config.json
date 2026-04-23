@@ -29,12 +29,25 @@
       "resources": {
         "files": [
           "/assets/**",
+          "!/assets/tenants/**",
           "/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"
         ]
       }
     }
   ],
   "dataGroups": [
+    {
+      "name": "tenant-theme",
+      "urls": [
+        "/assets/tenants/*/theme.json"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 5,
+        "maxAge": "1h",
+        "timeout": "3s"
+      }
+    },
     {
       "name": "trust-framework",
       "urls": [

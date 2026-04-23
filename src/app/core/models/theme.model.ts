@@ -2,7 +2,7 @@
  * Theme Configuration Model
  * 
  * Defines the structure for tenant-specific branding and styling.
- * Loaded from assets/themes/{tenantId}.theme.json or assets/theme.json
+ * Loaded from /assets/tenants/{tenantId}/theme.json (served by CloudFront/nginx from platform-assets).
  */
 
 export interface ThemeConfig {
