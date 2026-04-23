@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (EUDI-094 multi-tenant rollout)
+
+- **Per-tenant OIDC client + redirect path** (commit `54c3cd6`).
+  `redirect_uri` was built as `${origin}/login` but the SPA is served
+  under `/proximity/`, so the verifier rejected it. `client_id` was
+  hard-coded to `proximity-verifier-pwa`; the verifier now registers
+  one client per tenant (`proximity-verifier-pwa-{hostname-first-label}`)
+  and requires the env suffix. Both `verification-page.component.ts` and
+  `sse-listener.service.ts` now build `${origin}/proximity/login` and
+  derive the client id from `window.env.tenant`.
+- **Same-origin verifier URL must include `/verifier` prefix** (commit
+  `d376ddc`). In Atlassian-style routing CloudFront proxies
+  `/verifier/*` to the ALB. The PWA's `getBackendUrl()` resolver and the
+  `verifierBackendUrl` getter in `environment.ts` /
+  `environment.production.ts` returned `window.location.origin` (no
+  prefix), so `/oidc/authorize` hit the S3 bucket and got a 403 from
+  CloudFront. Appended `/verifier` to the same-origin fallback.
+- **GitHub Actions env — removed stale `VERIFIER_BACKEND_URL`.** The var
+  pointed to `https://verifier-stg.api.altia.eudistack.net` (legacy DNS).
+  Removed from the `stg` environment so `envsubst` resolves it to empty
+  and the getter activates same-origin mode.
+
 ## [1.2.0] - 2026-04-23
 
 ### Changed (EUDI-094 — runtime per-tenant theme from shared bucket)
