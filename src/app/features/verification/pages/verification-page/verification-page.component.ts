@@ -294,10 +294,9 @@ public readonly progressModalOpen = signal<boolean>(false);
       return runtimeUrl;
     }
     
-    // If empty string or undefined, use same origin (nginx proxy)
-    // This is the case when served via nginx with relative URLs
+    // If empty string, use same origin + /verifier prefix (Atlassian-style routing).
     if (runtimeUrl === '') {
-      return window.location.origin;
+      return window.location.origin + '/verifier';
     }
     
     // Fallback for development

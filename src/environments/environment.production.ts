@@ -10,16 +10,16 @@ export const environment = {
       return url;
     }
     
-    // If empty string, use same origin (nginx proxy mode)
-    // This allows the PWA to use relative URLs when served by nginx
+    // If empty string, use same origin + /verifier prefix (Atlassian-style routing).
+    // CloudFront proxies https://{tenant}.eudistack.net/verifier/* to the ALB.
     if (url === '') {
-      return window.location.origin;
+      return window.location.origin + '/verifier';
     }
-    
+
     // Default fallback (empty for production - should be set via env.js)
     return '';
   },
-  
+
   // SSE configuration (getter to support dynamic runtime overrides)
   get sseTimeout(): number {
     return window["env"]?.["sseTimeout"] || 120000; // 120 seconds

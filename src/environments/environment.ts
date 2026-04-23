@@ -10,9 +10,9 @@ export const environment = {
       return url;
     }
     
-    // If empty string, use same origin (nginx proxy mode)
+    // If empty string, use same origin + /verifier prefix (Atlassian-style routing).
     if (url === '') {
-      return window.location.origin;
+      return window.location.origin + '/verifier';
     }
     
     // Default fallback for development
