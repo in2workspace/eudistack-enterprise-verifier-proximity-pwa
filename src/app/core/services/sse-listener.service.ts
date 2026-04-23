@@ -373,7 +373,7 @@ export class SseListenerService {
    */
   private async exchangeCodeForTokens(code: string, state: string): Promise<Record<string, unknown>> {
     const tokenUrl = `${this.baseUrl}/oidc/token`;
-    const redirectUri = window.location.origin + '/login';
+    const redirectUri = window.location.origin + '/proximity/login';
     
     // Retrieve PKCE code_verifier from sessionStorage
     const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
@@ -393,11 +393,12 @@ export class SseListenerService {
     sessionStorage.removeItem('pkce_code_verifier');
     sessionStorage.removeItem('pkce_state');
     
+    const tenantHost = window.env?.tenant ?? window.location.hostname.split('.')[0];
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
       code: code,
       redirect_uri: redirectUri,
-      client_id: 'proximity-verifier-pwa',
+      client_id: `proximity-verifier-pwa-${tenantHost}`,
       code_verifier: codeVerifier  // PKCE parameter
     });
     

@@ -240,11 +240,14 @@ public readonly progressModalOpen = signal<boolean>(false);
    */
   private async initiateOAuth2Flow(): Promise<void> {
     const backendUrl = this.getBackendUrl();
-    const redirectUri = window.location.origin + '/login';  // Always redirect to /login
+    const redirectUri = window.location.origin + '/proximity/login';
     const state = this.generateState();
-    
-    // OAuth2 client_id (must be registered in backend verifier)
-    const clientId = 'proximity-verifier-pwa';
+
+    // OAuth2 client_id (must be registered in backend verifier).
+    // Per-tenant in Atlassian-style routing: proximity-verifier-pwa-{tenant-host}
+    // where {tenant-host} is the first hostname label (e.g. "kpmg-stg").
+    const tenantHost = window.env?.tenant ?? window.location.hostname.split('.')[0];
+    const clientId = `proximity-verifier-pwa-${tenantHost}`;
     const scope = 'learcredential';
     
     // PKCE: Generate code_verifier and code_challenge
