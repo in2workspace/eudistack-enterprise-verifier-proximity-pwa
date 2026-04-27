@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-04-27
+
+### Fixed
+
+- **Copy QR copia la URL de callback en lugar del deep link** (`qr-display.component.ts`).
+  `extractAuthRequest()` usaba `new URL(payload)` sin base, que lanza excepción cuando el
+  payload es una URL relativa (`/wallet/protocol/callback?authorization_request=…`). El bloque
+  catch devolvía el payload sin modificar, por lo que el portapapeles recibía la URL de callback
+  en lugar del `openid4vp://…` que el wallet necesita para el paste flow. Corregido pasando
+  `window.location.origin` como base: `new URL(payload, window.location.origin)`.
+
+- **Logo dark de Dome cae al default de Altia** (`eudistack-platform-assets/tenants/dome/theme.json`).
+  `logoDarkUrl` estaba a `null`, por lo que el operador `??` del signal `logoDarkUrl` en
+  `theme.service.ts` activaba el fallback a `assets/logos/altia-logo-dark.svg`. El archivo
+  `logo-dark.svg` ya existía en el bucket del tenant; se referencia ahora como
+  `/assets/tenant/logo-dark.svg` (reescrito en runtime a `/assets/tenants/dome/logo-dark.svg`).
+
 ### Fixed (EUDI-094 multi-tenant rollout)
 
 - **Per-tenant OIDC client + redirect path** (commit `54c3cd6`).
@@ -78,5 +95,8 @@ Removed unused dependencies to reduce install size and maintenance surface:
 - Development and production build configurations
 - Makefile with common development tasks
 
-[Unreleased]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/releases/tag/v1.0.0

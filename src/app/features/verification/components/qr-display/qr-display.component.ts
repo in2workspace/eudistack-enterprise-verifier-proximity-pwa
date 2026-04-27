@@ -178,7 +178,7 @@ export class QRDisplayComponent implements OnDestroy {
       return qrPayload;
     }
     try {
-      const url = new URL(qrPayload);
+      const url = new URL(qrPayload, window.location.origin);
       const wrapped = url.searchParams.get('authorization_request');
       return wrapped ?? qrPayload;
     } catch {
