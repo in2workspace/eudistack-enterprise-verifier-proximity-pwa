@@ -50,7 +50,7 @@ export class HeaderComponent {
    * Logo URL from theme
    */
   public get logoUrl(): string {
-    return this.themeService.logoUrl();
+    return this.themeService.logoDarkUrl();
   }
 
   /**

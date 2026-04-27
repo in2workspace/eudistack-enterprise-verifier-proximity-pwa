@@ -26,7 +26,7 @@ export class ThemeService {
     return t?.tenantId ?? t?.tenantDomain?.toLowerCase() ?? 'altia';
   });
   public readonly logoUrl = computed(() => this._theme()?.branding.logoUrl ?? 'assets/logos/altia-logo-dark.svg');
-  public readonly logoDarkUrl = computed(() => this._theme()?.branding.logoDarkUrl);
+  public readonly logoDarkUrl = computed(() => this._theme()?.branding.logoDarkUrl ?? 'assets/logos/altia-logo-dark.svg');
   public readonly primaryColor = computed(() => this._theme()?.branding.primaryColor ?? '#001E8C');
   public readonly primaryDark = computed(() => {
     const t = this._theme();
