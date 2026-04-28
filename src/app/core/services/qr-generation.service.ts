@@ -119,7 +119,13 @@ export class QrGenerationService {
       return authRequest;
     }
 
-    const base = walletBase.replace(/\/+$/, '');
+    // Relative paths (e.g. "/wallet" from same-origin mode) must become absolute so the
+    // QR code contains a scannable HTTPS URL rather than a path-only string.
+    const absoluteBase = walletBase.startsWith('/')
+      ? window.location.origin + walletBase
+      : walletBase;
+
+    const base = absoluteBase.replace(/\/+$/, '');
     const target = `${base}/protocol/callback?authorization_request=${encodeURIComponent(authRequest)}`;
 
     console.log('[QrGenerationService] QR transformed to wallet callback URL:', target);

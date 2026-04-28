@@ -2,7 +2,7 @@
   window.env = window.env || {};
 
   // ── Backend Configuration ──
-  window["env"]["verifierBackendUrl"] = "http://localhost:8082";
+  window["env"]["verifierBackendUrl"] = "";
 
   // ── SSE Configuration ──
   window["env"]["sseTimeout"] = 120000; // 120 seconds

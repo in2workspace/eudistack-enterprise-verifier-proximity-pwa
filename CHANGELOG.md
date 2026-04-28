@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-04-27
+
+### Fixed
+
+- **QR code no escaneable — URL relativa en el payload** (`qr-generation.service.ts`).
+  `toWalletUrl()` producía `/wallet/protocol/callback?authorization_request=…` cuando
+  `walletUrl` era un path relativo (p. ej. `/wallet`, hardcodeado en `env.template.js`
+  desde el commit `7056010`). Las cámaras de móvil no pueden resolver URLs relativas,
+  por lo que el QR generado no era funcional. Se añade conversión relativa → absoluta
+  usando `window.location.origin` cuando `walletBase.startsWith('/')`.
+
+- **`env.js` de desarrollo con `localhost:8082` sin context-path** (`src/assets/env.js`).
+  `verifierBackendUrl` apuntaba a `http://localhost:8082`, que no incluía el prefix
+  `/verifier` requerido desde EUDI-064 y que además no tiene sentido en un entorno donde
+  no existe modo de desarrollo directo (sin Docker/nginx). Se deja a `""` para activar
+  el fallback same-origin (`window.location.origin + '/verifier'`) consistente con
+  el comportamiento en Docker.
+
 ## [1.2.1] - 2026-04-27
 
 ### Fixed
@@ -95,7 +113,8 @@ Removed unused dependencies to reduce install size and maintenance surface:
 - Development and production build configurations
 - Makefile with common development tasks
 
-[Unreleased]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/compare/v1.2.2...HEAD
+[1.2.2]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa/compare/v1.0.0...v1.1.0
