@@ -11,12 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Post-verificación redirige al issuer root en lugar de volver al proximity** (`verification-page.component.ts/html`).
-  El input `[redirectUrl]` de `<app-welcome-message>` nunca se pasaba, por lo que el componente
-  usaba su default `'/'`, que resolvía como la raíz del servidor host (issuer). El parámetro
-  `homeUri` enviado por el backend en el redirect OAuth2 también se leía y se descartaba en
-  silencio. Se añade el signal `redirectUrl`, se almacena `homeUri` al recibir el redirect OAuth2,
-  y se enlaza como `[redirectUrl]="redirectUrl()"` en el template.
+- **Post-verification redirect goes to issuer root instead of returning to proximity** (`verification-page.component.ts/html`).
+  The `[redirectUrl]` input of `<app-welcome-message>` was never bound, so the component always
+  fell back to its default `'/'`, which resolved to the issuer host root. The `homeUri` parameter
+  sent by the backend in the OAuth2 redirect was also being read but silently discarded.
+  Added a `redirectUrl` signal, stored `homeUri` on OAuth2 redirect receipt, and bound it
+  as `[redirectUrl]="redirectUrl()"` in the template.
 
 ## [1.2.2] - 2026-04-27
 
