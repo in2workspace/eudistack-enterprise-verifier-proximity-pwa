@@ -60,10 +60,11 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
   public readonly validationResults = signal<boolean[]>([true, true, true, true]);
   public readonly errorMessage = signal<string>('');
   public readonly errorCode = signal<string>('');
+  public readonly redirectUrl = signal<string>('/');
   // Pending success data (received during progress state)
   private readonly pendingSuccessData = signal<Record<string, unknown> | null>(null);
   // Control progress modal visibility independently from state
-public readonly progressModalOpen = signal<boolean>(false);
+  public readonly progressModalOpen = signal<boolean>(false);
   // Control revoked modal visibility
   public readonly revokedModalOpen = signal<boolean>(false);
   // ── Computed ──
@@ -107,16 +108,21 @@ public readonly progressModalOpen = signal<boolean>(false);
   private destroy$ = new Subject<void>();
 
   public ngOnInit(): void {
+    // Compute redirect destination from current URL: replace /login with / to get the proximity root.
+    // e.g. https://kpmg.example.com/proximity/login → https://kpmg.example.com/proximity/
+    // This avoids relying on homeUri from the backend, which may point to a different app.
+    const proximityBase = window.location.pathname.replace(/\/login$/, '/');
+    this.redirectUrl.set(window.location.origin + proximityBase);
+
     // Check if we have authRequest from URL params (OAuth2 redirect from backend)
     // Use snapshot as params are read once and won't change during component lifecycle
     const params = this.route.snapshot.queryParams;
     const authRequest = params['authRequest'];
     const state = params['state'];
-    const homeUri = params['homeUri'];
 
     if (authRequest && state) {
       // Backend redirected with authRequest → start cross-device flow
-      console.log('[VerificationPage] OAuth2 redirect received:', { state, homeUri });
+      console.log('[VerificationPage] OAuth2 redirect received:', { state });
       this.startCrossDeviceFlow(authRequest, state);
     } else {
       // No authRequest → initiate OAuth2 authorization request
@@ -407,8 +413,13 @@ public readonly progressModalOpen = signal<boolean>(false);
         break;
 
       case 'success':
-        // Direct success (if progress was skipped for any reason)
+        // Direct success path — only reached if SSE emits 'success' directly,
+        // bypassing the normal 'progress' → onProgressComplete path.
+        // redirectUrl is already set from homeUri in ngOnInit for the normal path.
         console.log('[VerificationPage] Direct success state');
+        if (state.redirectUrl) {
+          this.redirectUrl.set(state.redirectUrl);
+        }
         this.currentState.set('success');
         this.userData.set(state.userData);
         break;

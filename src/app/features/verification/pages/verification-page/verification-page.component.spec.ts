@@ -3,7 +3,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { VerificationPageComponent } from './verification-page.component';
 import { VerificationFlowService } from '../../../../core/services/verification-flow.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 
 describe('VerificationPageComponent', () => {
@@ -69,5 +69,55 @@ describe('VerificationPageComponent', () => {
 
   it('should initialize with waiting state', () => {
     expect(component.currentState()).toBe('waiting');
+  });
+
+  describe('redirectUrl signal', () => {
+    it('should default to "/"', () => {
+      expect(component.redirectUrl()).toBe('/');
+    });
+
+    it('should be derived from window.location.pathname on OAuth2 redirect (replaces /login with /)', () => {
+      const route = TestBed.inject(ActivatedRoute);
+      Object.defineProperty(route, 'snapshot', {
+        value: {
+          queryParams: {
+            authRequest: 'openid4vp://test-auth-request',
+            state: 'test-state-123'
+          }
+        },
+        configurable: true
+      });
+      Object.defineProperty(window, 'location', {
+        value: { ...window.location, origin: 'https://kpmg.example.com', pathname: '/proximity/login' },
+        configurable: true
+      });
+
+      component.ngOnInit();
+
+      expect(component.redirectUrl()).toBe('https://kpmg.example.com/proximity/');
+    });
+
+    it('should not be affected by homeUri query param (backend value is ignored)', () => {
+      const route = TestBed.inject(ActivatedRoute);
+      Object.defineProperty(route, 'snapshot', {
+        value: {
+          queryParams: {
+            authRequest: 'openid4vp://test-auth-request',
+            state: 'test-state-123',
+            homeUri: 'https://kpmg.example.com/issuer/'
+          }
+        },
+        configurable: true
+      });
+      Object.defineProperty(window, 'location', {
+        value: { ...window.location, origin: 'https://kpmg.example.com', pathname: '/proximity/login' },
+        configurable: true
+      });
+
+      component.ngOnInit();
+
+      expect(component.redirectUrl()).toBe('https://kpmg.example.com/proximity/');
+      expect(component.redirectUrl()).not.toContain('/issuer');
+    });
   });
 });
