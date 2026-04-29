@@ -3,7 +3,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { VerificationPageComponent } from './verification-page.component';
 import { VerificationFlowService } from '../../../../core/services/verification-flow.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 
 describe('VerificationPageComponent', () => {
@@ -69,5 +69,46 @@ describe('VerificationPageComponent', () => {
 
   it('should initialize with waiting state', () => {
     expect(component.currentState()).toBe('waiting');
+  });
+
+  describe('redirectUrl signal', () => {
+    it('should default to "/"', () => {
+      expect(component.redirectUrl()).toBe('/');
+    });
+
+    it('should be populated from homeUri query param when OAuth2 redirect includes it', () => {
+      const route = TestBed.inject(ActivatedRoute);
+      Object.defineProperty(route, 'snapshot', {
+        value: {
+          queryParams: {
+            authRequest: 'openid4vp://test-auth-request',
+            state: 'test-state-123',
+            homeUri: 'https://proximity.example.com/home'
+          }
+        },
+        configurable: true
+      });
+
+      component.ngOnInit();
+
+      expect(component.redirectUrl()).toBe('https://proximity.example.com/home');
+    });
+
+    it('should keep "/" when homeUri is absent from OAuth2 redirect', () => {
+      const route = TestBed.inject(ActivatedRoute);
+      Object.defineProperty(route, 'snapshot', {
+        value: {
+          queryParams: {
+            authRequest: 'openid4vp://test-auth-request',
+            state: 'test-state-123'
+          }
+        },
+        configurable: true
+      });
+
+      component.ngOnInit();
+
+      expect(component.redirectUrl()).toBe('/');
+    });
   });
 });

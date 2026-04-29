@@ -64,7 +64,7 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
   // Pending success data (received during progress state)
   private readonly pendingSuccessData = signal<Record<string, unknown> | null>(null);
   // Control progress modal visibility independently from state
-public readonly progressModalOpen = signal<boolean>(false);
+  public readonly progressModalOpen = signal<boolean>(false);
   // Control revoked modal visibility
   public readonly revokedModalOpen = signal<boolean>(false);
   // ── Computed ──
@@ -411,7 +411,9 @@ public readonly progressModalOpen = signal<boolean>(false);
         break;
 
       case 'success':
-        // Direct success (if progress was skipped for any reason)
+        // Direct success path — only reached if SSE emits 'success' directly,
+        // bypassing the normal 'progress' → onProgressComplete path.
+        // redirectUrl is already set from homeUri in ngOnInit for the normal path.
         console.log('[VerificationPage] Direct success state');
         if (state.redirectUrl) {
           this.redirectUrl.set(state.redirectUrl);
