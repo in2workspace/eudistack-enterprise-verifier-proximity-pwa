@@ -14,7 +14,7 @@ describe('HeaderComponent', () => {
 
   beforeEach(async () => {
     themeServiceMock = {
-      logoUrl: signal('assets/test-logo.svg')
+      logoDarkUrl: signal('assets/test-logo.svg')
     };
 
     await TestBed.configureTestingModule({
