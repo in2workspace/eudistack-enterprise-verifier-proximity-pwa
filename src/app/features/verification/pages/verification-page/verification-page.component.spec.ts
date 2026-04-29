@@ -76,25 +76,7 @@ describe('VerificationPageComponent', () => {
       expect(component.redirectUrl()).toBe('/');
     });
 
-    it('should be populated from homeUri query param when OAuth2 redirect includes it', () => {
-      const route = TestBed.inject(ActivatedRoute);
-      Object.defineProperty(route, 'snapshot', {
-        value: {
-          queryParams: {
-            authRequest: 'openid4vp://test-auth-request',
-            state: 'test-state-123',
-            homeUri: 'https://proximity.example.com/home'
-          }
-        },
-        configurable: true
-      });
-
-      component.ngOnInit();
-
-      expect(component.redirectUrl()).toBe('https://proximity.example.com/home');
-    });
-
-    it('should keep "/" when homeUri is absent from OAuth2 redirect', () => {
+    it('should be derived from window.location.pathname on OAuth2 redirect (strips /login)', () => {
       const route = TestBed.inject(ActivatedRoute);
       Object.defineProperty(route, 'snapshot', {
         value: {
@@ -105,10 +87,37 @@ describe('VerificationPageComponent', () => {
         },
         configurable: true
       });
+      Object.defineProperty(window, 'location', {
+        value: { ...window.location, origin: 'https://kpmg.example.com', pathname: '/proximity/login' },
+        configurable: true
+      });
 
       component.ngOnInit();
 
-      expect(component.redirectUrl()).toBe('/');
+      expect(component.redirectUrl()).toBe('https://kpmg.example.com/proximity');
+    });
+
+    it('should not be affected by homeUri query param (backend value is ignored)', () => {
+      const route = TestBed.inject(ActivatedRoute);
+      Object.defineProperty(route, 'snapshot', {
+        value: {
+          queryParams: {
+            authRequest: 'openid4vp://test-auth-request',
+            state: 'test-state-123',
+            homeUri: 'https://kpmg.example.com/issuer/'
+          }
+        },
+        configurable: true
+      });
+      Object.defineProperty(window, 'location', {
+        value: { ...window.location, origin: 'https://kpmg.example.com', pathname: '/proximity/login' },
+        configurable: true
+      });
+
+      component.ngOnInit();
+
+      expect(component.redirectUrl()).toBe('https://kpmg.example.com/proximity');
+      expect(component.redirectUrl()).not.toContain('/issuer');
     });
   });
 });
