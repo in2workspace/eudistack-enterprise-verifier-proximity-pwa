@@ -108,11 +108,11 @@ export class VerificationPageComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   public ngOnInit(): void {
-    // Compute redirect destination from current URL: strip /login to get the proximity root.
-    // e.g. https://kpmg.example.com/proximity/login → https://kpmg.example.com/proximity
+    // Compute redirect destination from current URL: replace /login with / to get the proximity root.
+    // e.g. https://kpmg.example.com/proximity/login → https://kpmg.example.com/proximity/
     // This avoids relying on homeUri from the backend, which may point to a different app.
-    const proximityBase = window.location.pathname.replace(/\/login$/, '');
-    this.redirectUrl.set(window.location.origin + (proximityBase || '/'));
+    const proximityBase = window.location.pathname.replace(/\/login$/, '/');
+    this.redirectUrl.set(window.location.origin + proximityBase);
 
     // Check if we have authRequest from URL params (OAuth2 redirect from backend)
     // Use snapshot as params are read once and won't change during component lifecycle

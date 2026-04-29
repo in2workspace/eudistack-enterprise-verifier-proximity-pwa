@@ -76,7 +76,7 @@ describe('VerificationPageComponent', () => {
       expect(component.redirectUrl()).toBe('/');
     });
 
-    it('should be derived from window.location.pathname on OAuth2 redirect (strips /login)', () => {
+    it('should be derived from window.location.pathname on OAuth2 redirect (replaces /login with /)', () => {
       const route = TestBed.inject(ActivatedRoute);
       Object.defineProperty(route, 'snapshot', {
         value: {
@@ -94,7 +94,7 @@ describe('VerificationPageComponent', () => {
 
       component.ngOnInit();
 
-      expect(component.redirectUrl()).toBe('https://kpmg.example.com/proximity');
+      expect(component.redirectUrl()).toBe('https://kpmg.example.com/proximity/');
     });
 
     it('should not be affected by homeUri query param (backend value is ignored)', () => {
@@ -116,7 +116,7 @@ describe('VerificationPageComponent', () => {
 
       component.ngOnInit();
 
-      expect(component.redirectUrl()).toBe('https://kpmg.example.com/proximity');
+      expect(component.redirectUrl()).toBe('https://kpmg.example.com/proximity/');
       expect(component.redirectUrl()).not.toContain('/issuer');
     });
   });
