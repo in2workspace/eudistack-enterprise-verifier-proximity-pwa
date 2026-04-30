@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-04-30
+
+### Fixed
+
+- **Welcome screen mojibakes accented user names** (`sse-listener.service.ts`).
+  `parseJwtClaims()` decoded the JWT payload via `atob()` and passed the resulting
+  binary string straight to `JSON.parse()`. Multi-byte UTF-8 sequences (e.g. `José`
+  = `0x4A 0x6F 0x73 0xC3 0xA9`) were interpreted as Latin-1, so the welcome screen
+  rendered names like `JosÃ©` instead of `José`. Fixed by converting the binary
+  string to a `Uint8Array` and decoding it explicitly with `TextDecoder('utf-8')`
+  before parsing JSON.
+
 ## [1.2.3] - 2026-04-29
 
 ### Fixed

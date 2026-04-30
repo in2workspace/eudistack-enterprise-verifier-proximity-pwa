@@ -449,9 +449,15 @@ export class SseListenerService {
       if (parts.length !== 3) {
         throw new Error('Invalid JWT format');
       }
-      
-      const payload = parts[1];
-      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+
+      // base64url → bytes → UTF-8 string. atob() returns a binary string where each
+      // char is one byte; passing it directly to JSON.parse mojibakes any UTF-8
+      // multi-byte sequence (accented names like "José" become "JosÃ©").
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const binary = atob(base64);
+      const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+      const decoded = new TextDecoder('utf-8').decode(bytes);
+
       return JSON.parse(decoded);
     } catch (error) {
       console.error('[SseListenerService] Error parsing JWT:', error);
