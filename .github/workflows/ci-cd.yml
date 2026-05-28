@@ -96,11 +96,12 @@ jobs:
           LOGS_ENABLED: ${{ vars.LOGS_ENABLED }}
         run: |
           set -euo pipefail
-          sudo apt-get update && sudo apt-get install -y gettext-base
 
           if [ -f dist/out/browser/assets/env.template.js ]; then
             envsubst < dist/out/browser/assets/env.template.js > dist/out/browser/assets/env.js
             echo "Generated env.js for ${ENVIRONMENT}"
+            echo "--- env.js content ---"
+            cat dist/out/browser/assets/env.js
           else
             echo "::error::env.template.js not found"
             exit 1
@@ -181,11 +182,12 @@ jobs:
           LOGS_ENABLED: ${{ vars.LOGS_ENABLED }}
         run: |
           set -euo pipefail
-          sudo apt-get update && sudo apt-get install -y gettext-base
 
           if [ -f dist/out/browser/assets/env.template.js ]; then
             envsubst < dist/out/browser/assets/env.template.js > dist/out/browser/assets/env.js
             echo "Generated env.js for ${ENVIRONMENT}"
+            echo "--- env.js content ---"
+            cat dist/out/browser/assets/env.js
           else
             echo "::error::env.template.js not found"
             exit 1
