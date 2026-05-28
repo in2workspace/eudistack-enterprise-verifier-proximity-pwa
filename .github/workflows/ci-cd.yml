@@ -44,8 +44,7 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Check Release Does Not Exist
-        if: false  
+      - name: Check Release Does Not Exist 
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -247,7 +246,6 @@ jobs:
           done
 
       - name: Publish GitHub Release
-        if: false
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
