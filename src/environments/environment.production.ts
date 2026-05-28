@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   
-  // Backend configuration (getter to support dynamic runtime overrides)
+  // Backend configuration (getter to support dynamic runtime overrides) 
   get verifierBackendUrl(): string {
     const url = window["env"]?.["verifierBackendUrl"];
     
