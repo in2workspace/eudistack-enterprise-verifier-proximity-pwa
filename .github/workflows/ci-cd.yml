@@ -79,6 +79,8 @@ jobs:
     name: Deploy to Staging
     needs: ci
     runs-on: ubuntu-latest
+    environment:
+      name: stg
     env:
       ENVIRONMENT: stg
     steps:
@@ -100,8 +102,6 @@ jobs:
           if [ -f dist/out/browser/assets/env.template.js ]; then
             envsubst < dist/out/browser/assets/env.template.js > dist/out/browser/assets/env.js
             echo "Generated env.js for ${ENVIRONMENT}"
-            echo "--- env.js content ---"
-            cat dist/out/browser/assets/env.js
           else
             echo "::error::env.template.js not found"
             exit 1
