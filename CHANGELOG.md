@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Improved GDPR compliance by reducing PII logging.
+
 ## [1.2.4] - 2026-04-30
 
 ### Fixed

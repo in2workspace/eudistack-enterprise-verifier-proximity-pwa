@@ -6,25 +6,25 @@ import { environment } from '../../../environments/environment';
 
 /**
  * SSE Listener Service
- * 
+ *
  * Manages Server-Sent Events (SSE) connections to the backend.
  * Listens for verification completion events.
- * 
+ *
  * **Endpoint:** `GET /api/login/events?state={state}`
- * 
+ *
  * **Event flow:**
  * 1. PWA subscribes to SSE endpoint with state parameter
  * 2. Wallet submits VP to backend via POST /oid4vp/auth-response
  * 3. Backend validates VP and sends SSE event to PWA
  * 4. PWA receives event and displays success/error UI
- * 
+ *
  * **Features:**
  * - Auto-reconnect with exponential backoff
  * - Configurable timeout
  * - Connection state monitoring
  * - Automatic cleanup on unsubscribe
  * - OAuth2 token exchange for user data extraction
- * 
+ *
  * @service
  */
 @Injectable({
@@ -33,15 +33,15 @@ import { environment } from '../../../environments/environment';
 export class SseListenerService {
   private readonly http = inject(HttpClient);
   private readonly translate = inject(TranslateService);
-  
+
   // Default timeout in milliseconds (120s)
   private readonly DEFAULT_TIMEOUT_MS = 120000;
-  
+
   // Heartbeat timeout: if no events received after this time, assume failure
   // This handles the case where wallet submits revoked credential and backend returns 403
   // without sending SSE event (backend limitation we can't fix)
   private readonly HEARTBEAT_TIMEOUT_MS = 15000; // 15 seconds
-  
+
   // Reconnect settings (exponential backoff)
   private readonly INITIAL_RETRY_DELAY_MS = 1000;
   private readonly MAX_RETRY_DELAY_MS = 32000;
@@ -49,7 +49,7 @@ export class SseListenerService {
 
   /**
    * Get backend URL from environment
-   * 
+   *
    * Reads window.env?.verifierBackendUrl with fallback to localhost:8082
    * Single source of truth defined in environment.ts
    */
@@ -59,14 +59,14 @@ export class SseListenerService {
 
   /**
    * Subscribe to verification events via SSE
-   * 
+   *
    * Opens an EventSource connection to receive verification completion events.
    * Listens specifically for the 'redirect' event emitted by the backend.
-   * 
+   *
    * **Event format:**
    * Event name: "redirect"
    * Event data: redirectUrl (string)
-   * 
+   *
    * @param state - OAuth2 state parameter (session identifier)
    * @param timeoutMs - Optional timeout in milliseconds (default: 120s)
    * @returns Observable<LoginEvent> - Stream of verification events
@@ -74,8 +74,8 @@ export class SseListenerService {
   public stream(state: string, timeoutMs?: number): Observable<LoginEvent> {
     const timeout = timeoutMs ?? this.DEFAULT_TIMEOUT_MS;
     const url = `${this.baseUrl}/api/login/events?state=${encodeURIComponent(state)}`;
-    
-    
+
+
     return new Observable<LoginEvent>(observer => {
       let eventSource: EventSource | null = null;
       let timeoutHandle: number | null = null;
@@ -84,17 +84,17 @@ export class SseListenerService {
       let retryTimeoutHandle: number | null = null;
       let isClosed = false;
       let eventReceived = false;  // Track if any event was received
-      
+
       // Heartbeat checker - if no events after 15s, assume validation failed
       const startHeartbeat = () => {
         if (heartbeatHandle !== null) {
           clearTimeout(heartbeatHandle);
         }
-        
+
         heartbeatHandle = window.setTimeout(() => {
           if (!eventReceived && !isClosed) {
             console.warn('[SseListenerService] No events received after 15s - assuming validation failed (likely revoked credential)');
-            
+
             // Emit progress event with revocation check failed
             const failedEvent: LoginEvent = {
               type: 'progress',
@@ -104,14 +104,14 @@ export class SseListenerService {
               errorCode: 'LIKELY_REVOKED',
               error: this.translate.instant('verification.error.http.credentialRevoked')
             };
-            
+
             observer.next(failedEvent);
             cleanup();
             observer.complete();
           }
         }, this.HEARTBEAT_TIMEOUT_MS);
       };
-      
+
       // Reset heartbeat on any event
       const resetHeartbeat = () => {
         eventReceived = true;
@@ -120,20 +120,20 @@ export class SseListenerService {
           heartbeatHandle = null;
         }
       };
-      
+
       // Function to establish SSE connection
       const connect = () => {
         if (isClosed) return;
-        
+
         try {
           eventSource = new EventSource(url);
-          
+
           // Listen for generic 'message' event (any SSE data)
           // This fires when wallet starts communicating with backend
           eventSource.addEventListener('message', (event: MessageEvent) => {
             console.log('[SseListenerService] Generic message received (wallet activity detected):', event);
             resetHeartbeat(); // Reset heartbeat timer
-            
+
             // Emit 'validating' event to show spinner
             const validatingEvent: LoginEvent = {
               type: 'validating',
@@ -142,47 +142,47 @@ export class SseListenerService {
               errorCode: undefined,
               error: undefined
             };
-            
+
             observer.next(validatingEvent);
             // Don't complete - wait for final 'redirect' event
           });
-          
+
           // Listen specifically for 'redirect' event (same as MFE login)
           eventSource.addEventListener('redirect', async (event: MessageEvent) => {
             console.log('[SseListenerService] Redirect event received:', event.data);
             resetHeartbeat(); // Reset heartbeat timer
-            
+
             // Close EventSource immediately to prevent error when backend closes connection
             if (eventSource) {
               eventSource.close();
               eventSource = null;
             }
-            
+
             // Clear timeout
             if (timeoutHandle !== null) {
               clearTimeout(timeoutHandle);
               timeoutHandle = null;
             }
-            
+
             try {
               // Extract code from redirect URL
               const redirectUrl = event.data;
               const url = new URL(redirectUrl);
               const code = url.searchParams.get('code');
               const state = url.searchParams.get('state');
-              
+
               if (!code) {
                 console.error('[SseListenerService] No code in redirect URL');
                 observer.error(new SseError('NO_CODE', this.translate.instant('verification.error.sse.noCode')));
                 cleanup();
                 return;
               }
-              
+
               console.log('[SseListenerService] Exchanging code for tokens...');
-              
+
               // Exchange code for tokens (OAuth2 token endpoint)
               const userData = await this.exchangeCodeForTokens(code, state || '');
-              
+
               // Emit 'progress' event with user data to show technical validation checks
               // The progress component will handle animations and user must click OK to continue
               const progressEvent: LoginEvent = {
@@ -193,7 +193,7 @@ export class SseListenerService {
                 errorCode: undefined,
                 error: undefined
               };
-              
+
               observer.next(progressEvent);
               cleanup();
               observer.complete();
@@ -204,34 +204,34 @@ export class SseListenerService {
               cleanup();
             }
           });
-          
+
           // Listen for 'validation_failed' event (credential revoked, invalid, etc.)
           eventSource.addEventListener('validation_failed', (event: MessageEvent) => {
             resetHeartbeat(); // Reset heartbeat timer
             console.log('[SseListenerService] Validation failed event received:', event.data);
-            
+
             // Close EventSource
             if (eventSource) {
               eventSource.close();
               eventSource = null;
             }
-            
+
             // Clear timeout
             if (timeoutHandle !== null) {
               clearTimeout(timeoutHandle);
               timeoutHandle = null;
             }
-            
+
             try {
               // Parse error data
               const errorData = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
               const errorCode = errorData.code || 'VALIDATION_FAILED';
               const errorMessage = errorData.message || 'Validation failed';
-              
+
               // Check which validation check failed based on error code
               // Order MUST match ValidationProgressComponent: [vpSignature, vcSignature, trustedIssuer, notRevoked]
               let validationResults = [true, true, true, true];
-              
+
               if (errorCode === 'CREDENTIAL_REVOKED' || errorCode === 'STATUS_CHECK_FAILED') {
                 validationResults = [true, true, true, false]; // Revocation check failed (index 3)
               } else if (errorCode === 'SIGNATURE_INVALID') {
@@ -241,7 +241,7 @@ export class SseListenerService {
               } else if (errorCode === 'CREDENTIAL_EXPIRED') {
                 validationResults = [false, false, false, false]; // All checks fail on expiration
               }
-              
+
               // Emit 'progress' event with failed checks
               const progressEvent: LoginEvent = {
                 type: 'progress',
@@ -251,7 +251,7 @@ export class SseListenerService {
                 errorCode: errorCode,
                 error: errorMessage
               };
-              
+
               observer.next(progressEvent);
               cleanup();
               observer.complete();
@@ -261,20 +261,20 @@ export class SseListenerService {
               cleanup();
             }
           });
-          
+
           // Handle connection open
           eventSource.addEventListener('open', () => {
             console.log('[SseListenerService] SSE connection established');
             startHeartbeat(); // Start heartbeat checker
             retryAttempt = 0; // Reset retry counter on successful connection
           });
-          
+
           // Handle errors
           eventSource.addEventListener('error', (error: Event) => {
             const target = error.target as EventSource;
             const readyState = target?.readyState;
             const readyStateText = readyState === 0 ? 'CONNECTING' : readyState === 1 ? 'OPEN' : 'CLOSED';
-            
+
             console.error('[SseListenerService] SSE connection error:', {
               error,
               readyState,
@@ -283,22 +283,22 @@ export class SseListenerService {
               retryAttempt,
               maxRetries: this.MAX_RETRY_ATTEMPTS
             });
-            
+
             // Close current connection
             if (eventSource) {
               eventSource.close();
               eventSource = null;
             }
-            
+
             // Retry with exponential backoff
             if (retryAttempt < this.MAX_RETRY_ATTEMPTS && !isClosed) {
               const delay = Math.min(
                 this.INITIAL_RETRY_DELAY_MS * Math.pow(2, retryAttempt),
                 this.MAX_RETRY_DELAY_MS
               );
-              
+
               console.log(`[SseListenerService] Retrying connection in ${delay}ms (attempt ${retryAttempt + 1}/${this.MAX_RETRY_ATTEMPTS})`);
-              
+
               retryTimeoutHandle = window.setTimeout(() => {
                 retryAttempt++;
                 connect();
@@ -310,7 +310,7 @@ export class SseListenerService {
               cleanup();
             }
           });
-          
+
           // Set timeout
           if (timeout > 0) {
             timeoutHandle = window.setTimeout(() => {
@@ -319,42 +319,42 @@ export class SseListenerService {
               cleanup();
             }, timeout);
           }
-          
+
         } catch (error) {
           console.error('[SseListenerService] Failed to create EventSource:', error);
           observer.error(new SseError('SSE_INIT_ERROR', this.translate.instant('verification.error.sse.initError')));
           cleanup();
         }
       };
-      
+
       // Cleanup function
       const cleanup = () => {
         isClosed = true;
-        
+
         if (eventSource) {
           eventSource.close();
           eventSource = null;
         }
-        
+
         if (timeoutHandle !== null) {
           clearTimeout(timeoutHandle);
           timeoutHandle = null;
         }
-        
+
         if (heartbeatHandle !== null) {
           clearTimeout(heartbeatHandle);
           heartbeatHandle = null;
         }
-        
+
         if (retryTimeoutHandle !== null) {
           clearTimeout(retryTimeoutHandle);
           retryTimeoutHandle = null;
         }
       };
-      
+
       // Start connection
       connect();
-      
+
       // Return cleanup function (called on unsubscribe)
       return cleanup;
     });
@@ -362,11 +362,11 @@ export class SseListenerService {
 
   /**
    * Exchange authorization code for tokens with PKCE
-   * 
+   *
    * Calls `/oidc/token` endpoint to exchange the authorization code for an ID token.
    * Includes code_verifier from sessionStorage for PKCE validation.
    * Extracts user data from the ID token JWT claims.
-   * 
+   *
    * @param code Authorization code from redirect
    * @param state OAuth2 state parameter
    * @returns User data extracted from ID token
@@ -374,25 +374,25 @@ export class SseListenerService {
   private async exchangeCodeForTokens(code: string, state: string): Promise<Record<string, unknown>> {
     const tokenUrl = `${this.baseUrl}/oidc/token`;
     const redirectUri = window.location.origin + '/proximity/login';
-    
+
     // Retrieve PKCE code_verifier from sessionStorage
     const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
     const storedState = sessionStorage.getItem('pkce_state');
-    
+
     if (!codeVerifier) {
       console.error('[SseListenerService] No code_verifier found in sessionStorage');
       throw new Error(this.translate.instant('verification.error.sse.pkceNotFound'));
     }
-    
+
     if (storedState !== state) {
       console.error('[SseListenerService] State mismatch:', { stored: storedState, received: state });
       throw new Error(this.translate.instant('verification.error.sse.stateMismatch'));
     }
-    
+
     // Clean up sessionStorage
     sessionStorage.removeItem('pkce_code_verifier');
     sessionStorage.removeItem('pkce_state');
-    
+
     const tenantHost = window.env?.tenant ?? window.location.hostname.split('.')[0];
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
@@ -401,7 +401,7 @@ export class SseListenerService {
       client_id: `proximity-verifier-pwa-${tenantHost}`,
       code_verifier: codeVerifier  // PKCE parameter
     });
-    
+
     try {
       const response = await firstValueFrom(
         this.http.post<OAuth2TokenResponse>(tokenUrl, body.toString(), {
@@ -410,14 +410,13 @@ export class SseListenerService {
           }
         })
       );
-      
+
       console.log('[SseListenerService] Token response received');
-      
+
       // Extract user data from ID token
       if (response.id_token) {
         const claims = this.parseJwtClaims(response.id_token);
-        console.log('[SseListenerService] ID token claims:', claims);
-        
+
         return {
           name: claims.name || claims.given_name || 'Usuario',
           given_name: claims.given_name,
@@ -426,20 +425,20 @@ export class SseListenerService {
           ...claims
         };
       }
-      
+
       return {};
     } catch (error: unknown) {
       console.error('[SseListenerService] Token exchange error:', error);
       throw new Error(this.translate.instant('verification.error.sse.tokenExchangeError'));
     }
   }
-  
+
   /**
    * Parse JWT claims from ID token
-   * 
+   *
    * Extracts and decodes the payload from a JWT without verification
    * (verification is done by the backend during token generation).
-   * 
+   *
    * @param jwt JWT string
    * @returns Decoded claims object
    */
@@ -468,16 +467,16 @@ export class SseListenerService {
 
 /**
  * Login Event (from SSE)
- * 
+ *
  * Event structure returned by the backend via SSE.
  */
 export interface LoginEvent {
   /** Event type */
   type: 'validating' | 'progress' | 'success' | 'error';
-  
+
   /** Redirect URL (on success) */
   redirectUrl?: string;
-  
+
   /** User data extracted from VP (on success) */
   userData?: Record<string, unknown> & {
     name?: string;
@@ -485,20 +484,20 @@ export interface LoginEvent {
     given_name?: string;
     family_name?: string;
   };
-  
+
   /** Validation results for technical checks (on progress) */
   validationResults?: boolean[];
-  
+
   /** Error message (on error) */
   error?: string;
-  
+
   /** Error code (on error) */
   errorCode?: string;
 }
 
 /**
  * OAuth2 Token Response
- * 
+ *
  * Response from /oidc/token endpoint
  */
 interface OAuth2TokenResponse {
@@ -512,7 +511,7 @@ interface OAuth2TokenResponse {
 
 /**
  * JWT Claims (ID Token)
- * 
+ *
  * Standard OIDC claims from ID token
  */
 interface JwtClaims {
@@ -531,7 +530,7 @@ interface JwtClaims {
 
 /**
  * SSE Error
- * 
+ *
  * Custom error class for SSE connection errors.
  */
 export class SseError extends Error {
@@ -544,7 +543,7 @@ export class SseError extends Error {
     super(message);
     this.name = 'SseError';
     this.code = code;
-    
+
     // V8-specific stack trace capture (Node.js, Chrome)
     if ('captureStackTrace' in Error) {
       (Error as { captureStackTrace(target: object, constructor: object): void }).captureStackTrace(this, SseError);
