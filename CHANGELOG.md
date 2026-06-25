@@ -8,11 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed - 2026-06-25
-### Changed
 
 - Applied non-breaking dependency updates using `npm audit fix`.
 - Resolved Critical vulnerabilities and reduced the number of High vulnerabilities.
 - Left remaining High vulnerabilities pending as they require a major Angular framework upgrade (`npm audit fix --force`).
+
+- Improved GDPR compliance by reducing PII logging.
 
 ## [1.2.4] - 2026-04-30
 
