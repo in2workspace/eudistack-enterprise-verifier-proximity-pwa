@@ -18,7 +18,7 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/common": "^19.2.19",
+    "@angular/common": "^22.1.2",
     "@angular/core": "^19.2.19",
     "@angular/platform-browser": "^19.2.19",
     "@angular/platform-browser-dynamic": "^19.2.19",
