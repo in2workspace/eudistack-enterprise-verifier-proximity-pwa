@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **CI — control de composición de software (SCA)**
+  - **Trivy** añadido a `pr.yml`: escaneo `fs` de la raíz del repositorio (lee `package-lock.json`), severidad `HIGH,CRITICAL`, con caché de la base de vulnerabilidades, informe JSON como artefacto y `config/trivy/.trivyignore` para riesgos aceptados documentados. El parser npm de Trivy omite las dependencias de desarrollo por defecto, así que el escaneo refleja lo que llega al navegador.
+  - **`exit-code: 0` de forma deliberada:** entra como línea base, todavía no como puerta. El árbol de dependencias de producción arrastra advisories HIGH de Angular `<= 19.2.25` (XSS en `core`/`compiler`, DoS por OOM y fuga de datos entre peticiones vía `HttpTransferCache` en `common`) y `19.2.25` es la última 19.x publicada, por lo que no existe parche dentro de la línea 19.x. Se girará a `1` cuando se resuelva la subida de major de Angular o los riesgos queden listados en `.trivyignore`.
+  - **SBOM CycloneDX** (`@cyclonedx/cyclonedx-npm@6.0.1`, spec 1.6, solo dependencias de producción) generado en `ci-cd.yml`, publicado como artefacto con 90 días de retención y adjuntado al GitHub Release como `sbom.cdx.json`.
+  - **Dependabot**: configuración de actualizaciones para `npm` y `github-actions`. Tener las alertas activadas no basta — sin fichero de configuración el grafo de dependencias no estaba produciendo alertas en este repositorio.
+  - `config/trivy/**` añadido al `paths-ignore` de `ci-cd.yml`: cambiar la lista de exclusiones es un cambio de política, no un despliegue.
+
+
 ### Changed
 - Improved GDPR compliance by reducing PII logging.
 
