@@ -82,3 +82,6 @@ ios/
 # Build artifacts
 *.js.map
 *.d.ts.map
+
+# Generated inventory (CycloneDX SBOM) — built in CI, never committed
+/build/sbom
