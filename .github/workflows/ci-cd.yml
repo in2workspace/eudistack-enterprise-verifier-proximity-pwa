@@ -292,7 +292,7 @@ jobs:
           done
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           sparse-checkout: .github
           sparse-checkout-cone-mode: false
