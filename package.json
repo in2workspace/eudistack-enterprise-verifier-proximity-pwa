@@ -1,6 +1,6 @@
 {
   "name": "eudistack-enterprise-verifier-proximity-pwa",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "author": "EUDIStack",
   "homepage": "https://github.com/in2workspace/eudistack-enterprise-verifier-proximity-pwa",
   "scripts": {
@@ -14,7 +14,8 @@
     "test:ci": "jest --ci",
     "test:watch": "jest --watch",
     "lint": "ng lint",
-    "lint:fix": "ng lint --fix"
+    "lint:fix": "ng lint --fix",
+    "sbom": "cyclonedx-npm --spec-version 1.6 --output-format JSON --output-file build/sbom/sbom.json --package-lock-only --output-reproducible"
   },
   "private": true,
   "dependencies": {
@@ -27,7 +28,7 @@
     "@ionic/angular": "^8.2.7",
     "@ionic/storage-angular": "^4.0.0",
     "@ngx-translate/core": "^16.0.4",
-    "@ngx-translate/http-loader": "^8.0.0",
+    "@ngx-translate/http-loader": "^16.0.1",
     "angularx-qrcode": "^19.0.0",
     "ionicons": "^7.4.0",
     "piscina": "^5.1.4",
@@ -41,6 +42,7 @@
     "@angular/compiler": "^19.2.19",
     "@angular/compiler-cli": "^19.2.19",
     "@angular/language-service": "^19.2.19",
+    "@cyclonedx/cyclonedx-npm": "6.0.1",
     "@ionic/angular-toolkit": "^12.1.1",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.19.15",
