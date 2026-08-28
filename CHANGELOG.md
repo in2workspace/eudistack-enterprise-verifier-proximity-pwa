@@ -26,9 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Dependabot**: configuración de actualizaciones para `npm` y `github-actions`. Tener las alertas activadas no basta — sin fichero de configuración el grafo de dependencias no estaba produciendo alertas en este repositorio.
   - `config/trivy/**` añadido al `paths-ignore` de `ci-cd.yml`: cambiar la lista de exclusiones es un cambio de política, no un despliegue.
 
-
 ### Changed
+
 - Improved GDPR compliance by reducing PII logging.
+- Applied non-breaking dependency updates using `npm audit fix`.
+- Resolved Critical vulnerabilities and reduced the number of High vulnerabilities.
+- Left remaining High vulnerabilities pending as they require a major Angular framework upgrade (`npm audit fix --force`).
 
 ## [1.2.4] - 2026-04-30
 
