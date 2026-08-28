@@ -22,7 +22,7 @@
     "@angular/common": "^19.2.19",
     "@angular/core": "^19.2.19",
     "@angular/platform-browser": "^19.2.19",
-    "@angular/platform-browser-dynamic": "^19.2.19",
+    "@angular/platform-browser-dynamic": "^20.0.7",
     "@angular/router": "^19.2.19",
     "@angular/service-worker": "^19.2.19",
     "@ionic/angular": "^8.2.7",
