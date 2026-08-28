@@ -1,12 +1,18 @@
 version: 2
 updates:
   # npm dependencies (security updates only)
+  #
+  # open-pull-requests-limit: 0 disables *version* updates while leaving security
+  # updates enabled — Dependabot keeps opening PRs for advisories, but stops
+  # proposing routine version bumps. Needed because the project is pinned to the
+  # Angular 19 baseline and the version-update PRs were majors that break the
+  # peer-dependency graph (e.g. zone.js 0.16.x requires Angular 20+, PR #23).
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
     labels:
       - "dependencies"
       - "security"
